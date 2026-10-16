@@ -103,5 +103,6 @@
 ## 协作备注
 
 - Chen 的电脑上没有 git，文件通过 GitHub 网页拖拽上传到这个仓库。
+- 给 Chen 发网页、图片、视频时，一律用预览方式发送（SendUserFile 设 `display: 'render'`），单击就在右侧面板打开，不要默认成下载。
 - 云端会话可能打不开日本政府网站（stat.go.jp、pref.niigata.lg.jp、mlit.go.jp 等）。需要原始 PDF 时，请 Chen 下载后放进 `data/sources/`。
 - 有疑问随时问 Chen；不确定的内容先标「待定」，不要硬定。
