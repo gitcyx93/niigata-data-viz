@@ -212,7 +212,8 @@ const relief = () => titleLayer('relief', x => {
 const sheen = document.createElement('canvas'); sheen.width = 96; sheen.height = 24;
 // 标题区：NIIGATA + 地名 / 金属大标题 / 讲故事的小字
 // header = {title, place, story, sheen: [x, y, w, h]（字面映出的那块画面，只取天空，不要深色的山）,
-//           可选 storyColor / accent：小字和 NIIGATA、竖线的颜色（固定值或 t => 颜色）}
+//           可选 storyColor / accent：小字和 NIIGATA、竖线的颜色（固定值或 t => 颜色）；
+//           reflect: false 关掉字面的反射和高光（如冬季标题上已经有落雪，再反光就太花）}
 // L = {light: 光的强度, lc: [r,g,b] 光的颜色, x: 光的水平位置}
 function drawHeader(t, L, header) {
   titleText = header.title;
@@ -223,17 +224,20 @@ function drawHeader(t, L, header) {
   const X = 74 - TX, Y = 404 - TB;
   g.drawImage(titleShadow(), X, Y);
   g.drawImage(relief(), X, Y);
-  const sc = sheen.getContext('2d');
-  sc.setTransform(1, 0, 0, -1, 0, 24);
-  sc.drawImage(cv, ...header.sheen, 0, 0, 96, 24);
   const w = titleWork.getContext('2d');
   w.setTransform(1, 0, 0, 1, 0, 0); w.globalCompositeOperation = 'source-over'; w.globalAlpha = 1; w.clearRect(0, 0, 860, 300);
   w.drawImage(silver(), 0, 0);
-  w.imageSmoothingEnabled = true; w.imageSmoothingQuality = 'high';
-  w.globalCompositeOperation = 'soft-light'; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
-  w.globalCompositeOperation = 'lighter'; w.globalAlpha = .35; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
-  w.globalAlpha = 1;
-  if (L.light > .03) {                                       // 高光：跟着光源的位置和颜色
+  const reflect = header.reflect !== false;
+  if (reflect) {                                             // 字面映出场景的光泽
+    const sc = sheen.getContext('2d');
+    sc.setTransform(1, 0, 0, -1, 0, 24);
+    sc.drawImage(cv, ...header.sheen, 0, 0, 96, 24);
+    w.imageSmoothingEnabled = true; w.imageSmoothingQuality = 'high';
+    w.globalCompositeOperation = 'soft-light'; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
+    w.globalCompositeOperation = 'lighter'; w.globalAlpha = .35; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
+    w.globalAlpha = 1;
+  }
+  if (reflect && L.light > .03) {                                       // 高光：跟着光源的位置和颜色
     const hx = TX + clamp(L.x / W) * 600;
     w.globalCompositeOperation = 'source-over'; w.globalAlpha = Math.min(.5, L.light * .38);
     w.drawImage(radialSprite(L.lc, 1.3), hx - 280, TB - 190, 560, 240);
