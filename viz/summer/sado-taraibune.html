@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>佐渡木盆舟</title>
+<style>
+  html,body{margin:0;height:100%;background:#1a1530}
+  body{display:flex;align-items:center;justify-content:center}
+  canvas{height:100vh;max-width:100vw;aspect-ratio:9/16;display:block}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// 佐渡·小木 木盆舟（たらい舟）—— 夏季场景
+// 画面：夕阳下的海湾，女船夫划着木盆舟；右侧是矢岛·经岛的红色拱桥。
+// 所有动作都是周期 T 的整数倍谐波，首尾无缝循环；render(t) 是确定性的。
+
+// ---- 视觉参数（换配色只改这里）----
+const THEME = {
+  sky: ['#262555', '#6d3f6e', '#c8607a', '#f39a62', '#ffc97e'],
+  sea: ['#d9805f', '#8a4d68', '#3a2d55', '#1d1a3a'],
+  sun: '#ffe0a0', land: '#3a2546', landFar: '#5a3557', bridge: '#d0473a',
+  wood: '#7c4a26', woodLight: '#a8703c', woodDark: '#3e2414', hoop: '#d8b264',
+  kimono: '#22305e', hat: '#d9b979', rim: 'rgba(255,190,120,.85)',
+  text: '#fff5ea', muted: 'rgba(255,245,234,.7)', accent: '#ffd18a',
+  font: '"Noto Sans SC","PingFang SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif'
+};
+const W = 1080, H = 1920, T = 12, HORIZON = 1010, TAU = Math.PI * 2;
+
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+const fract = x => x - Math.floor(x);
+const rnd = (a, b = 0) => fract(Math.sin(a * 127.1 + b * 311.7) * 43758.5453);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const fade = (t, a, b, d = .7) => clamp((t - a) / d) * clamp((b - t) / d);
+const wave = (t, k, ph = 0) => Math.sin(TAU * k * t / T + ph);   // k 必须是整数，保证循环
+
+// ---- 静态背景：天空、太阳、远山、矢岛·经岛 ----
+const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
+(function () {
+  const b = bg.getContext('2d');
+  let gr = b.createLinearGradient(0, 0, 0, HORIZON);
+  THEME.sky.forEach((c, i) => gr.addColorStop([0, .35, .62, .85, 1][i], c));
+  b.fillStyle = gr; b.fillRect(0, 0, W, HORIZON);
+  // 太阳光晕和太阳
+  gr = b.createRadialGradient(690, HORIZON - 70, 20, 690, HORIZON - 70, 520);
+  gr.addColorStop(0, 'rgba(255,220,150,.75)'); gr.addColorStop(1, 'rgba(255,220,150,0)');
+  b.fillStyle = gr; b.fillRect(0, 0, W, HORIZON);
+  b.fillStyle = THEME.sun; b.beginPath(); b.arc(690, HORIZON - 58, 68, 0, TAU); b.fill();
+  // 横向的晚霞
+  for (let i = 0; i < 9; i++) {
+    const y = 420 + i * 58 + rnd(i, 1) * 30, x = rnd(i, 2) * W - 200, w = 380 + rnd(i, 3) * 420;
+    b.fillStyle = `rgba(${i > 5 ? '255,200,150' : '120,60,110'},${.18 + rnd(i, 4) * .2})`;
+    b.beginPath(); b.ellipse(x + w / 2, y, w / 2, 7 + rnd(i, 5) * 8, 0, 0, TAU); b.fill();
+  }
+  // 左侧：佐渡南岸的山
+  b.fillStyle = THEME.landFar; b.beginPath(); b.moveTo(0, HORIZON);
+  for (let x = 0; x <= 520; x += 10) b.lineTo(x, HORIZON - 150 + x * .24 - Math.sin(x / 60) * 14 - Math.sin(x / 23) * 4);
+  b.lineTo(520, HORIZON); b.fill();
+  b.fillStyle = THEME.land; b.beginPath(); b.moveTo(0, HORIZON + 4);
+  for (let x = 0; x <= 360; x += 10) b.lineTo(x, HORIZON - 70 + x * .19 - Math.sin(x / 40) * 8);
+  b.lineTo(360, HORIZON + 4); b.fill();
+  // 右侧：矢岛·经岛，两座长着松树的小岩岛，中间是红色拱桥
+  const islet = (x0, x1, h) => {
+    b.fillStyle = THEME.land; b.beginPath(); b.moveTo(x0, HORIZON + 8);
+    for (let x = x0; x <= x1; x += 6) {
+      const u = (x - x0) / (x1 - x0);
+      b.lineTo(x, HORIZON + 8 - Math.pow(Math.sin(u * Math.PI), .6) * h - rnd(x, 9) * 6);
+    }
+    b.lineTo(x1, HORIZON + 8); b.fill();
+    for (let x = x0 + 16; x < x1 - 10; x += 22) {          // 松树
+      const u = (x - x0) / (x1 - x0), base = HORIZON + 8 - Math.pow(Math.sin(u * Math.PI), .6) * h;
+      b.beginPath(); b.ellipse(x, base - 12, 16, 9, -.15, 0, TAU); b.ellipse(x + 6, base - 24, 11, 7, .1, 0, TAU); b.fill();
+    }
+  };
+  islet(770, 905, 120); islet(985, 1090, 95);
+  b.strokeStyle = THEME.bridge; b.lineWidth = 7;
+  b.beginPath(); b.moveTo(895, HORIZON - 30); b.quadraticCurveTo(945, HORIZON - 88, 995, HORIZON - 30); b.stroke();
+  b.lineWidth = 3;
+  b.beginPath(); b.moveTo(895, HORIZON - 44); b.quadraticCurveTo(945, HORIZON - 104, 995, HORIZON - 44); b.stroke();
+  for (let k = 1; k < 6; k++) { const x = 895 + k * 100 / 6, u = k / 6;
+    const y0 = HORIZON - 30 - Math.sin(u * Math.PI) * 29, y1 = HORIZON - 44 - Math.sin(u * Math.PI) * 30;
+    b.beginPath(); b.moveTo(x, y0); b.lineTo(x, y1); b.stroke(); }
+  // 海
+  gr = b.createLinearGradient(0, HORIZON, 0, H);
+  THEME.sea.forEach((c, i) => gr.addColorStop([0, .25, .6, 1][i], c));
+  b.fillStyle = gr; b.fillRect(0, HORIZON, W, H - HORIZON);
+})();
+
+// ---- 动态元素 ----
+function glitter(t) {                       // 夕阳在海面上的金色光路
+  for (let i = 0; i < 260; i++) {
+    const v = rnd(i, 1), y = HORIZON + 6 + Math.pow(v, 1.6) * 760;
+    const spread = 30 + (y - HORIZON) * .42;
+    const x = 690 + (rnd(i, 2) - .5) * 2 * spread * (.4 + rnd(i, 3) * .6);
+    const a = clamp(.15 + .85 * (.5 + .5 * wave(t, 1 + Math.floor(rnd(i, 4) * 4), rnd(i, 5) * TAU))) * (1 - v * .7);
+    g.fillStyle = `rgba(255,214,150,${a * .8})`;
+    g.fillRect(x, y, 8 + (y - HORIZON) * .05, 2 + (y - HORIZON) * .004);
+  }
+  for (let i = 0; i < 26; i++) {            // 涌浪的横线
+    const y = HORIZON + 20 + i * 34 + i * i * .9, ph = wave(t, 1, i * .7) * 40;
+    g.strokeStyle = `rgba(255,190,160,${.06 + i * .002})`; g.lineWidth = 2;
+    g.beginPath();
+    for (let x = -20; x <= W + 20; x += 30) g.lineTo(x, y + Math.sin(x / (90 + i * 6) + TAU * t / T + i) * (2 + i * .2) + ph * .02);
+    g.stroke();
+  }
+}
+
+function gull(t, cx, cy, A, B, k, ph, s) {   // 海鸥：沿椭圆飞一圈正好一个周期
+  const a = TAU * t / T + ph, x = cx + A * Math.cos(a), y = cy + B * Math.sin(a) * .5;
+  const f = wave(t, k * 6, ph) * .5 + .5;
+  g.strokeStyle = 'rgba(50,30,60,.85)'; g.lineWidth = 3.2 * s; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(x - 26 * s, y - (2 + f * 14) * s);
+  g.quadraticCurveTo(x - 12 * s, y - (10 - f * 8) * s, x, y);
+  g.quadraticCurveTo(x + 12 * s, y - (10 - f * 8) * s, x + 26 * s, y - (2 + f * 14) * s);
+  g.stroke();
+}
+
+// 木盆舟（含女船夫），画在以盆中心为原点的坐标里
+function boat(t) {
+  const RX = 200, RY = 66, D = 74;          // 盆口的椭圆半径、盆身高度
+  // 盆的内侧
+  g.fillStyle = THEME.woodDark; g.beginPath(); g.ellipse(0, 0, RX, RY, 0, 0, TAU); g.fill();
+  // 女船夫：站在盆的后侧，戴菅笠，穿深蓝绀絣
+  const sway = wave(t, 3) * .12;
+  g.save(); g.translate(70, -10); g.rotate(sway * .25);
+  g.fillStyle = THEME.kimono;
+  g.beginPath(); g.moveTo(-38, 10); g.quadraticCurveTo(-44, -90, -24, -150); g.lineTo(24, -150);
+  g.quadraticCurveTo(46, -90, 40, 10); g.closePath(); g.fill();
+  g.fillStyle = 'rgba(255,255,255,.55)';                        // 絣的白色碎纹
+  for (let i = 0; i < 26; i++) g.fillRect(-30 + rnd(i, 1) * 58, -140 + rnd(i, 2) * 140, 5, 3);
+  g.fillStyle = '#b8473a'; g.fillRect(-32, -96, 66, 14);         // 腰带
+  g.fillStyle = '#e8c4a0'; g.beginPath(); g.ellipse(0, -168, 17, 20, 0, 0, TAU); g.fill();  // 脸
+  g.fillStyle = THEME.hat;                                       // 菅笠
+  g.beginPath(); g.moveTo(-74, -168); g.quadraticCurveTo(0, -238, 74, -168); g.quadraticCurveTo(0, -182, -74, -168); g.fill();
+  g.strokeStyle = 'rgba(120,80,30,.5)'; g.lineWidth = 1.5;
+  for (let k = -3; k <= 3; k++) { g.beginPath(); g.moveTo(0, -206); g.lineTo(k * 22, -172 - Math.abs(k) * .5); g.stroke(); }
+  g.strokeStyle = THEME.rim; g.lineWidth = 3;                    // 逆光的轮廓光
+  g.beginPath(); g.moveTo(-74, -168); g.quadraticCurveTo(0, -238, 74, -168); g.stroke();
+  g.beginPath(); g.moveTo(40, 10); g.quadraticCurveTo(46, -90, 24, -150); g.stroke();
+  // 手臂和橹
+  g.strokeStyle = THEME.kimono; g.lineWidth = 16; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(-20, -130); g.lineTo(-58 + sway * 60, -84); g.stroke();
+  g.restore();
+  g.save(); g.translate(14 + sway * 40, -88); g.rotate(-.42 + sway);
+  g.strokeStyle = '#5a3a1e'; g.lineWidth = 8;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(0, 230); g.stroke();
+  g.fillStyle = '#5a3a1e'; g.beginPath(); g.ellipse(0, 238, 11, 34, 0, 0, TAU); g.fill();
+  g.restore();
+  // 盆身前半圈
+  const body = g.createLinearGradient(-RX, 0, RX, 0);
+  body.addColorStop(0, THEME.woodDark); body.addColorStop(.62, THEME.wood); body.addColorStop(1, THEME.woodLight);
+  g.fillStyle = body;
+  g.beginPath(); g.ellipse(0, 0, RX, RY, 0, 0, Math.PI); g.ellipse(0, D, RX * .94, RY * .9, 0, Math.PI, 0, true); g.closePath(); g.fill();
+  g.strokeStyle = 'rgba(30,15,5,.45)'; g.lineWidth = 2;          // 竖向的杉木板缝
+  for (let k = 1; k < 16; k++) {
+    const u = k / 16 * Math.PI, x0 = -Math.cos(u) * RX, y0 = Math.sin(u) * RY;
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 * .94, D + Math.sin(u) * RY * .9); g.stroke();
+  }
+  g.strokeStyle = THEME.hoop; g.lineWidth = 7;                    // 两道竹箍
+  [.3, .72].forEach(f => { g.beginPath(); g.ellipse(0, D * f, RX * (1 - .06 * f), RY * (1 - .1 * f), 0, .04, Math.PI - .04); g.stroke(); });
+  g.strokeStyle = THEME.woodLight; g.lineWidth = 6;                // 盆口
+  g.beginPath(); g.ellipse(0, 0, RX, RY, 0, 0, TAU); g.stroke();
+  g.strokeStyle = THEME.rim; g.lineWidth = 2.5;
+  g.beginPath(); g.ellipse(0, 0, RX, RY, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+}
+
+function ripples(t, x, y) {
+  for (let k = 0; k < 3; k++) {
+    const p = fract(t / (T / 3) + k / 3);
+    g.strokeStyle = `rgba(255,210,170,${.35 * (1 - p)})`; g.lineWidth = 2.5;
+    g.beginPath(); g.ellipse(x, y, 220 + p * 260, 50 + p * 60, 0, 0, TAU); g.stroke();
+  }
+}
+
+function text(s, x, y, size, color, weight = 500, align = 'left', spacing = 0) {
+  g.font = `${weight} ${size}px ${THEME.font}`; g.fillStyle = color; g.textAlign = align;
+  if ('letterSpacing' in g) g.letterSpacing = spacing + 'px';
+  g.fillText(s, x, y);
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+}
+
+function render(t) {
+  t = fract(t / T) * T;
+  g.drawImage(bg, 0, 0);
+  glitter(t);
+  gull(t, 380, 640, 150, 60, 1, 0, 1);
+  gull(t, 560, 560, 110, 50, 1, 2.2, .75);
+  gull(t, 250, 760, 90, 40, 1, 4.1, .6);
+
+  const bx = 470, by = 1450 + wave(t, 2) * 7, rot = wave(t, 2, 1.1) * .025;
+  ripples(t, bx, 1450 + 80);
+  // 倒影：翻转、压暗、按横条错开
+  g.save(); g.beginPath(); g.rect(0, 1450 + 72, W, 400); g.clip();
+  for (let s = 0; s < 22; s++) {
+    const y0 = 1450 + 72 + s * 14;
+    g.save(); g.beginPath(); g.rect(0, y0, W, 14); g.clip();
+    g.translate(bx + Math.sin(s * 1.3 + TAU * t / T * 2) * 8, 1450 + 72 * 2 - (by - 1450));
+    g.scale(1, -.75); g.rotate(-rot); g.globalAlpha = .22 * (1 - s / 22);
+    boat(t); g.restore();
+  }
+  g.restore();
+  g.save(); g.translate(bx, by); g.rotate(rot); boat(t); g.restore();
+
+  // 尺寸标注：长 180 cm × 宽 140 cm，最多坐 3 位大人
+  const an = fade(t, 2.5, 10.5);
+  if (an > 0) {
+    g.globalAlpha = an; g.strokeStyle = THEME.accent; g.lineWidth = 2;
+    const y = 1640, x0 = bx - 200, x1 = bx + 200;
+    g.beginPath(); g.moveTo(x0, y - 12); g.lineTo(x0, y + 12); g.moveTo(x0, y); g.lineTo(x1, y); g.moveTo(x1, y - 12); g.lineTo(x1, y + 12); g.stroke();
+    text('长约 180 cm', bx, y + 50, 34, THEME.accent, 600, 'center');
+    text('一只木盆，最多坐 3 位大人', bx, y + 100, 30, THEME.text, 400, 'center');
+    g.globalAlpha = 1;
+  }
+
+  const tg = g.createLinearGradient(0, 0, 0, 440);
+  tg.addColorStop(0, 'rgba(20,16,48,.6)'); tg.addColorStop(1, 'rgba(20,16,48,0)');
+  g.fillStyle = tg; g.fillRect(0, 0, W, 440);
+  text('NIIGATA · 新潟县佐渡岛 · 小木', 80, 150, 28, THEME.muted, 500, 'left', 6);
+  text('佐渡 木盆舟', 76, 262, 112, THEME.text, 700, 'left', 8);
+  text('たらい舟 · 明治时代起，用来采海螺、鲍鱼和裙带菜', 80, 330, 32, THEME.muted, 400);
+  text('出处：新潟县观光协会；MAPPLE 观光指南', W / 2, 1895, 22, 'rgba(255,245,234,.45)', 400, 'center');
+}
+
+window.render = render;
+window.LOOP_SECONDS = T;
+const ready = document.fonts ? document.fonts.ready : Promise.resolve();
+if (!new URLSearchParams(location.search).has('record')) {
+  ready.then(() => {
+    const start = performance.now();
+    const tick = () => { render((performance.now() - start) / 1000); requestAnimationFrame(tick); };
+    tick();
+  });
+} else ready.then(() => { render(0); window.READY = true; });
+</script>
+</body>
+</html>
