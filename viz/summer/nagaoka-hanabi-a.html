@@ -287,21 +287,20 @@ function drawReflection(t, lights, ph) {
 }
 
 // ---- 近处的观众（剪影）----
-// 三排、挤在一起：每个人的大小、间距、高低、头的歪斜都不一样，有人挨得很近、互相挡住。
+// 两排，人不多：每个人都是独立的一个剪影，彼此之间有空隙，大小、高低、头的歪斜都不一样（参差）。
 // 剪影是能看出轮廓的深蓝，烟花亮时被柔和地染上烟花的颜色（所有正在亮的烟花按亮度加权的平均色，
 // 所以跟着烟花同步、平滑地变，不会乱闪），头顶多一道轮廓光。
-// 很多人举着手机（屏幕一直亮着，有竖有横），还有一台相机、团扇、骑在肩上的小孩。
+// 有几个人举着手机（屏幕一直亮着，有竖有横），还有一台相机、团扇、骑在肩上的小孩。
 const ROWS = [
-  {y: 1770, r: [14, 19], gap: [16, 34], base: [20, 27, 54], lit: 1.4, phone: .12},
-  {y: 1812, r: [22, 31], gap: [26, 58], base: [14, 19, 40], lit: 1.2, phone: .2},
-  {y: 1870, r: [34, 48], gap: [44, 96], base: [9, 13, 28], lit: 1, phone: .16},
+  {y: 1800, r: [21, 28], gap: [62, 150], base: [18, 24, 48], lit: 1.3, phone: .3},
+  {y: 1868, r: [36, 48], gap: [92, 170], base: [9, 13, 28], lit: 1, phone: .28},
 ];
 const crowd = ROWS.map((row, ri) => {
   const people = [];
-  for (let x = -30 + rnd(ri, 70) * 30, i = 0; x < W + 50; i++) {
+  for (let x = 20 + rnd(ri, 70) * 60, i = 0; x < W + 50; i++) {
     const q = n => rnd(i * 7 + n, ri * 13 + 3);
     const r = row.r[0] + q(1) * (row.r[1] - row.r[0]);
-    const p = {x, r, y: row.y + (q(2) - .5) * r * 1.1, tilt: (q(3) - .5) * .34, ph: q(4) * TAU};
+    const p = {x, r, y: row.y + (q(2) - .5) * r * .9, tilt: (q(3) - .5) * .34, ph: q(4) * TAU};
     if (q(5) < row.phone) p.prop = {kind: 'phone', side: q(6) < .5 ? -1 : 1, land: q(7) < .3, ang: (q(8) - .5) * .4, reach: 1.5 + q(9) * .9};
     people.push(p);
     x += row.gap[0] + q(10) * (row.gap[1] - row.gap[0]);
@@ -310,11 +309,12 @@ const crowd = ROWS.map((row, ri) => {
 });
 // 几个固定的道具，放在前排和中排的特定位置
 (() => {
-  const f = crowd[2], m = crowd[1];
-  f[1].prop = {kind: 'camera'};
-  f[Math.min(6, f.length - 2)].prop = {kind: 'child'};
-  f[Math.min(4, f.length - 2)].prop = {kind: 'uchiwa'};
-  m[Math.min(9, m.length - 2)].prop = {kind: 'uchiwa'};
+  const f = crowd[1], b = crowd[0];
+  f[1].prop = {kind: 'camera'}; delete f[0].prop;          // 相机旁边不再放手机，免得挤在一起
+  b.forEach(p => { if (Math.abs(p.x - f[1].x) < 120) delete p.prop; });
+  f[Math.floor(f.length / 2) + 1].prop = {kind: 'child'};
+  f[Math.floor(f.length / 2) - 1].prop = {kind: 'uchiwa'};
+  b[Math.floor(b.length * .7)].prop = {kind: 'uchiwa'};
 })();
 function body(x, y, r, tilt) {                    // 一个人：头、脖子、肩膀
   g.beginPath(); g.ellipse(x, y + r * 2.25, r * 2.05, r * 1.35, 0, Math.PI, 0);
@@ -373,7 +373,7 @@ function drawCrowd(light, lc, t) {
       g.fillStyle = fill; body(p.x, y, p.r, p.tilt);
     });
     // 头顶轮廓光：平时也有一点点（夜空的余光），烟花亮时变强；越靠前越明显
-    g.strokeStyle = `rgba(${lc},${Math.min(.55, .06 + light * .5) * (.5 + ri * .25)})`; g.lineWidth = 1 + ri * .5;
+    g.strokeStyle = `rgba(${lc},${Math.min(.55, .06 + light * .5) * (.6 + ri * .4)})`; g.lineWidth = 1.5 + ri * .5;
     crowd[ri].forEach(p => rimLine(p.x, p.y + Math.sin(TAU * 2 * t / T + p.ph) * 1.4, p.r, p.tilt));
   });
 }
@@ -453,7 +453,7 @@ function drawStory(t) {
     g.globalAlpha = 1; resetSpacing();
   });
 }
-// 标题：干净的粗黑体，只有一层很淡的投影；会被当下最亮的那发烟花照亮（上沿染色）
+// 标题：干净的粗黑体，只有一层很淡的投影，保持安静（不随烟花变色）
 // 几层都只画一次，之后每帧贴图（每帧重画会卡）
 const titleLayers = {};
 function titleLayer(key, paint) {
@@ -474,16 +474,6 @@ function drawTitle(t, glow) {
     x.save(); x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 30; x.fillStyle = TYPE.text; x.fillText(TT, TX, TB); x.restore();
     x.fillStyle = TYPE.text; x.fillText(TT, TX, TB);
   }), X, Y);
-  if (glow.v > .02) {
-    g.globalAlpha = Math.min(1, glow.v);
-    g.drawImage(titleLayer(`lit${glow.hue},${glow.sat}`, x => {
-      x.fillStyle = '#fff'; x.fillText(TT, TX, TB);
-      const lg = x.createLinearGradient(0, TB - 110, 0, TB + 10);
-      lg.addColorStop(0, `hsla(${glow.hue},${Math.max(30, glow.sat)}%,66%,.8)`); lg.addColorStop(1, `hsla(${glow.hue},${Math.max(30, glow.sat)}%,66%,0)`);
-      x.globalCompositeOperation = 'source-atop'; x.fillStyle = lg; x.fillRect(0, 0, 860, 300);
-    }), X, Y);
-    g.globalAlpha = 1;
-  }
   drawStory(t);
 }
 
