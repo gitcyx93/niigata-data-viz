@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>长冈花火</title>
 <style>
-  html,body{margin:0;height:100%;background:#05060d}
+  html,body{margin:0;height:100%;background:#03040a}
   body{display:flex;align-items:center;justify-content:center}
   canvas{height:100vh;max-width:100vw;aspect-ratio:9/16;display:block}
 </style>
@@ -15,86 +15,86 @@
 <script>
 // 长冈花火（新潟县长冈市）—— 夏季场景
 // 画面：信浓川上的「凤凰」与「正三尺玉」，远处是长生桥。
-// render(t) 是确定性的：同一个 t 永远画出同一帧，便于逐帧录制成视频。
+// render(t) 是确定性的：同一个 t 永远画出同一帧，便于逐帧录制；所有动画在 T 秒内首尾相接。
 
 // ---- 视觉参数 ----
-// fw：烟花的颜色，每项 [色相, 饱和度]；glow/lamp/screen：闪光、桥灯、手机屏幕的 RGB
-const THEMES = {
-  blue: {   // 蓝白
-    skyTop:'#020817', skyMid:'#06173a', skyLow:'#123468', hills:'#04102a', city:'#050d22',
-    bridge:'#020611', river:'#04112b', riverTop:'#0d2552', shore:'#020610', crowd:'#01040b',
-    text:'#f3f8ff', muted:'rgba(214,232,255,.72)', accent:'#9fd4ff', label:'rgba(2,10,30,.78)',
-    glow:'150,200,255', lamp:'220,236,255', screen:'200,225,255',
-    fw:[[210,15],[205,85],[195,60],[220,95],[200,30]]
-  },
-  warm: {   // 暖色（初版）
-    skyTop:'#05071a', skyMid:'#0d1030', skyLow:'#231a3d', hills:'#0b0d22', city:'#090b1a',
-    bridge:'#06070f', river:'#070a1c', riverTop:'#120f2a', shore:'#05060f', crowd:'#020309',
-    text:'#f4efe6', muted:'rgba(244,239,230,.62)', accent:'#f2b866', label:'rgba(5,7,26,.8)',
-    glow:'255,180,110', lamp:'255,220,160', screen:'150,180,255',
-    fw:[[42,70],[205,90],[335,90],[45,35],[300,90]]
-  }
+// SCENE：夜景和烟花（高对比、彩色）。TYPE：文字（与 Facebook 统一的蓝白）。
+const SCENE = {
+  skyTop:'#020309', skyMid:'#070b22', skyLow:'#1a1638', hills:'#05071a', city:'#04060f',
+  bridge:'#010205', riverTop:'#0f0d26', river:'#03040d', shore:'#010206', crowd:'#000105',
+  lamp:'255,214,150', screen:'190,215,255',
+  // 烟花颜色 [色相, 饱和度]：0 金 1 红 2 品红 3 绿 4 青 5 白 6 银蓝
+  fw:[[42,95],[355,92],[318,88],[138,75],[188,92],[0,0],[210,45]]
 };
-const THEME = THEMES.blue;   // ← 换配色只改这一行
-THEME.font = '"Noto Sans SC","PingFang SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const TYPES = {
+  facebook: { text:'#ffffff', soft:'rgba(255,255,255,.74)', blue:'#1877f2', accent:'#69b0ff', panel:'rgba(3,10,32,.72)' },
+};
+const TYPE = TYPES.facebook;   // ← 换文字配色只改这一行
+const FONT = '"Noto Sans SC","PingFang SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+
 const W = 1080, H = 1920, T = 20;          // 画布尺寸、循环周期（秒）
 const HORIZON = 1290, RIVER_END = 1770;    // 河面范围
 
 const cv = document.getElementById('c'), g = cv.getContext('2d');
+const TAU = Math.PI * 2;
 const fract = x => x - Math.floor(x);
 const rnd = (a, b = 0) => fract(Math.sin(a * 127.1 + b * 311.7) * 43758.5453);
 const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 const ease = x => x * x * (3 - 2 * x);
-const fade = (t, a, b, d = .6) => clamp((t - a) / d) * clamp((b - t) / d);
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const fade = (t, a, b, d = .5) => clamp((t - a) / d) * clamp((b - t) / d);
+const bump = (x, w = .35) => x > 0 && x < w ? Math.sin(x / w * Math.PI) : 0;   // 一次短促的弹跳
 
 // ---- 烟花编排 ----
 const bursts = [];
 function shell(t0, x, y, R, c, o = {}) {
-  const [hue, sat] = THEME.fw[c];
-  bursts.push(Object.assign({t0, x, y, R, hue, sat, n: 70, life: 2.4, G: 46, rise: 1.1, crackle: false}, o));
+  const [hue, sat] = SCENE.fw[c];
+  bursts.push(Object.assign({t0, x, y, R, hue, sat, n: 70, life: 2.4, G: 46, rise: 1.1, trail: .14, crackle: false}, o));
 }
 // 开场：第 0 秒就有一朵正在盛开的烟花，平台截第一帧当封面时也好看
-shell(T - 1.5, 540, 820, 270, 1, {n: 110, life: 3.0, rise: 1.0});
-shell(0.9, 260, 900, 190, 2);
-shell(1.6, 830, 840, 210, 0);
-shell(2.6, 540, 760, 180, 3, {n: 60});
+shell(T - 1.5, 540, 830, 280, 1, {n: 120, life: 3.0, rise: 1.0});
+shell(T - 1.2, 540, 830, 150, 0, {n: 60, life: 2.6, rise: 1.0});
+shell(0.9, 250, 920, 190, 3);
+shell(1.5, 840, 860, 210, 2);
+shell(2.5, 560, 760, 220, 0, {n: 70, life: 3.2, G: 120, trail: .45, sat: 80});         // 金色垂柳
 // 凤凰：三波，横跨整个画面
-for (let i = 0; i < 16; i++) shell(4.0 + i * 0.13, 70 + i * 63, 960 - Math.sin(i / 15 * Math.PI) * 110, 170, 0, {n: 64, life: 2.2, rise: .8});
-for (let i = 0; i < 16; i++) shell(6.0 + i * 0.13, 1010 - i * 63, 920 - Math.sin(i / 15 * Math.PI) * 150, 175, 1 + i % 3, {n: 64, life: 2.2, rise: .8});
-for (let i = 0; i < 9; i++) shell(8.4, 80 + i * 115, 860 + (i % 2) * 70, 190, 4, {n: 56, life: 2.8, rise: .9, crackle: true});
-// 正三尺玉
-shell(12.6, 540, 820, 420, 0, {n: 240, life: 4.6, G: 55, rise: 1.9, crackle: true, big: true});
-shell(16.9, 780, 900, 170, 2, {n: 50});
+for (let i = 0; i < 16; i++) shell(4.0 + i * .13, 70 + i * 63, 960 - Math.sin(i / 15 * Math.PI) * 110, 170, i % 2 ? 0 : 5, {n: 64, life: 2.2, rise: .8});
+for (let i = 0; i < 16; i++) shell(6.0 + i * .13, 1010 - i * 63, 920 - Math.sin(i / 15 * Math.PI) * 150, 175, [1, 2, 4, 3][i % 4], {n: 64, life: 2.2, rise: .8});
+for (let i = 0; i < 9; i++) shell(8.4, 80 + i * 115, 860 + (i % 2) * 70, 190, 5, {n: 56, life: 2.8, rise: .9, crackle: true});
+// 正三尺玉：金色，炸开后慢慢垂落、噼啪闪烁
+const SANSHAKU = 12.6 + 1.9, SK = {x: 540, y: 890, R: 350};
+shell(12.6, SK.x, SK.y, SK.R, 0, {n: 260, life: 4.8, G: 62, rise: 1.9, trail: .3, crackle: true, big: true, sat: 75});
+shell(17.0, 820, 920, 160, 4, {n: 50});
 
 // ---- 静态背景（只画一次）----
 const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
 (function drawBackground() {
   const b = bg.getContext('2d');
   let gr = b.createLinearGradient(0, 0, 0, HORIZON);
-  gr.addColorStop(0, THEME.skyTop); gr.addColorStop(.62, THEME.skyMid); gr.addColorStop(1, THEME.skyLow);
+  gr.addColorStop(0, SCENE.skyTop); gr.addColorStop(.6, SCENE.skyMid); gr.addColorStop(1, SCENE.skyLow);
   b.fillStyle = gr; b.fillRect(0, 0, W, HORIZON);
-  for (let i = 0; i < 160; i++) {                       // 星星
-    b.fillStyle = `rgba(255,255,255,${.12 + rnd(i, 3) * .35})`;
-    b.fillRect(rnd(i, 1) * W, rnd(i, 2) * 900, 1.6, 1.6);
+  for (let i = 0; i < 180; i++) {                       // 星星
+    b.fillStyle = `rgba(255,255,255,${.1 + rnd(i, 3) * .35})`;
+    b.fillRect(rnd(i, 1) * W, rnd(i, 2) * 1000, 1.6, 1.6);
   }
-  b.fillStyle = THEME.hills; b.beginPath(); b.moveTo(0, HORIZON - 40);   // 东山连峰
+  b.fillStyle = SCENE.hills; b.beginPath(); b.moveTo(0, HORIZON - 40);   // 东山连峰
   for (let x = 0; x <= W; x += 20) b.lineTo(x, HORIZON - 52 - Math.sin(x / 210) * 26 - Math.sin(x / 67) * 8 - (x > 600 ? (x - 600) * .1 : 0));
   b.lineTo(W, HORIZON); b.lineTo(0, HORIZON); b.fill();
-  b.fillStyle = THEME.city;                              // 对岸街区
+  b.fillStyle = SCENE.city;                              // 对岸街区
   for (let x = -10; x < W; ) {
     const w = 18 + rnd(x, 7) * 40, h = 10 + rnd(x, 8) * 38;
     b.fillRect(x, HORIZON - h, w, h);
     for (let k = 0; k < 3; k++) if (rnd(x, k + 20) > .55) {
-      b.fillStyle = `rgba(${THEME.lamp},.5)`; b.fillRect(x + 4 + k * 8, HORIZON - h + 6, 2.4, 2.4); b.fillStyle = THEME.city;
+      b.fillStyle = `rgba(${SCENE.lamp},.5)`; b.fillRect(x + 4 + k * 8, HORIZON - h + 6, 2.4, 2.4); b.fillStyle = SCENE.city;
     }
     x += w + 2;
   }
   gr = b.createLinearGradient(0, HORIZON, 0, RIVER_END);     // 信浓川
-  gr.addColorStop(0, THEME.riverTop); gr.addColorStop(1, THEME.river);
+  gr.addColorStop(0, SCENE.riverTop); gr.addColorStop(1, SCENE.river);
   b.fillStyle = gr; b.fillRect(0, HORIZON, W, RIVER_END - HORIZON);
-  b.fillStyle = THEME.shore; b.fillRect(0, RIVER_END - 30, W, H - RIVER_END + 30);  // 近岸河滩
+  b.fillStyle = SCENE.shore; b.fillRect(0, RIVER_END - 30, W, H - RIVER_END + 30);
   // 长生桥：连续的弓形桁架
-  b.strokeStyle = THEME.bridge; b.fillStyle = THEME.bridge; b.lineWidth = 3;
+  b.strokeStyle = SCENE.bridge; b.fillStyle = SCENE.bridge; b.lineWidth = 3;
   const deck = HORIZON - 6, span = 150;
   b.fillRect(-10, deck, W + 20, 7);
   for (let s = -1; s < 8; s++) {
@@ -103,68 +103,46 @@ const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
     b.beginPath(); b.moveTo(x0, deck - 14);
     for (let x = x0; x <= x1; x += 5) b.lineTo(x, top(x));
     b.stroke();
-    for (let k = 0; k <= 8; k++) {                      // 竖杆和斜杆
+    for (let k = 0; k <= 8; k++) {
       const xa = x0 + k * span / 8, xb = x0 + (k + 1) * span / 8;
       b.beginPath(); b.moveTo(xa, deck); b.lineTo(xa, top(xa)); b.stroke();
       if (k < 8) { b.beginPath(); b.moveTo(xa, top(xa)); b.lineTo(xb, deck); b.stroke(); }
     }
-    b.fillRect(x0 - 5, deck, 10, 26);                   // 桥墩
+    b.fillRect(x0 - 5, deck, 10, 26);
   }
-  for (let x = 30; x < W; x += 75) { b.fillStyle = `rgba(${THEME.lamp},.85)`; b.fillRect(x, deck - 3, 3, 3); }
+  for (let x = 30; x < W; x += 75) { b.fillStyle = `rgba(${SCENE.lamp},.85)`; b.fillRect(x, deck - 3, 3, 3); }
 })();
-
-// 近处人群剪影（单独一层，闪光时描亮轮廓）
-const heads = [];
-for (let x = -20, i = 0; x < W + 40; i++) { const r = 34 + rnd(i, 40) * 16; heads.push({x, r, y: 1810 + rnd(i, 41) * 40}); x += r * 1.55; }
-function drawCrowd(light) {
-  g.fillStyle = THEME.crowd;
-  g.beginPath(); g.moveTo(0, H);
-  heads.forEach(h => { g.lineTo(h.x - h.r * 1.6, h.y + h.r * 2.1); g.arc(h.x, h.y, h.r, Math.PI * .9, Math.PI * 2.1); g.lineTo(h.x + h.r * 1.6, h.y + h.r * 2.1); });
-  g.lineTo(W, H); g.closePath(); g.fill();
-  if (light > .02) {
-    g.strokeStyle = `rgba(${THEME.glow},${Math.min(.5, light)})`; g.lineWidth = 2;
-    heads.forEach(h => { g.beginPath(); g.arc(h.x, h.y, h.r, Math.PI * 1.15, Math.PI * 1.85); g.stroke(); });
-  }
-  [[190, 1745, -.12], [655, 1735, .08], [930, 1760, -.05]].forEach(([x, y, r]) => {   // 举起的手机
-    g.save(); g.translate(x, y); g.rotate(r);
-    g.strokeStyle = THEME.crowd; g.lineWidth = 16; g.lineCap = 'round';
-    g.beginPath(); g.moveTo(0, 30); g.lineTo(-10, 150); g.stroke();
-    g.fillStyle = THEME.crowd; g.fillRect(-21, -38, 42, 76);
-    g.fillStyle = `rgba(${THEME.screen},${.5 + light * .4})`; g.fillRect(-17, -33, 34, 66);
-    g.restore();
-  });
-}
 
 // ---- 单发烟花 ----
 function particle(b, i, a) {
-  const th = i / b.n * Math.PI * 2 + rnd(i, b.t0) * .12;
+  const th = i / b.n * TAU + rnd(i, b.t0) * .12;
   const sp = .78 + rnd(i, b.x) * .32;
   const rr = b.R * sp * (1 - Math.exp(-3.1 * a));
   return [b.x + Math.cos(th) * rr, b.y + Math.sin(th) * rr * .96 + b.G * a * a];
 }
+// 返回这一发此刻的亮度和颜色，用来照亮天空、人群和标题
 function drawBurst(b, t, mirror) {
   const age = fract((t - b.t0) / T) * T;          // 取模，让循环首尾相接
-    if (age < b.rise) {                              // 升空的光尾
+  if (age < b.rise) {                              // 升空的光尾
     const p = ease(age / b.rise), y = HORIZON - (HORIZON - b.y) * p;
-    line(b.x + Math.sin(p * 9) * 2, y, b.x, Math.min(HORIZON, y + 40), `hsla(${b.hue},${b.sat * .5}%,85%,${.8 * (1 - p * .3)})`, 2.5, mirror);
-    return 0;
+    line(b.x + Math.sin(p * 9) * 2, y, b.x, Math.min(HORIZON, y + 46), `hsla(40,70%,82%,${.85 * (1 - p * .3)})`, 2.5, mirror);
+    return null;
   }
   const a = age - b.rise;
-  if (a > b.life) return 0;
+  if (a > b.life) return null;
   const k = a / b.life;
-  const light = (b.big ? 1.2 : .45) * Math.exp(-a * 2.4);
   for (let i = 0; i < b.n; i++) {
-    let al = Math.pow(1 - k, 1.4);
-    if (b.crackle && k > .55) al *= rnd(i, Math.floor(a * 22)) > .45 ? 1.4 : 0;
+    let al = Math.pow(1 - k, 1.3);
+    if (b.crackle && k > .5) al *= rnd(i, Math.floor(a * 22)) > .45 ? 1.4 : 0;
     if (al <= .01) continue;
-    const [x1, y1] = particle(b, i, a), [x0, y0] = particle(b, i, Math.max(0, a - .14 - k * .1));
-    const L = a < .12 ? 96 : 62 + 20 * (1 - k);
-    const col = `hsla(${b.hue + rnd(i, 9) * 14},${b.sat}%,${L}%,${al})`;
-    line(x0, y0, x1, y1, col, b.big ? 3.2 : 2.6, mirror);
+    const [x1, y1] = particle(b, i, a), [x0, y0] = particle(b, i, Math.max(0, a - b.trail - k * .1));
+    const L = a < .12 ? 96 : 58 + 22 * (1 - k);
+    line(x0, y0, x1, y1, `hsla(${b.hue + rnd(i, 9) * 16},${b.sat}%,${L}%,${al})`, b.big ? 3.2 : 2.6, mirror);
     if (k < .7) line(x1 - .5, y1, x1 + .5, y1, `rgba(255,255,255,${al * (1 - k)})`, b.big ? 5 : 4, mirror);
   }
-  return light;
+  return {x: b.x, y: b.y, v: (b.big ? 1.4 : .5) * Math.exp(-a * 2.2), hue: b.hue, sat: b.sat};
 }
+let now = 0;
 function line(x0, y0, x1, y1, col, w, mirror) {
   if (mirror) {                                    // 河面倒影：上下翻转、压扁、轻轻晃动
     const m = y => HORIZON + (HORIZON - y) * .5;
@@ -176,70 +154,174 @@ function line(x0, y0, x1, y1, col, w, mirror) {
   g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
 }
 
-// ---- 文字层 ----
-function text(s, x, y, size, color, weight = 500, align = 'left', spacing = 0) {
-  g.font = `${weight} ${size}px ${THEME.font}`; g.fillStyle = color; g.textAlign = align;
+// 近处人群剪影，闪光时按烟花的颜色描亮轮廓
+const heads = [];
+for (let x = -20, i = 0; x < W + 40; i++) { const r = 34 + rnd(i, 40) * 16; heads.push({x, r, y: 1810 + rnd(i, 41) * 40}); x += r * 1.55; }
+function drawCrowd(light, rim) {
+  g.fillStyle = SCENE.crowd;
+  g.beginPath(); g.moveTo(0, H);
+  heads.forEach(h => { g.lineTo(h.x - h.r * 1.6, h.y + h.r * 2.1); g.arc(h.x, h.y, h.r, Math.PI * .9, Math.PI * 2.1); g.lineTo(h.x + h.r * 1.6, h.y + h.r * 2.1); });
+  g.lineTo(W, H); g.closePath(); g.fill();
+  if (light > .02) {
+    g.strokeStyle = rim(Math.min(.7, light)); g.lineWidth = 2.5;
+    heads.forEach(h => { g.beginPath(); g.arc(h.x, h.y, h.r, Math.PI * 1.15, Math.PI * 1.85); g.stroke(); });
+  }
+  [[190, 1745, -.12], [655, 1735, .08], [930, 1760, -.05]].forEach(([x, y, r]) => {   // 举起的手机
+    g.save(); g.translate(x, y); g.rotate(r);
+    g.strokeStyle = SCENE.crowd; g.lineWidth = 16; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(0, 30); g.lineTo(-10, 150); g.stroke();
+    g.fillStyle = SCENE.crowd; g.fillRect(-21, -38, 42, 76);
+    g.fillStyle = `rgba(${SCENE.screen},${.45 + light * .4})`; g.fillRect(-17, -33, 34, 66);
+    g.restore();
+  });
+}
+
+// ---- 文字 ----
+function setFont(size, weight = 500, spacing = 0) {
+  g.font = `${weight} ${size}px ${FONT}`;
   if ('letterSpacing' in g) g.letterSpacing = spacing + 'px';
-  g.fillText(s, x, y);
+}
+function text(s, x, y, size, color, weight = 500, align = 'left', spacing = 0) {
+  setFont(size, weight, spacing); g.fillStyle = color; g.textAlign = align; g.fillText(s, x, y);
   if ('letterSpacing' in g) g.letterSpacing = '0px';
 }
-function annotation(t) {
-  const ph = fade(t, 4.2, 10.8, .7);               // 凤凰：横向约 2 km
-  if (ph > 0) {
-    g.globalAlpha = ph;
-    const y = 1190, x0 = 60, x1 = 1020;
-    g.strokeStyle = THEME.accent; g.lineWidth = 2;
-    g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke();
-    [[x0, 1], [x1, -1]].forEach(([x, d]) => { g.beginPath(); g.moveTo(x + 18 * d, y - 10); g.lineTo(x, y); g.lineTo(x + 18 * d, y + 10); g.stroke(); });
-    g.fillStyle = THEME.label; g.fillRect(W / 2 - 230, y - 34, 460, 68);
-    text('「凤凰」横向展开约 2 公里', W / 2, y + 13, 38, THEME.accent, 600, 'center');
-    g.globalAlpha = 1;
-  }
-  const sk = fade(t, 13.8, 18.6, .8);               // 正三尺玉：直径约 650 m
-  if (sk > 0) {
-    g.globalAlpha = sk;
-    g.fillStyle = THEME.label; g.fillRect(W / 2 - 230, 1124, 460, 132);
-    text('正三尺玉', W / 2, 1180, 46, THEME.accent, 700, 'center', 6);
-    text('一发炸开，直径约 650 米', W / 2, 1236, 34, THEME.text, 500, 'center');
-    g.globalAlpha = 1;
-  }
+// 解码效果：未解开的字位显示随机字符
+const GLYPHS = 'NIGATA新潟長岡花火信濃川0123456789#/+*';
+function scramble(s, p, t) {
+  const n = Math.floor(p * s.length);
+  return [...s].map((c, i) => i < n || c === ' ' ? c : GLYPHS[Math.floor(rnd(i, Math.floor(t * 24)) * GLYPHS.length)]).join('');
+}
+function roundRect(x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
 }
 
-let now = 0;
+// 标题块（含动效）：解码的眉题、被烟花照亮的大标题、扫光、依次弹起的标签
+const titleCv = document.createElement('canvas'); titleCv.width = W; titleCv.height = 180;
+function drawTitle(t, glow) {
+  // 眉题：每个循环在第 3.6 秒「重新解码」一次
+  const dec = clamp((t - 3.6) / .9);
+  const eyebrow = t > 3.6 && t < 4.5 ? scramble('NIIGATA / 新潟县长冈市', dec, t) : 'NIIGATA / 新潟县长冈市';
+  g.fillStyle = TYPE.blue; g.fillRect(80, 232, 8, 34);
+  text(eyebrow, 104, 262, 30, TYPE.accent, 600, 'left', 6);
+
+  // 大标题：先画到单独的画布上，再叠加扫光，最后带着烟花颜色的光晕贴回来
+  const tc = titleCv.getContext('2d');
+  tc.clearRect(0, 0, W, 180);
+  tc.globalCompositeOperation = 'source-over';
+  tc.font = `800 128px ${FONT}`; tc.fillStyle = TYPE.text; tc.textAlign = 'left';
+  if ('letterSpacing' in tc) tc.letterSpacing = '10px';
+  tc.fillText('长冈花火', 0, 140);
+  const sweep = fract((t - 1.0) / 10) * 10;        // 每 10 秒扫一次光
+  if (sweep < 1.2) {
+    const sx = -300 + sweep / 1.2 * 1100;
+    const sg = tc.createLinearGradient(sx, 0, sx + 260, 180);
+    sg.addColorStop(0, 'rgba(105,176,255,0)'); sg.addColorStop(.5, 'rgba(160,210,255,.95)'); sg.addColorStop(1, 'rgba(105,176,255,0)');
+    tc.globalCompositeOperation = 'source-atop'; tc.fillStyle = sg; tc.fillRect(0, 0, W, 180);
+  }
+  g.save();
+  if (glow.v > .03) { g.shadowColor = glow.col; g.shadowBlur = 20 + glow.v * 40; }
+  g.drawImage(titleCv, 72, 262);
+  g.restore();
+
+  // 标签：每个循环在第 2 秒依次弹一下
+  let x = 80;
+  ['日本三大花火', '8 月 2–3 日', '信浓川'].forEach((s, i) => {
+    setFont(28, 600, 2); const w = g.measureText(s).width + 44;
+    const sc = 1 + .12 * bump(t - 2.0 - i * .14);
+    g.save(); g.translate(x + w / 2, 470); g.scale(sc, sc);
+    roundRect(-w / 2, -26, w, 52, 26);
+    g.fillStyle = 'rgba(24,119,242,.22)'; g.fill();
+    g.strokeStyle = TYPE.blue; g.lineWidth = 2; g.stroke();
+    text(s, 0, 10, 28, TYPE.text, 600, 'center', 2);
+    g.restore();
+    x += w + 14;
+  });
+  text('出处：长冈花火财团；观光厅多言语解说数据库', 80, 532, 20, 'rgba(255,255,255,.4)', 400);
+}
+
+// 数据标注 1：「凤凰」—— 标尺跟着第一波烟花从左往右长，数字同步从 0 数到 2
+function drawPhoenix(t) {
+  const vis = fade(t, 4.6, 10.6, .4);
+  if (vis <= 0) return;
+  const p = clamp((t - 4.8) / (15 * .13));
+  const x0 = 70, x1 = x0 + 945 * easeOut(p), y = 1205;
+  g.globalAlpha = vis;
+  g.strokeStyle = TYPE.accent; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(x0, y - 14); g.lineTo(x0, y + 14); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke();
+  g.beginPath(); g.moveTo(x1, y - 14); g.lineTo(x1, y + 14); g.stroke();
+  g.fillStyle = TYPE.text; g.beginPath(); g.arc(x1, y, 6, 0, TAU); g.fill();
+  const km = (2 * easeOut(p)).toFixed(1);
+  roundRect(W / 2 - 200, 1010, 400, 160, 18); g.fillStyle = TYPE.panel; g.fill();
+  text(km, W / 2 + 30, 1104, 92, TYPE.text, 800, 'right');
+  text('公里', W / 2 + 44, 1102, 40, TYPE.accent, 700, 'left');
+  text('「凤凰」横向展开', W / 2, 1150, 30, TYPE.soft, 600, 'center', 2);
+  g.globalAlpha = 1;
+}
+
+// 数据标注 2：正三尺玉 —— 直径标尺跟着烟花一起张开，数字同步数到 650
+function drawSanshaku(t) {
+  const a = t - SANSHAKU;
+  const vis = clamp(a / .25) * clamp((19.3 - t) / .6);
+  if (vis <= 0) return;
+  const r = SK.R * .93 * (1 - Math.exp(-3.1 * a)), cx = SK.x, cy = SK.y;
+  const m = Math.round(650 * easeOut(a / 1.6));
+  g.globalAlpha = vis;
+  g.strokeStyle = TYPE.accent; g.lineWidth = 3; g.setLineDash([10, 8]);
+  g.beginPath(); g.moveTo(cx - r, cy); g.lineTo(cx + r, cy); g.stroke(); g.setLineDash([]);
+  [-1, 1].forEach(d => { g.beginPath(); g.moveTo(cx + d * r, cy - 16); g.lineTo(cx + d * r, cy + 16); g.stroke(); });
+  roundRect(cx - 190, cy - 140, 380, 116, 18); g.fillStyle = TYPE.panel; g.fill();
+  text(String(m), cx + 40, cy - 52, 92, TYPE.text, 800, 'right');
+  text('米', cx + 54, cy - 54, 40, TYPE.accent, 700, 'left');
+  roundRect(cx - 190, cy + 24, 380, 60, 14); g.fillStyle = TYPE.panel; g.fill();
+  text('正三尺玉 · 一发的直径', cx, cy + 64, 30, TYPE.text, 600, 'center', 2);
+  g.globalAlpha = 1;
+}
+
 function render(t) {
   now = t = fract(t / T) * T;
+  // 镜头：缓慢呼吸式推拉；正三尺玉炸开时震一下
+  const zoom = 1 + .035 * (.5 - .5 * Math.cos(TAU * t / T));
+  const sa = t - SANSHAKU, shake = sa > 0 && sa < .7 ? Math.exp(-sa * 6) * 14 : 0;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.fillStyle = SCENE.skyTop; g.fillRect(0, 0, W, H);
+  g.setTransform(zoom, 0, 0, zoom, 540 * (1 - zoom) + Math.sin(sa * 70) * shake, 1000 * (1 - zoom) + Math.cos(sa * 55) * shake);
+
   g.globalCompositeOperation = 'source-over';
   g.drawImage(bg, 0, 0);
-
-  // 烟花本体与倒影（加色混合）
   g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
-  let light = 0;
+  const lights = [];
   g.save(); g.beginPath(); g.rect(0, 0, W, HORIZON - 8); g.clip();
-  bursts.forEach(b => light += drawBurst(b, t, false));
+  bursts.forEach(b => { const l = drawBurst(b, t, false); if (l) lights.push(l); });
   g.restore();
   g.save(); g.beginPath(); g.rect(0, HORIZON + 2, W, RIVER_END - HORIZON - 30); g.clip();
-  g.globalAlpha = .32; bursts.forEach(b => drawBurst(b, t, true)); g.globalAlpha = 1;
+  g.globalAlpha = .34; bursts.forEach(b => drawBurst(b, t, true)); g.globalAlpha = 1;
   g.restore();
 
-  // 闪光照亮天空和烟雾
-  if (light > .01) {
-    const gr = g.createRadialGradient(W / 2, 700, 50, W / 2, 800, 1100);
-    gr.addColorStop(0, `rgba(${THEME.glow},${Math.min(.32, light * .22)})`); gr.addColorStop(1, `rgba(${THEME.glow},0)`);
+  // 每一发烟花用自己的颜色照亮周围的天空
+  let light = 0, glow = {v: 0, col: 'transparent'};
+  lights.forEach(l => {
+    light += l.v;
+    const col = `hsla(${l.hue},${l.sat}%,62%,`;
+    const gr = g.createRadialGradient(l.x, l.y, 20, l.x, l.y, 700);
+    gr.addColorStop(0, col + Math.min(.16, l.v * .16 / Math.sqrt(lights.length)) + ')'); gr.addColorStop(1, col + '0)');
     g.fillStyle = gr; g.fillRect(0, 0, W, RIVER_END);
-  }
+    if (l.v > glow.v) glow = {v: l.v, col: `hsla(${l.hue},${Math.max(30, l.sat)}%,62%,${Math.min(.9, l.v)})`};
+  });
   g.globalCompositeOperation = 'source-over';
-  drawCrowd(light);
+  drawCrowd(light, a => glow.col.replace(/[\d.]+\)$/, a + ')'));
+  g.setTransform(1, 0, 0, 1, 0, 0);
 
-  // 标题
-  // 标题区放在 y≈240–470：顶部约 220px、底部约 380px、右侧一列按钮会被平台界面盖住
-  const tg = g.createLinearGradient(0, 0, 0, 560);
-  tg.addColorStop(0, 'rgba(1,4,14,.8)'); tg.addColorStop(1, 'rgba(1,4,14,0)');
-  g.fillStyle = tg; g.fillRect(0, 0, W, 560);
-  text('NIIGATA · 新潟县长冈市', 80, 262, 28, THEME.muted, 500, 'left', 6);
-  text('长冈花火', 76, 374, 112, THEME.text, 700, 'left', 8);
-  text('日本三大花火之一 · 每年 8 月 2–3 日 · 信浓川', 80, 438, 32, THEME.muted, 400);
-  text('出处：长冈花火财团；观光厅多言语解说数据库', 80, 478, 20, 'rgba(214,232,255,.42)', 400);
-  annotation(t);
+  // 正三尺玉的白色闪光
+  if (sa > 0 && sa < .5) { g.fillStyle = `rgba(255,248,230,${.24 * (1 - sa / .5)})`; g.fillRect(0, 0, W, H); }
+
+  // 文字层（不跟镜头动，保证清晰）
+  const tg = g.createLinearGradient(0, 0, 0, 600);
+  tg.addColorStop(0, 'rgba(1,3,12,.85)'); tg.addColorStop(1, 'rgba(1,3,12,0)');
+  g.fillStyle = tg; g.fillRect(0, 0, W, 600);
+  drawTitle(t, glow);
+  drawPhoenix(t);
+  drawSanshaku(t);
 }
 
 // ---- 播放 ----
