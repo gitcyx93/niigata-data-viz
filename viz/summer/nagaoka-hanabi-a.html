@@ -58,7 +58,8 @@ const TYPE = { text:'#f4f7fb', soft:'rgba(232,239,249,.78)', accent:'#9dbde8', b
 const W = 1080, H = 1920, T = 20;
 const HORIZON = 1290, RIVER_END = 1770;
 
-const cv = document.getElementById('c'), g = cv.getContext('2d');
+const cv = document.getElementById('c');
+let g = cv.getContext('2d');          // 当前画在哪张画布上（画倒影时会临时换成水面画布）
 const TAU = Math.PI * 2;
 const fract = x => x - Math.floor(x);
 const rnd = (a, b = 0) => fract(Math.sin(a * 127.1 + b * 311.7) * 43758.5453);
@@ -217,13 +218,12 @@ function drawBurst(b, t, mirror) {
   return {x: b.x, y: b.y, v: (b.big ? 1.4 : .5) * Math.exp(-a * 2.2), hue: b.hue, sat: b.sat};
 }
 let now = 0;
+const MIRROR = .6;                     // 倒影的透视压扁比例
 function seg(x0, y0, x1, y1, mirror) {
   if (mirror) {                                    // 河面倒影：上下翻转、压扁、轻轻晃动
-    const m = y => HORIZON + (HORIZON - y) * .5;
+    const m = y => HORIZON + (HORIZON - y) * MIRROR;
     y0 = m(y0); y1 = m(y1);
-    if (y0 > RIVER_END - 40 && y1 > RIVER_END - 40) return;
-    const wob = Math.sin(y1 * .09 + now * 4) * 7;
-    x0 += wob; x1 += wob;
+    if (y0 > RIVER_END && y1 > RIVER_END) return;
   }
   g.moveTo(x0, y0); g.lineTo(x1, y1);
 }
@@ -242,80 +242,140 @@ const smoke = document.createElement('canvas'); smoke.width = W + 200; smoke.hei
   }
 })();
 
+// ---- 倒影 ----
+// 先把倒过来的烟花、光柱、桥灯画到一张半分辨率的「水面」画布上（半分辨率本身就带一点柔和），
+// 再一条一条横切片贴回河面：越往下（离岸越近）波纹越大、错位越明显，也越暗；波纹往观众这边推。
+// 最后在亮光落到的水面上撒一些闪烁的碎光。
+const RH = RIVER_END - HORIZON;
+const refl = document.createElement('canvas'); refl.width = W / 2; refl.height = RH / 2;
+const rctx = refl.getContext('2d');
+const LAMPS = []; for (let x = 30; x < W; x += 75) LAMPS.push(x);
+function drawReflection(t, lights, ph) {
+  const main = g; g = rctx;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, refl.width, refl.height);
+  g.setTransform(.5, 0, 0, .5, 0, -HORIZON * .5);
+  g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+  bursts.forEach(b => drawBurst(b, t, true));
+  lights.forEach(l => {                            // 光柱：亮的烟花在水面上拉出一道竖向的光
+    glowAt(hsl2rgb(l.hue, Math.max(30, l.sat), 70).map(Math.round), Math.min(.55, l.v * .6), l.x, HORIZON + 120, 50 + l.v * 30, 300, 1.3);
+  });
+  if (ph > 0 && ph < 3.2) glowAt([255, 235, 200], .7 * Math.exp(-ph * 1.4), PHX.x, HORIZON + (HORIZON - PHX.y) * MIRROR, 700, 26, 1.4);
+  LAMPS.forEach(x => glowAt([255, 214, 150], .45, x, HORIZON + 34, 5, 34, 1.2));   // 桥灯
+  g = main;
+  // 切片贴回河面
+  const SL = 4;
+  g.save(); g.beginPath(); g.rect(-160, HORIZON + 2, W + 320, RH); g.clip();
+  for (let y = 0; y < RH; y += SL) {
+    const d = y / RH, amp = 1.5 + d * d * 26;
+    const dx = Math.sin(y * .09 - TAU * 8 * t / T) * amp + Math.sin(y * .031 + TAU * 3 * t / T) * amp * .45;
+    g.globalAlpha = .62 * (1 - d * .7);
+    g.drawImage(refl, 0, y / 2, W / 2, SL / 2, dx, HORIZON + y, W, SL + .5);
+  }
+  // 碎光：落在光柱里的水面上，忽明忽暗（跟着烟花的亮度）
+  lights.forEach(l => {
+    if (l.v < .08) return;
+    const col = hsl2rgb(l.hue, Math.max(30, l.sat), 78).map(Math.round).join(',');
+    for (let k = 0; k < 7; k++) {
+      const seed = rnd(k, l.x + l.y), gy = HORIZON + 14 + seed * seed * 330;
+      const flick = .5 + .5 * Math.sin(TAU * (4 + k) * t / T + seed * 40);
+      const gx = l.x + (rnd(k + 9, l.y) - .5) * (40 + gy - HORIZON) * .35 + Math.sin(gy * .09 - TAU * 8 * t / T) * 8;
+      g.globalAlpha = Math.min(.9, l.v * flick); g.fillStyle = `rgb(${col})`;
+      g.fillRect(gx - 8 - seed * 10, gy, 16 + seed * 20, 2);
+    }
+  });
+  g.globalAlpha = 1; g.restore();
+}
+
 // ---- 近处的观众（剪影）----
-// 两排：后排小一点、颜色稍浅（远处有空气感），前排大一点；人会随呼吸微微起伏。
-// 剪影不是纯黑：底色是能看出轮廓的深蓝，烟花亮时整个人被柔和地染上烟花的颜色，头顶多一道轮廓光。
-// 光色是所有正在亮的烟花按亮度加权的平均色，所以跟着烟花同步、平滑地变，不会乱闪。
-// 几个小道具点到为止：举起的相机、手机（屏幕一直亮着）、一把团扇、骑在肩上的小孩。
-const backRow = [], frontRow = [];
-for (let x = -10, i = 0; x < W + 40; i++) { const r = 19 + rnd(i, 50) * 6; backRow.push({x, r, y: 1790 + rnd(i, 51) * 14, ph: rnd(i, 52) * TAU}); x += r * 2.3 + rnd(i, 53) * 10; }
-for (let x = 30, i = 0; x < W + 60; i++) { const r = 36 + rnd(i, 54) * 9; frontRow.push({x, r, y: 1862 + rnd(i, 55) * 16, ph: rnd(i, 56) * TAU}); x += r * 2.6 + rnd(i, 57) * 16; }
-const PROPS = {1: 'camera', 4: 'uchiwa', 6: 'child', 8: 'phone'};     // 前排第几个人带什么
-function body(x, y, r) {                          // 一个人：头、脖子、肩膀
+// 三排、挤在一起：每个人的大小、间距、高低、头的歪斜都不一样，有人挨得很近、互相挡住。
+// 剪影是能看出轮廓的深蓝，烟花亮时被柔和地染上烟花的颜色（所有正在亮的烟花按亮度加权的平均色，
+// 所以跟着烟花同步、平滑地变，不会乱闪），头顶多一道轮廓光。
+// 很多人举着手机（屏幕一直亮着，有竖有横），还有一台相机、团扇、骑在肩上的小孩。
+const ROWS = [
+  {y: 1770, r: [14, 19], gap: [16, 34], base: [20, 27, 54], lit: 1.4, phone: .12},
+  {y: 1812, r: [22, 31], gap: [26, 58], base: [14, 19, 40], lit: 1.2, phone: .2},
+  {y: 1870, r: [34, 48], gap: [44, 96], base: [9, 13, 28], lit: 1, phone: .16},
+];
+const crowd = ROWS.map((row, ri) => {
+  const people = [];
+  for (let x = -30 + rnd(ri, 70) * 30, i = 0; x < W + 50; i++) {
+    const q = n => rnd(i * 7 + n, ri * 13 + 3);
+    const r = row.r[0] + q(1) * (row.r[1] - row.r[0]);
+    const p = {x, r, y: row.y + (q(2) - .5) * r * 1.1, tilt: (q(3) - .5) * .34, ph: q(4) * TAU};
+    if (q(5) < row.phone) p.prop = {kind: 'phone', side: q(6) < .5 ? -1 : 1, land: q(7) < .3, ang: (q(8) - .5) * .4, reach: 1.5 + q(9) * .9};
+    people.push(p);
+    x += row.gap[0] + q(10) * (row.gap[1] - row.gap[0]);
+  }
+  return people;
+});
+// 几个固定的道具，放在前排和中排的特定位置
+(() => {
+  const f = crowd[2], m = crowd[1];
+  f[1].prop = {kind: 'camera'};
+  f[Math.min(6, f.length - 2)].prop = {kind: 'child'};
+  f[Math.min(4, f.length - 2)].prop = {kind: 'uchiwa'};
+  m[Math.min(9, m.length - 2)].prop = {kind: 'uchiwa'};
+})();
+function body(x, y, r, tilt) {                    // 一个人：头、脖子、肩膀
   g.beginPath(); g.ellipse(x, y + r * 2.25, r * 2.05, r * 1.35, 0, Math.PI, 0);
   g.lineTo(x + r * 2.05, H); g.lineTo(x - r * 2.05, H); g.closePath(); g.fill();
   g.fillRect(x - r * .32, y + r * .6, r * .64, r * 1.0);
-  g.beginPath(); g.ellipse(x, y, r * .88, r, 0, 0, TAU); g.fill();
+  g.beginPath(); g.ellipse(x, y, r * .88, r, tilt, 0, TAU); g.fill();
 }
-function rimLine(x, y, r) {                       // 轮廓光：只描头顶一段
-  g.beginPath(); g.ellipse(x, y, r * .88, r, 0, Math.PI * 1.22, Math.PI * 1.78); g.stroke();
+function rimLine(x, y, r, tilt) {                 // 轮廓光：只描头顶一段
+  g.beginPath(); g.ellipse(x, y, r * .88, r, tilt, Math.PI * 1.22, Math.PI * 1.78); g.stroke();
 }
 // 屏幕：一直亮着的冷白（像相机取景画面），烟花亮时再叠一点烟花的颜色
 function drawScreen(x, y, w, h, light, lc) {
-  const sg = g.createLinearGradient(0, y, 0, y + h);
-  sg.addColorStop(0, 'rgba(120,150,210,.75)'); sg.addColorStop(1, 'rgba(40,55,100,.75)');
-  g.fillStyle = sg; roundRect(x, y, w, h, 3); g.fill();
-  g.fillStyle = `rgba(${lc},${Math.min(.5, light * .35)})`; roundRect(x, y, w, h, 3); g.fill();
+  g.fillStyle = 'rgba(105,135,195,.55)'; roundRect(x, y, w, h, 2); g.fill();         // 取景画面：上面是夜空，下面暗一些
+  g.fillStyle = 'rgba(20,30,70,.45)'; g.fillRect(x, y + h * .6, w, h * .4);
+  g.fillStyle = `rgba(${lc},${Math.min(.35, light * .25)})`; roundRect(x, y, w, h, 2); g.fill();
 }
 const mix = (base, lc, k) => `rgb(${base.map((v, i) => Math.round(v + (lc[i] - v) * k)).join(',')})`;
+function drawProp(p, x, y, r, fill, light, lc) {
+  const pr = p.prop;
+  g.fillStyle = fill; g.strokeStyle = fill; g.lineCap = 'round';
+  if (pr.kind === 'phone') {                      // 举着手机：手臂从肩膀伸上去，手机竖着或横着
+    const hx = x + pr.side * r * .9, hy = y - r * pr.reach;
+    g.lineWidth = r * .36;
+    g.beginPath(); g.moveTo(x + pr.side * r * 1.35, y + r * 1.4); g.lineTo(hx, hy + r * .3); g.stroke();
+    const pw = (pr.land ? 1.4 : .78) * r, ph = (pr.land ? .78 : 1.4) * r;
+    g.save(); g.translate(hx, hy - ph * .35); g.rotate(pr.ang);
+    roundRect(-pw / 2, -ph / 2, pw, ph, r * .15); g.fill();
+    drawScreen(-pw / 2 + r * .1, -ph / 2 + r * .1, pw - r * .2, ph - r * .2, light, lc);
+    g.restore();
+  } else if (pr.kind === 'camera') {              // 双手举着相机，从背后看到取景屏
+    const cy = y - r * 2.05;
+    g.lineWidth = r * .4;
+    g.beginPath(); g.moveTo(x - r * 1.3, y + r * 1.4); g.lineTo(x - r * .75, cy + 12); g.moveTo(x + r * 1.3, y + r * 1.4); g.lineTo(x + r * .8, cy + 12); g.stroke();
+    roundRect(x - 46, cy - 26, 92, 56, 9); g.fill();
+    roundRect(x - 15, cy - 38, 30, 16, 4); g.fill();
+    drawScreen(x - 32, cy - 16, 50, 36, light, lc);
+  } else if (pr.kind === 'child') {               // 骑在肩上的小孩，双手举起
+    const cy = y - r * 1.95;
+    g.lineWidth = r * .26;
+    g.beginPath(); g.moveTo(x - r * .45, cy + r * .75); g.lineTo(x - r * .95, cy - r * .35); g.moveTo(x + r * .45, cy + r * .75); g.lineTo(x + r * .9, cy - r * .4); g.stroke();
+    g.beginPath(); g.ellipse(x, cy + r * 1.05, r * .75, r * .62, 0, Math.PI, 0); g.lineTo(x + r * .75, y); g.lineTo(x - r * .75, y); g.fill();
+    g.beginPath(); g.ellipse(x, cy, r * .58, r * .64, 0, 0, TAU); g.fill();
+  } else if (pr.kind === 'uchiwa') {              // 团扇：举在脸旁边
+    g.lineWidth = r * .14;
+    g.beginPath(); g.moveTo(x + r * 1.25, y + r * 1.3); g.lineTo(x + r * 1.55, y - r * .3); g.stroke();
+    g.beginPath(); g.ellipse(x + r * 1.7, y - r * .95, r * .78, r * .7, -.25, 0, TAU); g.fill();
+  }
+}
 function drawCrowd(light, lc, t) {
-  const bob = p => Math.sin(TAU * 2 * t / T + p.ph) * 1.4;
-  const lit = Math.min(.12, light * .07);              // 被照亮的程度（跟着烟花的亮度走）
-  const rim = a => `rgba(${lc},${a})`;
-  // 后排：底色稍浅，离光近一点，被照得更亮
-  g.fillStyle = mix([16, 22, 44], lc, lit * 1.2);
-  backRow.forEach(p => body(p.x, p.y + bob(p), p.r));
-  g.strokeStyle = rim(Math.min(.3, .05 + light * .3)); g.lineWidth = 1.5; backRow.forEach(p => rimLine(p.x, p.y + bob(p), p.r));
-  // 前排和道具
-  const front = mix([9, 13, 28], lc, lit);
-  g.fillStyle = front; g.strokeStyle = front; g.lineCap = 'round';
-  frontRow.forEach((p, i) => {
-    const x = p.x, y = p.y + bob(p), r = p.r, prop = PROPS[i];
-    if (prop === 'child') {                       // 骑在肩上的小孩，双手举起
-      const cy = y - r * 1.95;
-      g.lineWidth = r * .26;
-      g.beginPath(); g.moveTo(x - r * .45, cy + r * .75); g.lineTo(x - r * .95, cy - r * .35); g.moveTo(x + r * .45, cy + r * .75); g.lineTo(x + r * .9, cy - r * .4); g.stroke();
-      g.beginPath(); g.ellipse(x, cy + r * 1.05, r * .75, r * .62, 0, Math.PI, 0); g.lineTo(x + r * .75, y); g.lineTo(x - r * .75, y); g.fill();
-      g.beginPath(); g.ellipse(x, cy, r * .58, r * .64, 0, 0, TAU); g.fill();
-    }
-    if (prop === 'camera') {                      // 双手举着相机，从背后看到取景屏
-      const cy = y - r * 2.05;
-      g.lineWidth = r * .4;
-      g.beginPath(); g.moveTo(x - r * 1.3, y + r * 1.4); g.lineTo(x - r * .75, cy + 12); g.moveTo(x + r * 1.3, y + r * 1.4); g.lineTo(x + r * .8, cy + 12); g.stroke();
-      roundRect(x - 46, cy - 26, 92, 56, 9); g.fill();
-      roundRect(x - 15, cy - 38, 30, 16, 4); g.fill();
-      drawScreen(x - 32, cy - 16, 50, 36, light, lc); g.fillStyle = front;
-    }
-    if (prop === 'phone') {                       // 单手举着手机
-      g.lineWidth = r * .36;
-      g.beginPath(); g.moveTo(x - r * 1.35, y + r * 1.4); g.lineTo(x - r * 1.0, y - r * 1.55); g.stroke();
-      g.save(); g.translate(x - r * 1.0, y - r * 1.95); g.rotate(-.08);
-      roundRect(-17, -30, 34, 60, 6); g.fill();
-      drawScreen(-13, -25, 26, 50, light, lc); g.fillStyle = front;
-      g.restore();
-    }
-    if (prop === 'uchiwa') {                      // 团扇：举在脸旁边
-      g.lineWidth = r * .14;
-      g.beginPath(); g.moveTo(x + r * 1.25, y + r * 1.3); g.lineTo(x + r * 1.55, y - r * .3); g.stroke();
-      g.beginPath(); g.ellipse(x + r * 1.7, y - r * .95, r * .78, r * .7, -.25, 0, TAU); g.fill();
-    }
-    body(x, y, r);
+  const lit = Math.min(.12, light * .07);         // 被照亮的程度（跟着烟花的亮度走）
+  ROWS.forEach((row, ri) => {
+    const fill = mix(row.base, lc, lit * row.lit);
+    crowd[ri].forEach(p => {
+      const y = p.y + Math.sin(TAU * 2 * t / T + p.ph) * 1.4;     // 呼吸般的微微起伏
+      if (p.prop) drawProp(p, p.x, y, p.r, fill, light, lc);
+      g.fillStyle = fill; body(p.x, y, p.r, p.tilt);
+    });
+    // 头顶轮廓光：平时也有一点点（夜空的余光），烟花亮时变强；越靠前越明显
+    g.strokeStyle = `rgba(${lc},${Math.min(.55, .06 + light * .5) * (.5 + ri * .25)})`; g.lineWidth = 1 + ri * .5;
+    crowd[ri].forEach(p => rimLine(p.x, p.y + Math.sin(TAU * 2 * t / T + p.ph) * 1.4, p.r, p.tilt));
   });
-  // 头顶的轮廓光：平时也有一点点（夜空的余光），烟花亮时变强
-  g.strokeStyle = rim(Math.min(.55, .08 + light * .5)); g.lineWidth = 2;
-  frontRow.forEach(p => rimLine(p.x, p.y + bob(p), p.r));
-  const u = frontRow[4];                           // 团扇的边也会被照亮
-  if (u) { g.beginPath(); g.ellipse(u.x + u.r * 1.7, u.y + bob(u) - u.r * .95, u.r * .78, u.r * .7, -.25, Math.PI * 1.1, Math.PI * 1.9); g.stroke(); }
 }
 
 // ---- 字体：中文用思源黑体，数字和英文用 Sora（几何感的现代无衬线），靠字重拉开层次 ----
@@ -519,9 +579,6 @@ function render(t) {
   g.save(); g.beginPath(); g.rect(0, 0, W, HORIZON - 8); g.clip();
   bursts.forEach(b => { const l = drawBurst(b, t, false); if (l) lights.push(l); });
   g.restore();
-  g.save(); g.beginPath(); g.rect(0, HORIZON + 2, W, RIVER_END - HORIZON - 30); g.clip();
-  g.globalAlpha = .34; bursts.forEach(b => drawBurst(b, t, true)); g.globalAlpha = 1;
-  g.restore();
 
   let light = 0, glow = {v: 0, col: 'transparent'}, lc = [0, 0, 0];
   lights.forEach(l => {
@@ -560,6 +617,7 @@ function render(t) {
   g.globalAlpha = Math.min(.42, .08 + light * .22);                 // 硝烟随烟花变亮
   g.drawImage(smoke, -100 + Math.sin(TAU * t / T) * 60, 380);
   g.globalAlpha = 1;
+  drawReflection(t, lights, ph);
   g.globalCompositeOperation = 'source-over';
   drawCrowd(light, lc, t);
   g.setTransform(1, 0, 0, 1, 0, 0);
