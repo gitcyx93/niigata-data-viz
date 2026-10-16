@@ -210,26 +210,71 @@ const smoke = document.createElement('canvas'); smoke.width = W + 200; smoke.hei
   }
 })();
 
-// 近处人群剪影，闪光时按烟花的颜色描亮轮廓
-const heads = [];
-for (let x = -20, i = 0; x < W + 40; i++) { const r = 34 + rnd(i, 40) * 16; heads.push({x, r, y: 1810 + rnd(i, 41) * 40}); x += r * 1.55; }
-function drawCrowd(light, rim) {
-  g.fillStyle = SCENE.crowd;
-  g.beginPath(); g.moveTo(0, H);
-  heads.forEach(h => { g.lineTo(h.x - h.r * 1.6, h.y + h.r * 2.1); g.arc(h.x, h.y, h.r, Math.PI * .9, Math.PI * 2.1); g.lineTo(h.x + h.r * 1.6, h.y + h.r * 2.1); });
-  g.lineTo(W, H); g.closePath(); g.fill();
-  if (light > .02) {
-    g.strokeStyle = rim(Math.min(.7, light)); g.lineWidth = 2.5;
-    heads.forEach(h => { g.beginPath(); g.arc(h.x, h.y, h.r, Math.PI * 1.15, Math.PI * 1.85); g.stroke(); });
-  }
-  [[190, 1745, -.12], [655, 1735, .08], [930, 1760, -.05]].forEach(([x, y, r]) => {   // 举起的手机
-    g.save(); g.translate(x, y); g.rotate(r);
-    g.strokeStyle = SCENE.crowd; g.lineWidth = 16; g.lineCap = 'round';
-    g.beginPath(); g.moveTo(0, 30); g.lineTo(-10, 150); g.stroke();
-    g.fillStyle = SCENE.crowd; g.fillRect(-21, -38, 42, 76);
-    g.fillStyle = `rgba(${SCENE.screen},${.45 + light * .4})`; g.fillRect(-17, -33, 34, 66);
-    g.restore();
+// ---- 近处的观众（剪影）----
+// 两排：后排小一点、颜色稍浅（远处有空气感），前排大一点、更黑；人会随呼吸微微起伏。
+// 烟花亮时，头顶和肩膀描一道烟花颜色的轮廓光。几个小道具点到为止：
+// 一台举起的相机（背面取景屏随烟花发亮）、一把团扇、骑在肩上的小孩、一部手机。
+const backRow = [], frontRow = [];
+for (let x = -10, i = 0; x < W + 40; i++) { const r = 19 + rnd(i, 50) * 6; backRow.push({x, r, y: 1790 + rnd(i, 51) * 14, ph: rnd(i, 52) * TAU}); x += r * 2.3 + rnd(i, 53) * 10; }
+for (let x = 30, i = 0; x < W + 60; i++) { const r = 36 + rnd(i, 54) * 9; frontRow.push({x, r, y: 1862 + rnd(i, 55) * 16, ph: rnd(i, 56) * TAU}); x += r * 2.6 + rnd(i, 57) * 16; }
+const PROPS = {1: 'camera', 4: 'uchiwa', 6: 'child', 8: 'phone'};     // 前排第几个人带什么
+function body(x, y, r) {                          // 一个人：头、脖子、肩膀
+  g.beginPath(); g.ellipse(x, y + r * 2.25, r * 2.05, r * 1.35, 0, Math.PI, 0);
+  g.lineTo(x + r * 2.05, H); g.lineTo(x - r * 2.05, H); g.closePath(); g.fill();
+  g.fillRect(x - r * .32, y + r * .6, r * .64, r * 1.0);
+  g.beginPath(); g.ellipse(x, y, r * .88, r, 0, 0, TAU); g.fill();
+}
+function rimLine(x, y, r) {                       // 轮廓光：只描头顶一段
+  g.beginPath(); g.ellipse(x, y, r * .88, r, 0, Math.PI * 1.22, Math.PI * 1.78); g.stroke();
+}
+// 屏幕：暗暗的灰蓝，烟花亮时微微泛一点烟花的颜色，不能比烟花抢眼
+function screenColor(light, rim) { return light > .05 ? rim(Math.min(.2, .08 + light * .12)) : 'rgba(150,170,205,.1)'; }
+function drawCrowd(light, rim, t) {
+  const bob = p => Math.sin(TAU * 2 * t / T + p.ph) * 1.4;
+  // 后排
+  g.fillStyle = '#04060f';
+  backRow.forEach(p => body(p.x, p.y + bob(p), p.r));
+  if (light > .02) { g.strokeStyle = rim(Math.min(.25, light * .4)); g.lineWidth = 1.5; backRow.forEach(p => rimLine(p.x, p.y + bob(p), p.r)); }
+  // 前排和道具
+  g.fillStyle = SCENE.crowd; g.strokeStyle = SCENE.crowd; g.lineCap = 'round';
+  frontRow.forEach((p, i) => {
+    const x = p.x, y = p.y + bob(p), r = p.r, prop = PROPS[i];
+    if (prop === 'child') {                       // 骑在肩上的小孩，双手举起
+      const cy = y - r * 1.95;
+      g.lineWidth = r * .26;
+      g.beginPath(); g.moveTo(x - r * .45, cy + r * .75); g.lineTo(x - r * .95, cy - r * .35); g.moveTo(x + r * .45, cy + r * .75); g.lineTo(x + r * .9, cy - r * .4); g.stroke();
+      g.beginPath(); g.ellipse(x, cy + r * 1.05, r * .75, r * .62, 0, Math.PI, 0); g.lineTo(x + r * .75, y); g.lineTo(x - r * .75, y); g.fill();
+      g.beginPath(); g.ellipse(x, cy, r * .58, r * .64, 0, 0, TAU); g.fill();
+    }
+    if (prop === 'camera') {                      // 双手举着相机，从背后看到取景屏
+      const cy = y - r * 2.05;
+      g.lineWidth = r * .4;
+      g.beginPath(); g.moveTo(x - r * 1.3, y + r * 1.4); g.lineTo(x - r * .75, cy + 12); g.moveTo(x + r * 1.3, y + r * 1.4); g.lineTo(x + r * .8, cy + 12); g.stroke();
+      roundRect(x - 46, cy - 26, 92, 56, 9); g.fill();
+      roundRect(x - 15, cy - 38, 30, 16, 4); g.fill();
+      g.fillStyle = screenColor(light, rim); roundRect(x - 32, cy - 16, 50, 36, 3); g.fill(); g.fillStyle = SCENE.crowd;
+    }
+    if (prop === 'phone') {                       // 单手举着手机
+      g.lineWidth = r * .36;
+      g.beginPath(); g.moveTo(x - r * 1.35, y + r * 1.4); g.lineTo(x - r * 1.0, y - r * 1.55); g.stroke();
+      g.save(); g.translate(x - r * 1.0, y - r * 1.95); g.rotate(-.08);
+      roundRect(-17, -30, 34, 60, 6); g.fill();
+      g.fillStyle = screenColor(light, rim); roundRect(-13, -25, 26, 50, 3); g.fill(); g.fillStyle = SCENE.crowd;
+      g.restore();
+    }
+    if (prop === 'uchiwa') {                      // 团扇：举在脸旁边
+      g.lineWidth = r * .14;
+      g.beginPath(); g.moveTo(x + r * 1.25, y + r * 1.3); g.lineTo(x + r * 1.55, y - r * .3); g.stroke();
+      g.beginPath(); g.ellipse(x + r * 1.7, y - r * .95, r * .78, r * .7, -.25, 0, TAU); g.fill();
+    }
+    body(x, y, r);
   });
+  if (light > .02) {
+    g.strokeStyle = rim(Math.min(.5, light * .8)); g.lineWidth = 2;
+    frontRow.forEach(p => rimLine(p.x, p.y + bob(p), p.r));
+    const u = frontRow[4];                         // 团扇的边也会被照亮
+    if (u) { g.beginPath(); g.ellipse(u.x + u.r * 1.7, u.y + bob(u) - u.r * .95, u.r * .78, u.r * .7, -.25, Math.PI * 1.1, Math.PI * 1.9); g.stroke(); }
+  }
 }
 
 // ---- 字体：中文用思源黑体，数字和英文用 Sora（几何感的现代无衬线），靠字重拉开层次 ----
@@ -266,14 +311,6 @@ function line(parts, y) {
 function roundRect(x, y, w, h, r) {
   g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
   g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
-}
-
-// 每块文字上方一根短细线（极简风格唯一的装饰）
-function plate(s, top) {
-  if (!s) return;
-  g.save(); g.globalAlpha = s.out * s.p;
-  g.fillStyle = TYPE.accent; g.fillRect(W / 2 - 28, top + (1 - s.p) * 40 + 14, 56, 2);
-  g.restore();
 }
 
 // 一段文字的出场/退场：从下往上浮起，结束时淡出
@@ -358,7 +395,6 @@ function typoFront(t) {
   const S = TS();
   // ① 规模
   let s = scene(t, 0.6, 4.3);
-  plate(s, LINE1 - 136);
   rise(s, () => {
     line([['20,000', ...S.num.slice(0, 1), TYPE.gold, S.num[1], S.num[2]], ['  发 / 两晚', S.unit[0], WHITE, S.unit[1], S.unit[2]]], LINE1);
     text('每年到场观看的人超过 100 万', W / 2, LINE2 + 10, S.sub[0], SOFT, S.sub[1], 'center', S.sub[2]);
@@ -375,7 +411,6 @@ function typoFront(t) {
     g.restore();
   }
   s = scene(t, 5.0, 8.4);
-  plate(s, LINE1 - 100);
   rise(s, () => {
     text('正三尺玉', W / 2, LINE1, S.name[0], WHITE, S.name[1], 'center', S.name[2]);
     text('一发炸开的直径，约 6 个足球场首尾相接', W / 2, LINE2 + 4, S.sub[0], SOFT, S.sub[1], 'center', S.sub[2]);
@@ -383,7 +418,6 @@ function typoFront(t) {
 
   // ③ PHOENIX：烟花一开始就报名字（字母从中间往两边展开）；标尺跟着第一波从左往右伸，数字数到 2.0；高潮前收掉
   s = scene(t, 8.6, 11.35);
-  plate(s, LINE1 - 128);
   if (s) {
     const word = 'PHOENIX', ws = [...word].map(c => measure(c, S.word[0], S.word[1]));
     let x = (W - ws.reduce((p, q) => p + q, 0) - S.word[2] * 6) / 2;
@@ -405,7 +439,6 @@ function typoFront(t) {
   // ④ 提醒：左对齐，放在画面中部的夜空里（这时烟花已经放完，和左上角的标题呼应）
   s = scene(t, 15.5, 19.6);
   rise(s, () => {
-    g.fillStyle = TYPE.accent; g.fillRect(80, 962, 56, 2);
     text('观览席很抢手，', 80, 1046, 60, WHITE, 300, 'left', 4);
     text('记得提前预定。', 80, 1126, 60, WHITE, 300, 'left', 4);
   });
@@ -492,7 +525,7 @@ function render(t) {
     g.fillStyle = sky; g.fillRect(-100, 300, W + 200, HORIZON - 300);
   }
   g.globalCompositeOperation = 'source-over';
-  drawCrowd(light, a => glow.col.replace(/[\d.]+\)$/, a + ')'));
+  drawCrowd(light, a => glow.col.replace(/[\d.]+\)$/, a + ')'), t);
   g.setTransform(1, 0, 0, 1, 0, 0);
 
   // 文字层（不跟镜头动，保证清晰）
