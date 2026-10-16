@@ -466,14 +466,34 @@ function titleLayer(key, paint) {
   return titleLayers[key];
 }
 const TT = '长冈花火', TX = 30, TB = 190;
-function drawTitle(t, glow) {
+// 金属字：银色拉丝金属的渐变（上亮、中间一道细亮线、下面偏暗），只画一次。
+// 反射：按天上烟花的实际位置和亮度，算一块柔和的高光，裁成文字的形状叠上去——
+// 烟花在右边，高光就在字的右边；颜色是所有正在亮的烟花按亮度平均的颜色；亮度有上限，不抢眼。
+// 每帧只是在一张小画布上贴几次图，不重画文字，所以不卡
+const titleWork = document.createElement('canvas'); titleWork.width = 860; titleWork.height = 300;
+function drawTitle(t, L) {
   const ew = text('NIIGATA', 80, 262, 26, TYPE.accent, 500, 'left', 8);
   text('新潟县长冈市', 80 + ew + 22, 262, 26, 'rgba(222,230,244,.68)', 400, 'left', 4);
   const X = 74 - TX, Y = 404 - TB;
-  g.drawImage(titleLayer('base', x => {
-    x.save(); x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 30; x.fillStyle = TYPE.text; x.fillText(TT, TX, TB); x.restore();
-    x.fillStyle = TYPE.text; x.fillText(TT, TX, TB);
+  g.drawImage(titleLayer('metal', x => {
+    x.save(); x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 30; x.shadowOffsetY = 6; x.fillStyle = '#000'; x.fillText(TT, TX, TB); x.restore();
+    const top = TB - 112, h = 124, m = x.createLinearGradient(0, top, 0, top + h);
+    m.addColorStop(0, '#ffffff'); m.addColorStop(.42, '#e3e9f2'); m.addColorStop(.5, '#b4c0d2');
+    m.addColorStop(.56, '#f2f5fa'); m.addColorStop(1, '#a3afc2');
+    x.fillStyle = m; x.fillText(TT, TX, TB);
+    x.globalCompositeOperation = 'source-atop';             // 上沿一道细细的亮边，像金属的倒角
+    x.fillStyle = 'rgba(255,255,255,.5)'; x.fillText(TT, TX, TB - 2);
   }), X, Y);
+  if (L.light > .03) {
+    const w = titleWork.getContext('2d');
+    w.globalCompositeOperation = 'source-over'; w.globalAlpha = 1; w.clearRect(0, 0, 860, 300);
+    const hx = TX + clamp(L.x / W) * 600;                   // 烟花的横向位置 → 字上高光的位置
+    w.globalAlpha = Math.min(.55, L.light * .4);
+    w.drawImage(radialSprite(L.lc, 1.3), hx - 280, TB - 190, 560, 240);
+    w.globalAlpha = 1; w.globalCompositeOperation = 'destination-in';
+    w.drawImage(titleLayer('mask', x => { x.fillStyle = '#fff'; x.fillText(TT, TX, TB); }), 0, 0);
+    g.drawImage(titleWork, X, Y);
+  }
   drawStory(t);
 }
 
@@ -570,12 +590,12 @@ function render(t) {
   bursts.forEach(b => { const l = drawBurst(b, t, false); if (l) lights.push(l); });
   g.restore();
 
-  let light = 0, glow = {v: 0, col: 'transparent'}, lc = [0, 0, 0];
+  let light = 0, glow = {v: 0, col: 'transparent'}, lc = [0, 0, 0], lx = 0;
   lights.forEach(l => {
     light += l.v;
     glowAt(hsl2rgb(l.hue, l.sat, 62).map(Math.round), Math.min(.16, l.v * .16 / Math.sqrt(lights.length)), l.x, l.y, 700, 700, 1);
     if (l.v > glow.v) glow = {v: l.v, hue: l.hue, sat: l.sat, col: `hsla(${l.hue},${Math.max(30, l.sat)}%,62%,${Math.min(.9, l.v)})`};
-    const c = hsl2rgb(l.hue, Math.max(30, l.sat), 66); lc = lc.map((v, i) => v + c[i] * l.v);
+    const c = hsl2rgb(l.hue, Math.max(30, l.sat), 66); lc = lc.map((v, i) => v + c[i] * l.v); lx += l.x * l.v;
   });
   // 观众身上的光：所有正在亮的烟花按亮度加权平均出一个颜色（不会因为「最亮的那发」换了而突然变色）
   lc = light > 0 ? lc.map(v => Math.round(v / light)) : [255, 220, 170];
@@ -615,7 +635,7 @@ function render(t) {
   // 文字层（不跟镜头动，保证清晰）
   g.drawImage(verticalSprite('topscrim', [[0, [1, 3, 12, 204]], [1, [1, 3, 12, 0]]]), 0, 0, W, 600);
   g.drawImage(verticalSprite('riverband', [[0, [1, 3, 12, 0]], [.5, [1, 3, 12, 158]], [1, [1, 3, 12, 0]]]), 0, 1300, W, 320);   // 河面上压一点暗，托住文字
-  drawTitle(t, glow);
+  drawTitle(t, {light, lc, x: light > 0 ? lx / light : W / 2});
   typoFront(t);
   // 结尾淡出成黑（开头不淡入，第一帧就是完整画面）
   const dark = ease(clamp((t - 19.1) / .9));
