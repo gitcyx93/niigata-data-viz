@@ -18,7 +18,8 @@ logging.getLogger("fontTools").setLevel(logging.ERROR)   # LXGW 里有几张用�
 
 # 字体名 → [(npm 包, 包里的 css, 字重), ...]
 FAMILIES = {
-    'Source Han Sans SC':  [('@fontsource-variable/noto-sans-sc@5.3.1', 'wght.css', '100 900')],   # 思源黑体
+    'Source Han Sans SC':  [('@fontsource-variable/noto-sans-sc@5.3.1', 'wght.css', '100 900')],   # 思源黑体（简体）
+    'Source Han Sans TC':  [('@fontsource-variable/noto-sans-tc@5.3.1', 'wght.css', '100 900')],   # 思源黑体（繁体，台湾字形）
     'Source Han Serif SC': [('@fontsource-variable/noto-serif-sc@5.3.1', 'wght.css', '200 900')],  # 思源宋体
     'LXGW WenKai':         [('lxgw-wenkai-webfont@1.7.0', 'lxgwwenkai-bold.css', '700')],          # 霞鹜文楷（粗）
     'Oswald':              [('@fontsource-variable/oswald@5.3.0', 'wght.css', '200 700')],          # 英文窄体
