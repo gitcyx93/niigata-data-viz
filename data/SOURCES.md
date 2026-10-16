@@ -1,0 +1,29 @@
+# 数据出处与口径
+
+## 口径备忘
+
+- 外国人住宿：观光厅 2025 年确定值。新潟县的外国人数据**标准误差率超过 20%**（二手来源提到，待看原表注释），引用 +60.6% 时注明。
+- 住宿数据的单位是「人泊」，不是游客人数。
+- 大米有两个口径：主食用 570,200 t（农水省）、子实用 637,900 t（县统计课「全国ベスト5」），使用时写明是哪个。
+- 清酒「100 场」是酿造许可数，不等于实际营业的酒藏数。
+- 原油占比和「全国ベスト5」里的原油产量来自两套统计，口径不同。
+- 全国神社数是令和元年数据，跟新潟的年份不一致，人均比较为近似值。
+- 日本人住宿增减是从总数和外国人数反推出来的，不是官方直接公布的数字。
+- 整体物价：2024 年新潟消费者物价地域差指数约 98.0（全国 = 100），从搜索结果读出，待核实。
+- 「明治时代新潟人口日本第一」只找到二手来源，未核实，不要用。
+
+## 出处
+
+- 新潟県あれこれ全国ベスト5（2026年4月）: https://www.pref.niigata.lg.jp/site/tokei/best52604.html
+- 新潟県 石油・天然ガス: https://www.pref.niigata.lg.jp/sec/sangyoshinko/1277420495419.html
+- 農水省 まふナビ東北 Vol.32（令和7年産水稲）: https://www.maff.go.jp/tohoku/stinfo/bunseki/attach/pdf/maffnabi-85.pdf
+- 観光庁 宿泊旅行統計調査（2025年・確定値）: https://www.mlit.go.jp/kankocho/content/002026763.pdf
+- 観光庁 2025年 宿泊旅行統計報告書: https://www.mlit.go.jp/kankocho/content/002026836.pdf
+- 佐渡市 2026年2月25日 記者会見資料: https://www.city.sado.niigata.jp/uploaded/attachment/57821.pdf
+- 新潟県 2025年 観光入込客統計: https://www.pref.niigata.lg.jp/site/opendata/r7kankouirikomikyakutoukei.html
+- 新潟県 第13回 観光地満足度調査: https://www.pref.niigata.lg.jp/sec/kankokikaku/manzokudo13.html
+- ブランド総合研究所 地域ブランド調査2026: https://news.tiiki.jp/articles/5014
+- 新潟県 令和7年国勢調査 人口速報: https://www.pref.niigata.lg.jp/site/tokei/2025kokucho-sokuhou.html
+- 環境省 第53回ガンカモ類の生息調査: https://www.env.go.jp/press/111163.html
+- 全国神社数（文化庁 宗教統計調査 令和元年版の引用）: https://gentosha-go.com/articles/-/30674
+- 総務省 消費者物価地域差指数 2024年: https://www.stat.go.jp/data/kouri/kouzou/pdf/g_2024.pdf
