@@ -1,0 +1,69 @@
+{
+ "note": "由 data/zh 的原始数字经 scripts/page_template.html 里的 dash.calc 公式算出；2026-10-16 生成",
+ "facts": {
+  "energy.oil_share": 68.3,
+  "energy.gas_share": 72.3,
+  "energy.pop_share": 1.68,
+  "energy.oil_x": 41,
+  "energy.gas_x": 43,
+  "rice.share_pct": 7.9,
+  "rice.lead_t": 73900,
+  "rice.kg_resident": 276,
+  "rice.kg_japanese": 4.6,
+  "tour.fshare_niigata": 8.3,
+  "tour.fshare_japan": 27.2,
+  "tour.fpr_niigata": 0.41,
+  "tour.fpr_japan": 1.46,
+  "tour.gap_x": 3.6,
+  "tour.foreign_added": 320308,
+  "tour.dom_change": -635930,
+  "tour.dom_change_pct": -6.4,
+  "tour.total_change": -315621,
+  "tour.offset_pct": 50,
+  "density.shrine_10k_niigata": 22.5,
+  "density.shrine_10k_japan": 6.6,
+  "density.shrine_x": 3.4,
+  "density.swan_share": 28,
+  "density.cracker_per_resident": 86900,
+  "pref_sum.share_rank": 31,
+  "pref_sum.growth_rank": 2,
+  "pref_sum.total_rank": 16,
+  "pref_sum.foreign_rank": 22,
+  "pref_sum.median_share": 10.7,
+  "pref_sum.one_in_niigata": 12,
+  "pref_sum.one_in_japan": 3.7,
+  "pref_sum.count": 47
+ },
+ "foreign_growth_top5": [
+  {
+   "code": "p31",
+   "name_zh": "鸟取",
+   "growth_pct": 72,
+   "share_pct": 7.9
+  },
+  {
+   "code": "p15",
+   "name_zh": "新潟",
+   "growth_pct": 60.6,
+   "share_pct": 8.3
+  },
+  {
+   "code": "p24",
+   "name_zh": "三重",
+   "growth_pct": 57.7,
+   "share_pct": 4.1
+  },
+  {
+   "code": "p16",
+   "name_zh": "富山",
+   "growth_pct": 54.5,
+   "share_pct": 9.8
+  },
+  {
+   "code": "p32",
+   "name_zh": "岛根",
+   "growth_pct": 36.5,
+   "share_pct": 3.3
+  }
+ ]
+}

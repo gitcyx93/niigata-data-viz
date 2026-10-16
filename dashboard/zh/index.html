@@ -1,0 +1,534 @@
+<style>
+#dash-root { --dash-gutter: clamp(16px, 3vw, 40px); }
+.nz { font-family: var(--font-anthropic-sans); max-width: 72rem; margin-inline: auto; padding-bottom: var(--cds-gap-xl); }
+.nz-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-sm); }
+.nz-take { font-size: var(--cds-font-size-body); line-height: 1.8; margin: 0; max-width: 54rem; }
+.nz-meta { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: var(--cds-gap-sm) 0 0; line-height: 1.6; max-width: 54rem; }
+.nz-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin: var(--cds-gap-md) 0 0; }
+.nz-nav a { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; }
+.nz-nav a:hover { color: var(--color-fg); }
+.nz-sec { margin-top: calc(var(--cds-gap-xl) * 1.5); scroll-margin-top: var(--cds-gap-lg); }
+.nz-kicker { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); letter-spacing: .04em; margin: 0 0 var(--cds-gap-xs); }
+.nz-sec h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.nz-lede { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); line-height: 1.7; margin: 0 0 var(--cds-gap-md); max-width: 54rem; }
+.nz-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--cds-gap-md); margin-bottom: var(--cds-gap-md); }
+.nz-tiles.feat { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.nz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+.nz-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.nz-card h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.nz-note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 2px 0 var(--cds-gap-sm); line-height: 1.5; }
+.nz-label { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; }
+.nz-big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.2; margin: var(--cds-gap-xs) 0; }
+.nz-feat .nz-big { display: inline-block; margin-bottom: 0; }
+.nz-unit { display: inline-block; margin-left: 4px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.nz-feat .nz-sub { margin-top: var(--cds-gap-xs); }
+.nz-sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.6; font-variant-numeric: tabular-nums; }
+.nz .nz-sub b, .nz .nz-take b, .nz .nz-note b { font-weight: 600; color: var(--color-fg); }
+.nz-bad { color: var(--color-bad); }
+.nz-ok { color: var(--color-ok); }
+.nz-chart { position: relative; min-height: 150px; }
+.nz-chart.rice { min-height: 420px; }
+.nz-subhead { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-xl) 0 var(--cds-gap-xs); }
+.nz-chart svg { display: block; overflow: visible; }
+.nz-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; opacity: 0; z-index: 2; font-variant-numeric: tabular-nums; }
+.nz-tip .h { color: var(--cds-text-secondary); }
+.nz-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.nz-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.nz-tablebox { max-height: 30rem; overflow: auto; margin-top: var(--cds-gap-sm); }
+.nz-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.nz-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); }
+.nz-table th button { all: unset; cursor: pointer; }
+.nz-table td { padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.nz-table td.num, .nz-table th.num { text-align: right; }
+.nz-search { width: 100%; max-width: 20rem; box-sizing: border-box; font: inherit; font-size: var(--cds-font-size-caption); padding: 6px 10px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
+.nz-foot { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.7; margin-top: var(--cds-gap-xl); max-width: 54rem; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (max-width: 640px) { .hide-narrow { display: none; } }
+</style>
+
+<div class="nz" lang="zh-CN">
+  <header class="nz-head" id="top">
+    <h1>新潟数据切片</h1>
+    <p class="nz-take" id="takeaway">日本国产原油有 <b class="dash-skeleton" data-source="c_energy" data-field="value" data-where="key=oil_share">—</b> 产自新潟；全日本每人一年吃的米里，有 <b class="dash-skeleton" data-source="c_rice" data-field="value" data-where="key=kg_japanese">—</b> 公斤出自这里；神社密度是全国的 <b class="dash-skeleton" data-source="c_density" data-field="value" data-where="key=shrine_x">—</b> 倍。2025 年外国游客住宿暴涨 <b class="dash-skeleton" data-source="tourism" data-field="foreign_yoy_pct" data-where="code=niigata">—</b>，增速全国 <b class="dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=growth_rank">—</b>，可在新潟的住宿里仍只占 <b class="dash-skeleton" data-source="c_tour" data-field="value" data-where="key=fshare_niigata">—</b>。</p>
+    <p class="nz-meta">全部数字来自官方统计；占比、人均和倍数由页面从原始数字现算，点任意数字可在「来源」里看到出处与公式。</p>
+    <nav class="nz-nav"><a href="#sec-energy">能源</a><a href="#sec-rice">大米</a><a href="#sec-tour">入境观光</a><a href="#sec-density">密度</a><a href="#sec-fun">意外的日本第一</a><a href="#sec-firsts">全部清单</a></nav>
+  </header>
+
+  <section class="nz-sec" id="sec-energy">
+    <p class="nz-kicker">01 · 能源</p>
+    <h2>日本本土那一点点石油和天然气，大部分在新潟</h2>
+    <p class="nz-lede">日本几乎全靠进口能源，但本土还有少量油气田，主力就在新潟。拿它的产量占比和人口占比比一比，差距是几十倍。</p>
+    <div class="nz-grid">
+      <div class="nz-card">
+        <h3 id="chart-energy">新潟占全国的比例，2024</h3>
+        <p class="nz-note">原油、天然气为国内产量占比；人口为 2025 年国势调查占比，作为参照。</p>
+        <div class="nz-chart" id="energy-chart" data-source="c_energy"></div>
+      </div>
+      <div class="nz-card">
+        <h3>产量占比是人口占比的多少倍</h3>
+        <p class="nz-note">“新潟贡献的份额”除以“新潟人口的份额”。</p>
+        <div class="nz-tiles" style="margin:0">
+          <div><div class="nz-label">原油</div><div class="nz-big dash-skeleton" data-source="c_energy" data-field="value" data-where="key=oil_x">—</div></div>
+          <div><div class="nz-label">天然气</div><div class="nz-big dash-skeleton" data-source="c_energy" data-field="value" data-where="key=gas_x">—</div></div>
+        </div>
+        <div class="nz-sub">2024 年县内 <b data-source="energy" data-field="fields" data-where="code=oil">—</b> 处油田产原油 <b data-source="energy" data-field="niigata" data-where="code=oil">—</b> kL，全国合计 <b data-source="energy" data-field="japan" data-where="code=oil">—</b> kL。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-rice">
+    <p class="nz-kicker">02 · 大米</p>
+    <h2>大米产量第一，而且是断层式领先</h2>
+    <p class="nz-lede">新潟的主食用米产量稳居第一，比第二名北海道多出一个中等县的产量。换算成人头，这个数字更直观。</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">占全国产量</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=share_pct">—</div><div class="nz-sub">2025 年主食用米</div></div>
+      <div class="nz-card"><div class="nz-label">领先第二名北海道</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=lead_t">—</div><div class="nz-sub">吨</div></div>
+      <div class="nz-card"><div class="nz-label">每个新潟县民摊到</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=kg_resident">—</div><div class="nz-sub">公斤 / 人 · 年</div></div>
+      <div class="nz-card"><div class="nz-label">给全日本每人分</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=kg_japanese">—</div><div class="nz-sub">公斤 / 人 · 年</div></div>
+    </div>
+    <div class="nz-card">
+      <h3 id="chart-rice">水稻收获量前 13 名（令和7年产）</h3>
+      <p class="nz-note">主食用米，生产者筛目基准，单位：万吨。</p>
+      <div class="nz-chart rice" id="rice-chart" data-source="rice"></div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-tour">
+    <p class="nz-kicker">03 · 入境观光</p>
+    <h2>外国游客暴涨，但新潟仍是入境的“洼地”</h2>
+    <p class="nz-lede">增速惊人，基数却很小：外国人在新潟住宿中的占比远低于全国，按人口算的外国游客密度也只有全国的几分之一。同年日本人住宿还在下滑。</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">外国人住宿人夜（2025）</div><div class="nz-big dash-skeleton" data-source="tourism" data-field="foreign" data-where="code=niigata">—</div><div class="nz-sub">比上年 <b class="nz-ok" data-source="tourism" data-field="foreign_yoy_pct" data-where="code=niigata">—</b> · 全国 <b data-source="tourism" data-field="foreign_yoy_pct" data-where="code=japan">—</b></div></div>
+      <div class="nz-card"><div class="nz-label">外国人占全部住宿</div><div class="nz-big dash-skeleton" data-source="c_tour" data-field="value" data-where="key=fshare_niigata">—</div><div class="nz-sub">全国 <b data-source="c_tour" data-field="value" data-where="key=fshare_japan">—</b></div></div>
+      <div class="nz-card"><div class="nz-label">每位居民对应的外国人住宿</div><div class="nz-big dash-skeleton" data-source="c_tour" data-field="value" data-where="key=fpr_niigata">—</div><div class="nz-sub">全国 <b data-source="c_tour" data-field="value" data-where="key=fpr_japan">—</b> · 差 <b data-source="c_tour" data-field="value" data-where="key=gap_x">—</b> 倍</div></div>
+      <div class="nz-card"><div class="nz-label">日本人住宿变化</div><div class="nz-big nz-bad dash-skeleton" data-source="c_tour" data-field="value" data-where="key=dom_change_pct">—</div><div class="nz-sub">由总数、外国人数及各自增减率反推</div></div>
+    </div>
+    <div class="nz-grid">
+      <div class="nz-card">
+        <h3 id="chart-tour-change">2025 年新潟住宿人夜的增减构成</h3>
+        <p class="nz-note">外国人的增量只抵消了日本人减量的 <b data-source="c_tour" data-field="value" data-where="key=offset_pct">—</b>。</p>
+        <div class="nz-chart" id="tour-change-chart" data-source="c_tour"></div>
+      </div>
+      <div class="nz-card">
+        <h3 id="chart-tour-share">外国人占住宿比例</h3>
+        <p class="nz-note">新潟 vs 全国，2025 年确定值。</p>
+        <div class="nz-chart" id="tour-share-chart" data-source="c_tour"></div>
+      </div>
+    </div>
+
+    <h3 class="nz-subhead" id="pref-compare">跟其他 46 个都道府县比一比</h3>
+    <p class="nz-lede">单看外国人占住宿的比例，新潟只排在中下游；真正罕见的是增速——全国几乎没有哪个地方涨得比它快。比例低、增速高，说明它正处在“刚被发现”的阶段。</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">外国人占比的全国排名</div><div class="nz-big dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=share_rank">—</div><div class="nz-sub">47 个都道府县中；中位数 <b data-source="c_pref_sum" data-field="value" data-where="key=median_share">—</b></div></div>
+      <div class="nz-card"><div class="nz-label">外国人住宿增速的全国排名</div><div class="nz-big nz-ok dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=growth_rank">—</div><div class="nz-sub">2025 年比上年，47 个都道府县中</div></div>
+      <div class="nz-card"><div class="nz-label">平均每几个住宿人夜里有 1 个外国人</div><div class="nz-big dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=one_in_niigata">—</div><div class="nz-sub">全国平均每 <b data-source="c_pref_sum" data-field="value" data-where="key=one_in_japan">—</b> 个就有 1 个</div></div>
+      <div class="nz-card"><div class="nz-label">总住宿人夜的全国排名</div><div class="nz-big dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=total_rank">—</div><div class="nz-sub">但外国人住宿只排 <b data-source="c_pref_sum" data-field="value" data-where="key=foreign_rank">—</b></div></div>
+    </div>
+    <div class="nz-card">
+      <h3 id="chart-pref-growth">外国人住宿增速前 5 名（2025）</h3>
+      <p class="nz-note">47 个都道府县中涨得最快的五个，以及全国平均。悬停可看各县外国人占比。</p>
+      <div class="nz-chart" id="pref-growth" data-source="c_pref tourism"></div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-density">
+    <p class="nz-kicker">04 · 密度</p>
+    <h2>神社、天鹅和米果：按人头算才显出的“新潟浓度”</h2>
+    <p class="nz-lede">绝对数排第一不稀奇，新潟面积大；换成人均或全国占比，才看出它在这些东西上浓得不寻常。</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">每万人神社数</div><div class="nz-big dash-skeleton" data-source="c_density" data-field="value" data-where="key=shrine_10k_niigata">—</div><div class="nz-sub">全国 <b data-source="c_density" data-field="value" data-where="key=shrine_10k_japan">—</b>，是全国的 <b data-source="c_density" data-field="value" data-where="key=shrine_x">—</b> 倍；神社总数 <b data-source="density" data-field="value" data-where="key=shrines_niigata">—</b>，全国第一</div></div>
+      <div class="nz-card"><div class="nz-label">全日本越冬天鹅中，在新潟的</div><div class="nz-big dash-skeleton" data-source="c_density" data-field="value" data-where="key=swan_share">—</div><div class="nz-sub">2022 年 1 月调查；2025 年县内仍有 <b data-source="density" data-field="value" data-where="key=swans_niigata_2025">—</b> 只</div></div>
+      <div class="nz-card"><div class="nz-label">米果出货额，摊到每个县民</div><div class="nz-big dash-skeleton" data-source="c_density" data-field="value" data-where="key=cracker_per_resident">—</div><div class="nz-sub">日元 / 人 · 年；米果出货额全国第一</div></div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-fun">
+    <p class="nz-kicker">05 · 意外的日本第一</p>
+    <h2>雪国、锦鲤和牙齿：没想到也是第一</h2>
+    <p class="nz-lede">大米和清酒是意料之中，下面这些才有意思。数字均为县统计课公布的全国第一项目。</p>
+    <div class="nz-tiles feat">
+      <div class="nz-card nz-feat"><div class="nz-label" data-source="firsts" data-field="item" data-where="code=kerosene">—</div>
+        <div class="nz-big dash-skeleton" data-source="firsts" data-field="value" data-where="code=kerosene">—</div>
+        <div class="nz-unit" data-source="firsts" data-field="unit" data-where="code=kerosene">—</div>
+        <div class="nz-sub">雪国的刚需，暖炉产业也就扎根在这里。</div></div>
+      <div class="nz-card nz-feat"><div class="nz-label" data-source="firsts" data-field="item" data-where="code=koi">—</div>
+        <div class="nz-big dash-skeleton" data-source="firsts" data-field="value" data-where="code=koi">—</div>
+        <div class="nz-unit" data-source="firsts" data-field="unit" data-where="code=koi">—</div>
+        <div class="nz-sub">锦鲤起源于新潟山古志一带。</div></div>
+      <div class="nz-card nz-feat"><div class="nz-label" data-source="firsts" data-field="item" data-where="code=cavities">—</div>
+        <div class="nz-big dash-skeleton" data-source="firsts" data-field="value" data-where="code=cavities">—</div>
+        <div class="nz-unit" data-source="firsts" data-field="unit" data-where="code=cavities">—</div>
+        <div class="nz-sub">12 岁孩子人均龋齿数全国最少。</div></div>
+      <div class="nz-card nz-feat"><div class="nz-label" data-source="firsts" data-field="item" data-where="code=cutlery">—</div>
+        <div class="nz-big dash-skeleton" data-source="firsts" data-field="value" data-where="code=cutlery">—</div>
+        <div class="nz-unit" data-source="firsts" data-field="unit" data-where="code=cutlery">—</div>
+        <div class="nz-sub">燕市一带的金属加工，撑起了国产西餐具。</div></div>
+      <div class="nz-card nz-feat"><div class="nz-label" data-source="firsts" data-field="item" data-where="code=mochi">—</div>
+        <div class="nz-big dash-skeleton" data-source="firsts" data-field="value" data-where="code=mochi">—</div>
+        <div class="nz-unit" data-source="firsts" data-field="unit" data-where="code=mochi">—</div>
+        <div class="nz-sub">米多，年糕自然也多。</div></div>
+      <div class="nz-card nz-feat"><div class="nz-label" data-source="firsts" data-field="item" data-where="code=shinkansen">—</div>
+        <div class="nz-big dash-skeleton" data-source="firsts" data-field="value" data-where="code=shinkansen">—</div>
+        <div class="nz-unit" data-source="firsts" data-field="unit" data-where="code=shinkansen">—</div>
+        <div class="nz-sub">上越新干线 + 北陆新干线，县内车站数全国最多。</div></div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-firsts">
+    <p class="nz-kicker">06 · 清单</p>
+    <h2>新潟拿下的全部日本第一</h2>
+    <p class="nz-lede">县统计课 2026 年 4 月版「全国ベスト5」中排名第一的项目。</p>
+    <div class="nz-card">
+      <h3 id="table-firsts">日本第一项目一览</h3>
+      <p class="nz-note">共 <span data-source="firsts" class="dash-skeleton" id="firsts-count">—</span> 项。可搜索，点表头排序。</p>
+      <input class="nz-search" id="firsts-search" type="search" placeholder="搜索项目或领域…" aria-label="搜索项目或领域…">
+      <div class="nz-tablebox">
+        <table class="nz-table" data-source="firsts" data-row-key="item" id="firsts-table">
+          <thead><tr>
+            <th data-field="item"><button data-k="item">项目</button></th>
+            <th data-field="field"><button data-k="field">领域</button></th>
+            <th data-field="value" class="num"><button data-k="value">数值</button></th>
+            <th data-field="unit">单位</th>
+            <th data-field="period" class="hide-narrow"><button data-k="period">时点</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <p class="nz-foot">口径说明：原油有两套官方数字——县产业振兴课的能源页（用于算全国占比）与经产省生产动态统计（清单里引用）口径不同，后者较低。全国神社总数为令和元年版，与新潟 2024 年数字年份不一致，人均比较为近似。天鹅占比用的是 2022 年全国调查。人口只用作计算人均的分母。</p>
+</div>
+
+<script>
+(function () {
+  const T = {"oil": "原油", "gas": "天然气", "pop": "人口", "jp": "日本人", "fr": "外国人", "tot": "合计", "nights": " 人夜", "lbl_jp": "全国", "lbl_ni": "新潟", "rice_tip_unit": " 吨 · 第 ", "rice_tip_rank": " 名", "x": " 倍", "ax_x": "外国人占住宿比例 →", "ax_y": "↑ 外国人住宿增速", "median": "中位数", "natg": "全国增速", "share_l": "占比", "growth_l": "增速", "rank_pre": "第 ", "rank_post": " 位"};
+  const fmt = d3.format(',');
+  const sign = (v, d = 1) => (v > 0 ? '+' : '') + Number(v).toFixed(d) + '%';
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
+
+  // ---------- calculations ----------
+  dash.calc('c_energy', {
+    title: '油气占比 vs 人口占比',
+    description: '新潟原油、天然气产量占全国比例，及其相对人口占比的倍数。',
+    inputs: ['energy', 'population'],
+    fn: (energy, population) => {
+      const e = (c) => energy.find((x) => x.code === c);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      const oil = Number(e('oil').niigata) / Number(e('oil').japan) * 100;
+      const gas = Number(e('gas').niigata) / Number(e('gas').japan) * 100;
+      const pop = p('pop_census_2025') / p('jp_pop_2025') * 100;
+      return [
+        { key: 'oil_share', value: +oil.toFixed(1) },
+        { key: 'gas_share', value: +gas.toFixed(1) },
+        { key: 'pop_share', value: +pop.toFixed(2) },
+        { key: 'oil_x', value: Math.round(oil / pop) },
+        { key: 'gas_x', value: Math.round(gas / pop) },
+      ];
+    },
+  });
+
+  dash.calc('c_rice', {
+    title: '大米占比与人均',
+    description: '新潟主食用米占全国比例、领先北海道的量、按县民与全国人口摊算的公斤数。',
+    inputs: ['rice', 'population'],
+    fn: (rice, population) => {
+      const t = (c) => Number(rice.find((r) => r.code === c).tonnes);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      return [
+        { key: 'share_pct', value: +(t('niigata') / t('japan') * 100).toFixed(1) },
+        { key: 'lead_t', value: t('niigata') - t('hokkaido') },
+        { key: 'kg_resident', value: Math.round(t('niigata') * 1000 / p('pop_census_2025')) },
+        { key: 'kg_japanese', value: +(t('niigata') * 1000 / p('jp_pop_2025')).toFixed(1) },
+      ];
+    },
+  });
+
+  dash.calc('c_tour', {
+    title: '入境住宿结构',
+    description: '外国人占住宿比例、每位居民对应的外国人住宿，以及由增减率反推的上年值与日本人住宿变化。',
+    inputs: ['tourism', 'population'],
+    fn: (tourism, population) => {
+      const a = (c) => tourism.find((r) => r.code === c);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      const N = a('niigata'), J = a('japan');
+      const tot = Number(N.total), fr = Number(N.foreign);
+      const totPrev = tot / (1 + Number(N.total_yoy_pct) / 100);
+      const frPrev = fr / (1 + Number(N.foreign_yoy_pct) / 100);
+      const dom = tot - fr, domPrev = totPrev - frPrev;
+      const fprN = fr / p('pop_census_2025');
+      const fprJ = Number(J.foreign) / p('jp_pop_2025');
+      return [
+        { key: 'fshare_niigata', value: +(fr / tot * 100).toFixed(1) },
+        { key: 'fshare_japan', value: +(Number(J.foreign) / Number(J.total) * 100).toFixed(1) },
+        { key: 'fpr_niigata', value: +fprN.toFixed(2) },
+        { key: 'fpr_japan', value: +fprJ.toFixed(2) },
+        { key: 'gap_x', value: +(fprJ / fprN).toFixed(1) },
+        { key: 'foreign_added', value: Math.round(fr - frPrev) },
+        { key: 'dom_change', value: Math.round(dom - domPrev) },
+        { key: 'dom_change_pct', value: +((dom / domPrev - 1) * 100).toFixed(1) },
+        { key: 'total_change', value: Math.round(tot - totPrev) },
+        { key: 'offset_pct', value: Math.round((fr - frPrev) / -(dom - domPrev) * 100) },
+      ];
+    },
+  });
+
+  dash.calc('c_density', {
+    title: '神社、天鹅、米果的密度',
+    description: '每万人神社数（新潟 vs 全国）、新潟天鹅占全国比例、米果出货额按县民摊算。',
+    inputs: ['density', 'population'],
+    fn: (density, population) => {
+      const d = (k) => Number(density.find((x) => x.key === k).value);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      const n = d('shrines_niigata') / p('pop_census_2025') * 1e4;
+      const j = d('shrines_japan') / p('jp_pop_2025') * 1e4;
+      return [
+        { key: 'shrine_10k_niigata', value: +n.toFixed(1) },
+        { key: 'shrine_10k_japan', value: +j.toFixed(1) },
+        { key: 'shrine_x', value: +(n / j).toFixed(1) },
+        { key: 'swan_share', value: Math.round(d('swans_niigata_2022') / d('swans_japan_2022') * 100) },
+        { key: 'cracker_per_resident', value: Math.round(d('rice_cracker_shipments') / p('pop_census_2025') / 100) * 100 },
+      ];
+    },
+  });
+
+  dash.calc('c_pref', {
+    title: '47都道府县外国人占比与增速',
+    description: '各都道府县外国人住宿占全部住宿的比例、外国人住宿同比增速，以及各项排名。',
+    inputs: ['prefectures'],
+    fn: (prefectures) => {
+      const rows = prefectures.map((r) => ({
+        code: r.code, name: r.name,
+        share: +(Number(r.foreign) / Number(r.total) * 100).toFixed(1),
+        growth: Number(r.foreign_yoy_pct),
+        total: Number(r.total), foreign: Number(r.foreign),
+      }));
+      const rankBy = (k) => rows.slice().sort((a, b) => b[k] - a[k]).map((r) => r.code);
+      const rs = rankBy('share'), rg = rankBy('growth'), rt = rankBy('total'), rf = rankBy('foreign');
+      return rows.map((r) => ({ ...r, share_rank: rs.indexOf(r.code) + 1, growth_rank: rg.indexOf(r.code) + 1,
+        total_rank: rt.indexOf(r.code) + 1, foreign_rank: rf.indexOf(r.code) + 1 }));
+    },
+  });
+
+  dash.calc('c_pref_sum', {
+    title: '新潟在47都道府县中的位置',
+    description: '新潟的占比排名、增速排名、总量排名、外国人住宿排名，全国中位数，以及几个住宿人夜中有1个外国人。',
+    inputs: ['c_pref', 'tourism'],
+    fn: (c_pref, tourism) => {
+      const n = c_pref.find((r) => r.code === 'p15');
+      const jp = tourism.find((r) => r.code === 'japan');
+      const shares = c_pref.map((r) => r.share).sort((a, b) => a - b);
+      const median = (shares[23]);
+      return [
+        { key: 'share_rank', value: n.share_rank },
+        { key: 'growth_rank', value: n.growth_rank },
+        { key: 'total_rank', value: n.total_rank },
+        { key: 'foreign_rank', value: n.foreign_rank },
+        { key: 'median_share', value: median },
+        { key: 'one_in_niigata', value: +(n.total / n.foreign).toFixed(1) },
+        { key: 'one_in_japan', value: +(Number(jp.total) / Number(jp.foreign)).toFixed(1) },
+        { key: 'count', value: c_pref.length },
+      ];
+    },
+  });
+
+  // ---------- helpers ----------
+  const rowsOf = (id) => { const r = dash.data(id); return r.status === 'ok' ? r.data : null; };
+  const kv = (rows, k) => rows && rows.find((r) => r.key === k);
+  function fill(id, field, col, val, f) {
+    const rows = rowsOf(id);
+    const where = col + '=' + val;
+    document.querySelectorAll(`[data-source="${id}"][data-field="${field}"][data-where="${where}"]`).forEach((el) => {
+      const r = rows && rows.find((x) => String(x[col]) === val);
+      el.textContent = r ? f(r[field]) : '—';
+      el.classList.toggle('dash-skeleton', !rows && dash.data(id).status === 'loading');
+    });
+  }
+  const fillKey = (id, key, f) => fill(id, 'value', 'key', key, f);
+  function boxState(el, ids) {
+    const st = ids.map((i) => dash.data(i).status);
+    if (st.every((s) => s === 'ok')) { el.classList.remove('dash-skeleton'); return true; }
+    el.querySelectorAll('svg, .nz-fail').forEach((n) => n.remove());
+    if (st.some((s) => s === 'error' || s === 'connect' || s === 'declined' || s === 'missing')) {
+      el.classList.remove('dash-skeleton');
+      const d = document.createElement('div'); d.className = 'nz-fail'; d.textContent = 'Failed to load'; el.appendChild(d);
+    } else el.classList.add('dash-skeleton');
+    return false;
+  }
+  function tipFor(box) {
+    let t = box.querySelector('.nz-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'nz-tip'; box.appendChild(t); }
+    return {
+      show(ev, head, line) {
+        t.innerHTML = '';
+        const h = document.createElement('div'); h.className = 'h'; h.textContent = head; t.appendChild(h);
+        const l = document.createElement('div'); l.textContent = line; t.appendChild(l);
+        t.style.opacity = 1;
+        const b = box.getBoundingClientRect();
+        let x = ev.clientX - b.left + 12; const y = ev.clientY - b.top - 10;
+        const w = t.offsetWidth;
+        if (x + w > b.width) x = ev.clientX - b.left - w - 12;
+        t.style.left = Math.max(0, x) + 'px'; t.style.top = Math.max(0, y) + 'px';
+      },
+      hide() { t.style.opacity = 0; },
+    };
+  }
+  function measure(svg, texts) {
+    const g = svg.append('g').attr('opacity', 0);
+    const w = d3.max(texts, (s) => g.append('text').attr('font-size', css('--cds-font-size-caption')).text(s).node().getComputedTextLength()) || 0;
+    g.remove(); return w;
+  }
+  function hbars(box, data, opts) {
+    box.querySelectorAll('svg, .nz-fail').forEach((n) => n.remove());
+    const W = box.clientWidth || 600;
+    const rowH = opts.rowH || 30, H = data.length * rowH + 8;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const cap = css('--cds-font-size-caption');
+    const lw = measure(svg, data.map((d) => d.label)) + 12;
+    const vw = measure(svg, data.map((d) => d.text)) + 10;
+    const lo = Math.min(0, d3.min(data, (d) => d.value));
+    const hi = opts.max != null ? opts.max : Math.max(0, d3.max(data, (d) => d.value));
+    const x = d3.scaleLinear([lo, hi], [lw + (lo < 0 ? vw : 0), W - vw]);
+    const y = d3.scaleBand(data.map((d) => d.label), [4, H - 4]).padding(0.3);
+    const bh = Math.min(y.bandwidth(), 32);
+    const tip = tipFor(box);
+    if (lo < 0) svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 0).attr('y2', H).attr('stroke', 'var(--cds-chart-axis)');
+    const g = svg.selectAll('g.r').data(data).join('g').attr('class', 'r');
+    g.append('text').attr('x', 0).attr('y', (d) => y(d.label) + bh / 2).attr('dy', '0.35em').attr('font-size', cap)
+      .attr('fill', (d) => (d.strong ? 'var(--color-fg)' : 'var(--color-fg-muted)')).attr('font-weight', (d) => (d.strong ? 600 : null)).text((d) => d.label);
+    g.append('rect').attr('x', (d) => Math.min(x(0), x(d.value))).attr('y', (d) => y(d.label))
+      .attr('width', (d) => Math.max(1, Math.abs(x(d.value) - x(0)))).attr('height', bh).attr('rx', 4).attr('fill', (d) => d.color)
+      .on('mousemove', (ev, d) => tip.show(ev, d.label, d.tip || d.text)).on('mouseleave', () => tip.hide());
+    g.append('text').attr('x', (d) => (d.value < 0 ? x(d.value) - 6 : x(d.value) + 6)).attr('text-anchor', (d) => (d.value < 0 ? 'end' : 'start'))
+      .attr('y', (d) => y(d.label) + bh / 2).attr('dy', '0.35em').attr('font-size', cap).attr('fill', 'var(--color-fg)')
+      .style('font-variant-numeric', 'tabular-nums').text((d) => d.text);
+  }
+
+  // ---------- table ----------
+  let sortKey = null, sortDir = 1;
+  function drawTable() {
+    const tb = document.querySelector('#firsts-table tbody');
+    const rows = rowsOf('firsts');
+    tb.innerHTML = '';
+    const cnt = document.getElementById('firsts-count');
+    if (!rows) { cnt.textContent = '—'; cnt.classList.toggle('dash-skeleton', dash.data('firsts').status === 'loading'); return; }
+    cnt.classList.remove('dash-skeleton'); cnt.textContent = String(rows.length);
+    const q = (document.getElementById('firsts-search').value || '').trim().toLowerCase();
+    let list = rows.filter((r) => !q || (r.item + r.field + r.unit).toLowerCase().includes(q));
+    if (sortKey) {
+      const num = (v) => Number(String(v).replace(/,/g, ''));
+      list = list.slice().sort((a, b) => (sortKey === 'value' ? num(a.value) - num(b.value) : String(a[sortKey]).localeCompare(String(b[sortKey]), document.querySelector('.nz').lang)) * sortDir);
+    }
+    list.forEach((r) => {
+      const tr = document.createElement('tr');
+      [['item', ''], ['field', ''], ['value', 'num'], ['unit', ''], ['period', 'hide-narrow']].forEach(([k, c]) => {
+        const td = document.createElement('td'); if (c) td.className = c; td.textContent = r[k]; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+  document.getElementById('firsts-search').addEventListener('input', drawTable);
+  document.querySelectorAll('#firsts-table th button').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.k; sortDir = sortKey === k ? -sortDir : 1; sortKey = k;
+    document.querySelectorAll('#firsts-table th').forEach((th) => th.removeAttribute('aria-sort'));
+    b.parentElement.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending');
+    drawTable();
+  }));
+
+  // ---------- render ----------
+  dash.onData(() => {
+    fillKey('c_energy', 'oil_share', (v) => v.toFixed(1) + '%');
+    fillKey('c_energy', 'oil_x', (v) => v + T.x);
+    fillKey('c_energy', 'gas_x', (v) => v + T.x);
+    fill('energy', 'fields', 'code', 'oil', (v) => String(v));
+    fill('energy', 'niigata', 'code', 'oil', (v) => fmt(v));
+    fill('energy', 'japan', 'code', 'oil', (v) => fmt(v));
+    fillKey('c_rice', 'share_pct', (v) => v.toFixed(1) + '%');
+    fillKey('c_rice', 'lead_t', fmt);
+    fillKey('c_rice', 'kg_resident', fmt);
+    fillKey('c_rice', 'kg_japanese', (v) => v.toFixed(1));
+    fill('tourism', 'foreign_yoy_pct', 'code', 'niigata', (v) => sign(v));
+    fill('tourism', 'foreign_yoy_pct', 'code', 'japan', (v) => sign(v));
+    fill('tourism', 'foreign', 'code', 'niigata', (v) => fmt(Number(v)));
+    fillKey('c_tour', 'offset_pct', (v) => v + '%');
+    fillKey('c_tour', 'fshare_niigata', (v) => v.toFixed(1) + '%');
+    fillKey('c_tour', 'fshare_japan', (v) => v.toFixed(1) + '%');
+    fillKey('c_tour', 'fpr_niigata', (v) => v.toFixed(2));
+    fillKey('c_tour', 'fpr_japan', (v) => v.toFixed(2));
+    fillKey('c_tour', 'gap_x', (v) => v.toFixed(1));
+    fillKey('c_tour', 'dom_change_pct', (v) => sign(v));
+    fillKey('c_density', 'shrine_10k_niigata', (v) => v.toFixed(1));
+    fillKey('c_density', 'shrine_10k_japan', (v) => v.toFixed(1));
+    fillKey('c_density', 'shrine_x', (v) => v.toFixed(1));
+    fillKey('c_density', 'swan_share', (v) => v + '%');
+    fillKey('c_density', 'cracker_per_resident', fmt);
+    fillKey('density', 'shrines_niigata', fmt);
+    fillKey('density', 'swans_niigata_2025', fmt);
+    document.querySelectorAll('.nz-feat [data-source="firsts"]').forEach((el) => {
+      const [col, val] = el.dataset.where.split('=');
+      fill('firsts', el.dataset.field, col, val, (v) => String(v));
+    });
+
+    const eBox = document.getElementById('energy-chart');
+    if (boxState(eBox, ['c_energy'])) {
+      const e = rowsOf('c_energy'); const g = (k) => kv(e, k).value;
+      hbars(eBox, [
+        { label: T.gas, value: g('gas_share'), text: g('gas_share').toFixed(1) + '%', color: dash.colors[0], strong: true },
+        { label: T.oil, value: g('oil_share'), text: g('oil_share').toFixed(1) + '%', color: dash.colors[0], strong: true },
+        { label: T.pop, value: g('pop_share'), text: g('pop_share').toFixed(2) + '%', color: 'var(--cds-chart-muted)' },
+      ], { max: 100, rowH: 40 });
+    }
+
+    const rBox = document.getElementById('rice-chart');
+    if (boxState(rBox, ['rice'])) {
+      const r = rowsOf('rice').filter((x) => x.rank != null).sort((a, b) => a.rank - b.rank);
+      hbars(rBox, r.map((x) => ({
+        label: x.prefecture, value: Number(x.tonnes), text: (Number(x.tonnes) / 1e4).toFixed(1),
+        tip: fmt(Number(x.tonnes)) + T.rice_tip_unit + x.rank + T.rice_tip_rank,
+        color: x.code === 'niigata' ? dash.colors[0] : 'var(--cds-chart-muted)', strong: x.code === 'niigata',
+      })), { rowH: 31 });
+    }
+
+    const tcBox = document.getElementById('tour-change-chart');
+    const tsBox = document.getElementById('tour-share-chart');
+    const okT = boxState(tcBox, ['c_tour']); boxState(tsBox, ['c_tour']);
+    if (okT) {
+      const t = rowsOf('c_tour'); const g = (k) => kv(t, k).value;
+      const s = (v) => (v > 0 ? '+' : '') + fmt(v);
+      hbars(tcBox, [
+        { label: T.jp, value: g('dom_change'), text: s(g('dom_change')), color: 'var(--cds-chart-status-critical)', tip: s(g('dom_change')) + T.nights },
+        { label: T.fr, value: g('foreign_added'), text: s(g('foreign_added')), color: dash.colors[0], tip: s(g('foreign_added')) + T.nights },
+        { label: T.tot, value: g('total_change'), text: s(g('total_change')), color: 'var(--cds-chart-muted)', strong: true, tip: s(g('total_change')) + T.nights },
+      ], { rowH: 40 });
+      hbars(tsBox, [
+        { label: T.lbl_jp, value: g('fshare_japan'), text: g('fshare_japan').toFixed(1) + '%', color: 'var(--cds-chart-muted)' },
+        { label: T.lbl_ni, value: g('fshare_niigata'), text: g('fshare_niigata').toFixed(1) + '%', color: dash.colors[0], strong: true },
+      ], { max: 40, rowH: 48 });
+    }
+
+    fillKey('c_pref_sum', 'share_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'growth_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'total_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'foreign_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'median_share', (v) => v.toFixed(1) + '%');
+    fillKey('c_pref_sum', 'one_in_niigata', (v) => v.toFixed(1));
+    fillKey('c_pref_sum', 'one_in_japan', (v) => v.toFixed(1));
+    fillKey('c_pref_sum', 'count', (v) => String(v));
+    const pgBox = document.getElementById('pref-growth');
+    if (boxState(pgBox, ['c_pref', 'tourism'])) {
+      const top = rowsOf('c_pref').slice().sort((a, b) => a.growth_rank - b.growth_rank).slice(0, 5);
+      const natG = Number(rowsOf('tourism').find((r) => r.code === 'japan').foreign_yoy_pct);
+      const bars = top.map((r) => ({
+        label: r.growth_rank + '. ' + r.name, value: r.growth, text: '+' + r.growth.toFixed(1) + '%',
+        tip: T.share_l + ' ' + r.share.toFixed(1) + '% · ' + T.growth_l + ' +' + r.growth.toFixed(1) + '%',
+        color: r.code === 'p15' ? dash.colors[0] : 'var(--cds-chart-muted)', strong: r.code === 'p15',
+      }));
+      bars.push({ label: T.lbl_jp, value: natG, text: '+' + natG.toFixed(1) + '%', color: 'var(--cds-chart-reference)' });
+      hbars(pgBox, bars, { rowH: 36 });
+    }
+
+    drawTable();
+  });
+})();
+</script>

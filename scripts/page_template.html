@@ -1,0 +1,511 @@
+<style>
+#dash-root { --dash-gutter: clamp(16px, 3vw, 40px); }
+.nz { font-family: var(--font-anthropic-sans); max-width: 72rem; margin-inline: auto; padding-bottom: var(--cds-gap-xl); }
+.nz-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-sm); }
+.nz-take { font-size: var(--cds-font-size-body); line-height: 1.8; margin: 0; max-width: 54rem; }
+.nz-meta { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: var(--cds-gap-sm) 0 0; line-height: 1.6; max-width: 54rem; }
+.nz-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin: var(--cds-gap-md) 0 0; }
+.nz-nav a { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; }
+.nz-nav a:hover { color: var(--color-fg); }
+.nz-sec { margin-top: calc(var(--cds-gap-xl) * 1.5); scroll-margin-top: var(--cds-gap-lg); }
+.nz-kicker { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); letter-spacing: .04em; margin: 0 0 var(--cds-gap-xs); }
+.nz-sec h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.nz-lede { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); line-height: 1.7; margin: 0 0 var(--cds-gap-md); max-width: 54rem; }
+.nz-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--cds-gap-md); margin-bottom: var(--cds-gap-md); }
+.nz-tiles.feat { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.nz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+.nz-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.nz-card h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.nz-note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 2px 0 var(--cds-gap-sm); line-height: 1.5; }
+.nz-label { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; }
+.nz-big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.2; margin: var(--cds-gap-xs) 0; }
+.nz-feat .nz-big { display: inline-block; margin-bottom: 0; }
+.nz-unit { display: inline-block; margin-left: 4px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.nz-feat .nz-sub { margin-top: var(--cds-gap-xs); }
+.nz-sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.6; font-variant-numeric: tabular-nums; }
+.nz .nz-sub b, .nz .nz-take b, .nz .nz-note b { font-weight: 600; color: var(--color-fg); }
+.nz-bad { color: var(--color-bad); }
+.nz-ok { color: var(--color-ok); }
+.nz-chart { position: relative; min-height: 150px; }
+.nz-chart.rice { min-height: 420px; }
+.nz-subhead { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-xl) 0 var(--cds-gap-xs); }
+.nz-chart svg { display: block; overflow: visible; }
+.nz-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; opacity: 0; z-index: 2; font-variant-numeric: tabular-nums; }
+.nz-tip .h { color: var(--cds-text-secondary); }
+.nz-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.nz-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.nz-tablebox { max-height: 30rem; overflow: auto; margin-top: var(--cds-gap-sm); }
+.nz-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.nz-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); }
+.nz-table th button { all: unset; cursor: pointer; }
+.nz-table td { padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.nz-table td.num, .nz-table th.num { text-align: right; }
+.nz-search { width: 100%; max-width: 20rem; box-sizing: border-box; font: inherit; font-size: var(--cds-font-size-caption); padding: 6px 10px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
+.nz-foot { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.7; margin-top: var(--cds-gap-xl); max-width: 54rem; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (max-width: 640px) { .hide-narrow { display: none; } }
+</style>
+
+<div class="nz" lang="[[lang]]">
+  <header class="nz-head" id="top">
+    <h1>[[title]]</h1>
+    <p class="nz-take" id="takeaway">[[take]]</p>
+    <p class="nz-meta">[[meta]]</p>
+    <nav class="nz-nav">[[NAV]]</nav>
+  </header>
+
+  <section class="nz-sec" id="sec-energy">
+    <p class="nz-kicker">[[k1]]</p>
+    <h2>[[h1]]</h2>
+    <p class="nz-lede">[[l1]]</p>
+    <div class="nz-grid">
+      <div class="nz-card">
+        <h3 id="chart-energy">[[c1t]]</h3>
+        <p class="nz-note">[[c1n]]</p>
+        <div class="nz-chart" id="energy-chart" data-source="c_energy"></div>
+      </div>
+      <div class="nz-card">
+        <h3>[[c1bt]]</h3>
+        <p class="nz-note">[[c1bn]]</p>
+        <div class="nz-tiles" style="margin:0">
+          <div><div class="nz-label">[[oil]]</div><div class="nz-big dash-skeleton" data-source="c_energy" data-field="value" data-where="key=oil_x">—</div></div>
+          <div><div class="nz-label">[[gas]]</div><div class="nz-big dash-skeleton" data-source="c_energy" data-field="value" data-where="key=gas_x">—</div></div>
+        </div>
+        <div class="nz-sub">[[c1sub]]</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-rice">
+    <p class="nz-kicker">[[k2]]</p>
+    <h2>[[h2]]</h2>
+    <p class="nz-lede">[[l2]]</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">[[t2a]]</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=share_pct">—</div><div class="nz-sub">[[t2as]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[t2b]]</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=lead_t">—</div><div class="nz-sub">[[t2bs]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[t2c]]</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=kg_resident">—</div><div class="nz-sub">[[t2cs]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[t2d]]</div><div class="nz-big dash-skeleton" data-source="c_rice" data-field="value" data-where="key=kg_japanese">—</div><div class="nz-sub">[[t2ds]]</div></div>
+    </div>
+    <div class="nz-card">
+      <h3 id="chart-rice">[[c2t]]</h3>
+      <p class="nz-note">[[c2n]]</p>
+      <div class="nz-chart rice" id="rice-chart" data-source="rice"></div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-tour">
+    <p class="nz-kicker">[[k3]]</p>
+    <h2>[[h3]]</h2>
+    <p class="nz-lede">[[l3]]</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">[[t3a]]</div><div class="nz-big dash-skeleton" data-source="tourism" data-field="foreign" data-where="code=niigata">—</div><div class="nz-sub">[[t3as1]] <b class="nz-ok" data-source="tourism" data-field="foreign_yoy_pct" data-where="code=niigata">—</b> · [[t3as2]] <b data-source="tourism" data-field="foreign_yoy_pct" data-where="code=japan">—</b></div></div>
+      <div class="nz-card"><div class="nz-label">[[t3b]]</div><div class="nz-big dash-skeleton" data-source="c_tour" data-field="value" data-where="key=fshare_niigata">—</div><div class="nz-sub">[[t3bs]] <b data-source="c_tour" data-field="value" data-where="key=fshare_japan">—</b></div></div>
+      <div class="nz-card"><div class="nz-label">[[t3c]]</div><div class="nz-big dash-skeleton" data-source="c_tour" data-field="value" data-where="key=fpr_niigata">—</div><div class="nz-sub">[[t3cs1]] <b data-source="c_tour" data-field="value" data-where="key=fpr_japan">—</b> · [[t3cs2]] <b data-source="c_tour" data-field="value" data-where="key=gap_x">—</b> [[t3cs3]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[t3d]]</div><div class="nz-big nz-bad dash-skeleton" data-source="c_tour" data-field="value" data-where="key=dom_change_pct">—</div><div class="nz-sub">[[t3ds]]</div></div>
+    </div>
+    <div class="nz-grid">
+      <div class="nz-card">
+        <h3 id="chart-tour-change">[[c3t]]</h3>
+        <p class="nz-note">[[c3n]]</p>
+        <div class="nz-chart" id="tour-change-chart" data-source="c_tour"></div>
+      </div>
+      <div class="nz-card">
+        <h3 id="chart-tour-share">[[c3bt]]</h3>
+        <p class="nz-note">[[c3bn]]</p>
+        <div class="nz-chart" id="tour-share-chart" data-source="c_tour"></div>
+      </div>
+    </div>
+
+    <h3 class="nz-subhead" id="pref-compare">[[p_h]]</h3>
+    <p class="nz-lede">[[p_l]]</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">[[p_t1]]</div><div class="nz-big dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=share_rank">—</div><div class="nz-sub">[[p_t1s]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[p_t2]]</div><div class="nz-big nz-ok dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=growth_rank">—</div><div class="nz-sub">[[p_t2s]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[p_t3]]</div><div class="nz-big dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=one_in_niigata">—</div><div class="nz-sub">[[p_t3s]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[p_t4]]</div><div class="nz-big dash-skeleton" data-source="c_pref_sum" data-field="value" data-where="key=total_rank">—</div><div class="nz-sub">[[p_t4s]]</div></div>
+    </div>
+    <div class="nz-card">
+      <h3 id="chart-pref-growth">[[p_c1t]]</h3>
+      <p class="nz-note">[[p_c1n]]</p>
+      <div class="nz-chart" id="pref-growth" data-source="c_pref tourism"></div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-density">
+    <p class="nz-kicker">[[k4]]</p>
+    <h2>[[h4]]</h2>
+    <p class="nz-lede">[[l4]]</p>
+    <div class="nz-tiles">
+      <div class="nz-card"><div class="nz-label">[[t4a]]</div><div class="nz-big dash-skeleton" data-source="c_density" data-field="value" data-where="key=shrine_10k_niigata">—</div><div class="nz-sub">[[t4as]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[t4b]]</div><div class="nz-big dash-skeleton" data-source="c_density" data-field="value" data-where="key=swan_share">—</div><div class="nz-sub">[[t4bs]]</div></div>
+      <div class="nz-card"><div class="nz-label">[[t4c]]</div><div class="nz-big dash-skeleton" data-source="c_density" data-field="value" data-where="key=cracker_per_resident">—</div><div class="nz-sub">[[t4cs]]</div></div>
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-fun">
+    <p class="nz-kicker">[[k5]]</p>
+    <h2>[[h5]]</h2>
+    <p class="nz-lede">[[l5]]</p>
+    <div class="nz-tiles feat">
+[[FEAT]]
+    </div>
+  </section>
+
+  <section class="nz-sec" id="sec-firsts">
+    <p class="nz-kicker">[[k6]]</p>
+    <h2>[[h6]]</h2>
+    <p class="nz-lede">[[l6]]</p>
+    <div class="nz-card">
+      <h3 id="table-firsts">[[c6t]]</h3>
+      <p class="nz-note">[[c6n1]] <span data-source="firsts" class="dash-skeleton" id="firsts-count">—</span> [[c6n2]]</p>
+      <input class="nz-search" id="firsts-search" type="search" placeholder="[[search]]" aria-label="[[search]]">
+      <div class="nz-tablebox">
+        <table class="nz-table" data-source="firsts" data-row-key="item" id="firsts-table">
+          <thead><tr>
+            <th data-field="item"><button data-k="item">[[th0]]</button></th>
+            <th data-field="field"><button data-k="field">[[th1]]</button></th>
+            <th data-field="value" class="num"><button data-k="value">[[th2]]</button></th>
+            <th data-field="unit">[[th3]]</th>
+            <th data-field="period" class="hide-narrow"><button data-k="period">[[th4]]</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <p class="nz-foot">[[foot]]</p>
+</div>
+
+<script>
+(function () {
+  const T = [[JS_T]];
+  const fmt = d3.format(',');
+  const sign = (v, d = 1) => (v > 0 ? '+' : '') + Number(v).toFixed(d) + '%';
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
+
+  // ---------- calculations ----------
+  dash.calc('c_energy', {
+    title: '[[ce_t]]',
+    description: '[[ce_d]]',
+    inputs: ['energy', 'population'],
+    fn: (energy, population) => {
+      const e = (c) => energy.find((x) => x.code === c);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      const oil = Number(e('oil').niigata) / Number(e('oil').japan) * 100;
+      const gas = Number(e('gas').niigata) / Number(e('gas').japan) * 100;
+      const pop = p('pop_census_2025') / p('jp_pop_2025') * 100;
+      return [
+        { key: 'oil_share', value: +oil.toFixed(1) },
+        { key: 'gas_share', value: +gas.toFixed(1) },
+        { key: 'pop_share', value: +pop.toFixed(2) },
+        { key: 'oil_x', value: Math.round(oil / pop) },
+        { key: 'gas_x', value: Math.round(gas / pop) },
+      ];
+    },
+  });
+
+  dash.calc('c_rice', {
+    title: '[[cr_t]]',
+    description: '[[cr_d]]',
+    inputs: ['rice', 'population'],
+    fn: (rice, population) => {
+      const t = (c) => Number(rice.find((r) => r.code === c).tonnes);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      return [
+        { key: 'share_pct', value: +(t('niigata') / t('japan') * 100).toFixed(1) },
+        { key: 'lead_t', value: t('niigata') - t('hokkaido') },
+        { key: 'kg_resident', value: Math.round(t('niigata') * 1000 / p('pop_census_2025')) },
+        { key: 'kg_japanese', value: +(t('niigata') * 1000 / p('jp_pop_2025')).toFixed(1) },
+      ];
+    },
+  });
+
+  dash.calc('c_tour', {
+    title: '[[ct_t]]',
+    description: '[[ct_d]]',
+    inputs: ['tourism', 'population'],
+    fn: (tourism, population) => {
+      const a = (c) => tourism.find((r) => r.code === c);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      const N = a('niigata'), J = a('japan');
+      const tot = Number(N.total), fr = Number(N.foreign);
+      const totPrev = tot / (1 + Number(N.total_yoy_pct) / 100);
+      const frPrev = fr / (1 + Number(N.foreign_yoy_pct) / 100);
+      const dom = tot - fr, domPrev = totPrev - frPrev;
+      const fprN = fr / p('pop_census_2025');
+      const fprJ = Number(J.foreign) / p('jp_pop_2025');
+      return [
+        { key: 'fshare_niigata', value: +(fr / tot * 100).toFixed(1) },
+        { key: 'fshare_japan', value: +(Number(J.foreign) / Number(J.total) * 100).toFixed(1) },
+        { key: 'fpr_niigata', value: +fprN.toFixed(2) },
+        { key: 'fpr_japan', value: +fprJ.toFixed(2) },
+        { key: 'gap_x', value: +(fprJ / fprN).toFixed(1) },
+        { key: 'foreign_added', value: Math.round(fr - frPrev) },
+        { key: 'dom_change', value: Math.round(dom - domPrev) },
+        { key: 'dom_change_pct', value: +((dom / domPrev - 1) * 100).toFixed(1) },
+        { key: 'total_change', value: Math.round(tot - totPrev) },
+        { key: 'offset_pct', value: Math.round((fr - frPrev) / -(dom - domPrev) * 100) },
+      ];
+    },
+  });
+
+  dash.calc('c_density', {
+    title: '[[cd_t]]',
+    description: '[[cd_d]]',
+    inputs: ['density', 'population'],
+    fn: (density, population) => {
+      const d = (k) => Number(density.find((x) => x.key === k).value);
+      const p = (k) => Number(population.find((x) => x.key === k).value);
+      const n = d('shrines_niigata') / p('pop_census_2025') * 1e4;
+      const j = d('shrines_japan') / p('jp_pop_2025') * 1e4;
+      return [
+        { key: 'shrine_10k_niigata', value: +n.toFixed(1) },
+        { key: 'shrine_10k_japan', value: +j.toFixed(1) },
+        { key: 'shrine_x', value: +(n / j).toFixed(1) },
+        { key: 'swan_share', value: Math.round(d('swans_niigata_2022') / d('swans_japan_2022') * 100) },
+        { key: 'cracker_per_resident', value: Math.round(d('rice_cracker_shipments') / p('pop_census_2025') / 100) * 100 },
+      ];
+    },
+  });
+
+  dash.calc('c_pref', {
+    title: '[[cp_t]]',
+    description: '[[cp_d]]',
+    inputs: ['prefectures'],
+    fn: (prefectures) => {
+      const rows = prefectures.map((r) => ({
+        code: r.code, name: r.name,
+        share: +(Number(r.foreign) / Number(r.total) * 100).toFixed(1),
+        growth: Number(r.foreign_yoy_pct),
+        total: Number(r.total), foreign: Number(r.foreign),
+      }));
+      const rankBy = (k) => rows.slice().sort((a, b) => b[k] - a[k]).map((r) => r.code);
+      const rs = rankBy('share'), rg = rankBy('growth'), rt = rankBy('total'), rf = rankBy('foreign');
+      return rows.map((r) => ({ ...r, share_rank: rs.indexOf(r.code) + 1, growth_rank: rg.indexOf(r.code) + 1,
+        total_rank: rt.indexOf(r.code) + 1, foreign_rank: rf.indexOf(r.code) + 1 }));
+    },
+  });
+
+  dash.calc('c_pref_sum', {
+    title: '[[cs_t]]',
+    description: '[[cs_d]]',
+    inputs: ['c_pref', 'tourism'],
+    fn: (c_pref, tourism) => {
+      const n = c_pref.find((r) => r.code === 'p15');
+      const jp = tourism.find((r) => r.code === 'japan');
+      const shares = c_pref.map((r) => r.share).sort((a, b) => a - b);
+      const median = (shares[23]);
+      return [
+        { key: 'share_rank', value: n.share_rank },
+        { key: 'growth_rank', value: n.growth_rank },
+        { key: 'total_rank', value: n.total_rank },
+        { key: 'foreign_rank', value: n.foreign_rank },
+        { key: 'median_share', value: median },
+        { key: 'one_in_niigata', value: +(n.total / n.foreign).toFixed(1) },
+        { key: 'one_in_japan', value: +(Number(jp.total) / Number(jp.foreign)).toFixed(1) },
+        { key: 'count', value: c_pref.length },
+      ];
+    },
+  });
+
+  // ---------- helpers ----------
+  const rowsOf = (id) => { const r = dash.data(id); return r.status === 'ok' ? r.data : null; };
+  const kv = (rows, k) => rows && rows.find((r) => r.key === k);
+  function fill(id, field, col, val, f) {
+    const rows = rowsOf(id);
+    const where = col + '=' + val;
+    document.querySelectorAll(`[data-source="${id}"][data-field="${field}"][data-where="${where}"]`).forEach((el) => {
+      const r = rows && rows.find((x) => String(x[col]) === val);
+      el.textContent = r ? f(r[field]) : '—';
+      el.classList.toggle('dash-skeleton', !rows && dash.data(id).status === 'loading');
+    });
+  }
+  const fillKey = (id, key, f) => fill(id, 'value', 'key', key, f);
+  function boxState(el, ids) {
+    const st = ids.map((i) => dash.data(i).status);
+    if (st.every((s) => s === 'ok')) { el.classList.remove('dash-skeleton'); return true; }
+    el.querySelectorAll('svg, .nz-fail').forEach((n) => n.remove());
+    if (st.some((s) => s === 'error' || s === 'connect' || s === 'declined' || s === 'missing')) {
+      el.classList.remove('dash-skeleton');
+      const d = document.createElement('div'); d.className = 'nz-fail'; d.textContent = 'Failed to load'; el.appendChild(d);
+    } else el.classList.add('dash-skeleton');
+    return false;
+  }
+  function tipFor(box) {
+    let t = box.querySelector('.nz-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'nz-tip'; box.appendChild(t); }
+    return {
+      show(ev, head, line) {
+        t.innerHTML = '';
+        const h = document.createElement('div'); h.className = 'h'; h.textContent = head; t.appendChild(h);
+        const l = document.createElement('div'); l.textContent = line; t.appendChild(l);
+        t.style.opacity = 1;
+        const b = box.getBoundingClientRect();
+        let x = ev.clientX - b.left + 12; const y = ev.clientY - b.top - 10;
+        const w = t.offsetWidth;
+        if (x + w > b.width) x = ev.clientX - b.left - w - 12;
+        t.style.left = Math.max(0, x) + 'px'; t.style.top = Math.max(0, y) + 'px';
+      },
+      hide() { t.style.opacity = 0; },
+    };
+  }
+  function measure(svg, texts) {
+    const g = svg.append('g').attr('opacity', 0);
+    const w = d3.max(texts, (s) => g.append('text').attr('font-size', css('--cds-font-size-caption')).text(s).node().getComputedTextLength()) || 0;
+    g.remove(); return w;
+  }
+  function hbars(box, data, opts) {
+    box.querySelectorAll('svg, .nz-fail').forEach((n) => n.remove());
+    const W = box.clientWidth || 600;
+    const rowH = opts.rowH || 30, H = data.length * rowH + 8;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const cap = css('--cds-font-size-caption');
+    const lw = measure(svg, data.map((d) => d.label)) + 12;
+    const vw = measure(svg, data.map((d) => d.text)) + 10;
+    const lo = Math.min(0, d3.min(data, (d) => d.value));
+    const hi = opts.max != null ? opts.max : Math.max(0, d3.max(data, (d) => d.value));
+    const x = d3.scaleLinear([lo, hi], [lw + (lo < 0 ? vw : 0), W - vw]);
+    const y = d3.scaleBand(data.map((d) => d.label), [4, H - 4]).padding(0.3);
+    const bh = Math.min(y.bandwidth(), 32);
+    const tip = tipFor(box);
+    if (lo < 0) svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 0).attr('y2', H).attr('stroke', 'var(--cds-chart-axis)');
+    const g = svg.selectAll('g.r').data(data).join('g').attr('class', 'r');
+    g.append('text').attr('x', 0).attr('y', (d) => y(d.label) + bh / 2).attr('dy', '0.35em').attr('font-size', cap)
+      .attr('fill', (d) => (d.strong ? 'var(--color-fg)' : 'var(--color-fg-muted)')).attr('font-weight', (d) => (d.strong ? 600 : null)).text((d) => d.label);
+    g.append('rect').attr('x', (d) => Math.min(x(0), x(d.value))).attr('y', (d) => y(d.label))
+      .attr('width', (d) => Math.max(1, Math.abs(x(d.value) - x(0)))).attr('height', bh).attr('rx', 4).attr('fill', (d) => d.color)
+      .on('mousemove', (ev, d) => tip.show(ev, d.label, d.tip || d.text)).on('mouseleave', () => tip.hide());
+    g.append('text').attr('x', (d) => (d.value < 0 ? x(d.value) - 6 : x(d.value) + 6)).attr('text-anchor', (d) => (d.value < 0 ? 'end' : 'start'))
+      .attr('y', (d) => y(d.label) + bh / 2).attr('dy', '0.35em').attr('font-size', cap).attr('fill', 'var(--color-fg)')
+      .style('font-variant-numeric', 'tabular-nums').text((d) => d.text);
+  }
+
+  // ---------- table ----------
+  let sortKey = null, sortDir = 1;
+  function drawTable() {
+    const tb = document.querySelector('#firsts-table tbody');
+    const rows = rowsOf('firsts');
+    tb.innerHTML = '';
+    const cnt = document.getElementById('firsts-count');
+    if (!rows) { cnt.textContent = '—'; cnt.classList.toggle('dash-skeleton', dash.data('firsts').status === 'loading'); return; }
+    cnt.classList.remove('dash-skeleton'); cnt.textContent = String(rows.length);
+    const q = (document.getElementById('firsts-search').value || '').trim().toLowerCase();
+    let list = rows.filter((r) => !q || (r.item + r.field + r.unit).toLowerCase().includes(q));
+    if (sortKey) {
+      const num = (v) => Number(String(v).replace(/,/g, ''));
+      list = list.slice().sort((a, b) => (sortKey === 'value' ? num(a.value) - num(b.value) : String(a[sortKey]).localeCompare(String(b[sortKey]), document.querySelector('.nz').lang)) * sortDir);
+    }
+    list.forEach((r) => {
+      const tr = document.createElement('tr');
+      [['item', ''], ['field', ''], ['value', 'num'], ['unit', ''], ['period', 'hide-narrow']].forEach(([k, c]) => {
+        const td = document.createElement('td'); if (c) td.className = c; td.textContent = r[k]; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+  document.getElementById('firsts-search').addEventListener('input', drawTable);
+  document.querySelectorAll('#firsts-table th button').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.k; sortDir = sortKey === k ? -sortDir : 1; sortKey = k;
+    document.querySelectorAll('#firsts-table th').forEach((th) => th.removeAttribute('aria-sort'));
+    b.parentElement.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending');
+    drawTable();
+  }));
+
+  // ---------- render ----------
+  dash.onData(() => {
+    fillKey('c_energy', 'oil_share', (v) => v.toFixed(1) + '%');
+    fillKey('c_energy', 'oil_x', (v) => v + T.x);
+    fillKey('c_energy', 'gas_x', (v) => v + T.x);
+    fill('energy', 'fields', 'code', 'oil', (v) => String(v));
+    fill('energy', 'niigata', 'code', 'oil', (v) => fmt(v));
+    fill('energy', 'japan', 'code', 'oil', (v) => fmt(v));
+    fillKey('c_rice', 'share_pct', (v) => v.toFixed(1) + '%');
+    fillKey('c_rice', 'lead_t', fmt);
+    fillKey('c_rice', 'kg_resident', fmt);
+    fillKey('c_rice', 'kg_japanese', (v) => v.toFixed(1));
+    fill('tourism', 'foreign_yoy_pct', 'code', 'niigata', (v) => sign(v));
+    fill('tourism', 'foreign_yoy_pct', 'code', 'japan', (v) => sign(v));
+    fill('tourism', 'foreign', 'code', 'niigata', (v) => fmt(Number(v)));
+    fillKey('c_tour', 'offset_pct', (v) => v + '%');
+    fillKey('c_tour', 'fshare_niigata', (v) => v.toFixed(1) + '%');
+    fillKey('c_tour', 'fshare_japan', (v) => v.toFixed(1) + '%');
+    fillKey('c_tour', 'fpr_niigata', (v) => v.toFixed(2));
+    fillKey('c_tour', 'fpr_japan', (v) => v.toFixed(2));
+    fillKey('c_tour', 'gap_x', (v) => v.toFixed(1));
+    fillKey('c_tour', 'dom_change_pct', (v) => sign(v));
+    fillKey('c_density', 'shrine_10k_niigata', (v) => v.toFixed(1));
+    fillKey('c_density', 'shrine_10k_japan', (v) => v.toFixed(1));
+    fillKey('c_density', 'shrine_x', (v) => v.toFixed(1));
+    fillKey('c_density', 'swan_share', (v) => v + '%');
+    fillKey('c_density', 'cracker_per_resident', fmt);
+    fillKey('density', 'shrines_niigata', fmt);
+    fillKey('density', 'swans_niigata_2025', fmt);
+    document.querySelectorAll('.nz-feat [data-source="firsts"]').forEach((el) => {
+      const [col, val] = el.dataset.where.split('=');
+      fill('firsts', el.dataset.field, col, val, (v) => String(v));
+    });
+
+    const eBox = document.getElementById('energy-chart');
+    if (boxState(eBox, ['c_energy'])) {
+      const e = rowsOf('c_energy'); const g = (k) => kv(e, k).value;
+      hbars(eBox, [
+        { label: T.gas, value: g('gas_share'), text: g('gas_share').toFixed(1) + '%', color: dash.colors[0], strong: true },
+        { label: T.oil, value: g('oil_share'), text: g('oil_share').toFixed(1) + '%', color: dash.colors[0], strong: true },
+        { label: T.pop, value: g('pop_share'), text: g('pop_share').toFixed(2) + '%', color: 'var(--cds-chart-muted)' },
+      ], { max: 100, rowH: 40 });
+    }
+
+    const rBox = document.getElementById('rice-chart');
+    if (boxState(rBox, ['rice'])) {
+      const r = rowsOf('rice').filter((x) => x.rank != null).sort((a, b) => a.rank - b.rank);
+      hbars(rBox, r.map((x) => ({
+        label: x.prefecture, value: Number(x.tonnes), text: (Number(x.tonnes) / 1e4).toFixed(1),
+        tip: fmt(Number(x.tonnes)) + T.rice_tip_unit + x.rank + T.rice_tip_rank,
+        color: x.code === 'niigata' ? dash.colors[0] : 'var(--cds-chart-muted)', strong: x.code === 'niigata',
+      })), { rowH: 31 });
+    }
+
+    const tcBox = document.getElementById('tour-change-chart');
+    const tsBox = document.getElementById('tour-share-chart');
+    const okT = boxState(tcBox, ['c_tour']); boxState(tsBox, ['c_tour']);
+    if (okT) {
+      const t = rowsOf('c_tour'); const g = (k) => kv(t, k).value;
+      const s = (v) => (v > 0 ? '+' : '') + fmt(v);
+      hbars(tcBox, [
+        { label: T.jp, value: g('dom_change'), text: s(g('dom_change')), color: 'var(--cds-chart-status-critical)', tip: s(g('dom_change')) + T.nights },
+        { label: T.fr, value: g('foreign_added'), text: s(g('foreign_added')), color: dash.colors[0], tip: s(g('foreign_added')) + T.nights },
+        { label: T.tot, value: g('total_change'), text: s(g('total_change')), color: 'var(--cds-chart-muted)', strong: true, tip: s(g('total_change')) + T.nights },
+      ], { rowH: 40 });
+      hbars(tsBox, [
+        { label: T.lbl_jp, value: g('fshare_japan'), text: g('fshare_japan').toFixed(1) + '%', color: 'var(--cds-chart-muted)' },
+        { label: T.lbl_ni, value: g('fshare_niigata'), text: g('fshare_niigata').toFixed(1) + '%', color: dash.colors[0], strong: true },
+      ], { max: 40, rowH: 48 });
+    }
+
+    fillKey('c_pref_sum', 'share_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'growth_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'total_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'foreign_rank', (v) => T.rank_pre + v + T.rank_post);
+    fillKey('c_pref_sum', 'median_share', (v) => v.toFixed(1) + '%');
+    fillKey('c_pref_sum', 'one_in_niigata', (v) => v.toFixed(1));
+    fillKey('c_pref_sum', 'one_in_japan', (v) => v.toFixed(1));
+    fillKey('c_pref_sum', 'count', (v) => String(v));
+    const pgBox = document.getElementById('pref-growth');
+    if (boxState(pgBox, ['c_pref', 'tourism'])) {
+      const top = rowsOf('c_pref').slice().sort((a, b) => a.growth_rank - b.growth_rank).slice(0, 5);
+      const natG = Number(rowsOf('tourism').find((r) => r.code === 'japan').foreign_yoy_pct);
+      const bars = top.map((r) => ({
+        label: r.growth_rank + '. ' + r.name, value: r.growth, text: '+' + r.growth.toFixed(1) + '%',
+        tip: T.share_l + ' ' + r.share.toFixed(1) + '% · ' + T.growth_l + ' +' + r.growth.toFixed(1) + '%',
+        color: r.code === 'p15' ? dash.colors[0] : 'var(--cds-chart-muted)', strong: r.code === 'p15',
+      }));
+      bars.push({ label: T.lbl_jp, value: natG, text: '+' + natG.toFixed(1) + '%', color: 'var(--cds-chart-reference)' });
+      hbars(pgBox, bars, { rowH: 36 });
+    }
+
+    drawTable();
+  });
+})();
+</script>

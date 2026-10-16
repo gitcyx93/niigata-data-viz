@@ -1,0 +1,44 @@
+[
+ {
+  "key": "shrines_niigata",
+  "label": "新潟県の神社数",
+  "value": 4656,
+  "period": "2024-12-31",
+  "source": "文化庁「宗教統計調査」（新潟県統計課「全国ベスト5」より）"
+ },
+ {
+  "key": "shrines_japan",
+  "label": "全国の神社数",
+  "value": 81074,
+  "period": "2019",
+  "source": "文化庁「宗教統計調査」令和元年版（幻冬舎GOLD ONLINEより）"
+ },
+ {
+  "key": "swans_niigata_2022",
+  "label": "新潟県のハクチョウ類飛来数",
+  "value": 21300,
+  "period": "2022-01",
+  "source": "環境省「第53回ガンカモ類の生息調査」"
+ },
+ {
+  "key": "swans_japan_2022",
+  "label": "全国のハクチョウ類飛来数",
+  "value": 76000,
+  "period": "2022-01",
+  "source": "環境省「第53回ガンカモ類の生息調査」"
+ },
+ {
+  "key": "swans_niigata_2025",
+  "label": "新潟県のハクチョウ類飛来数",
+  "value": 20671,
+  "period": "2025-01",
+  "source": "環境省（新潟県統計課「全国ベスト5」より）"
+ },
+ {
+  "key": "rice_cracker_shipments",
+  "label": "米菓の出荷額",
+  "value": 179700000000,
+  "period": "2023",
+  "source": "総務省・経済産業省「2024年経済構造実態調査」（新潟県統計課より）"
+ }
+]

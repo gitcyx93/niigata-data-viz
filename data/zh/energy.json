@@ -1,0 +1,22 @@
+[
+ {
+  "code": "oil",
+  "resource": "原油",
+  "niigata": 263129,
+  "japan": 385431,
+  "unit": "kL",
+  "year": 2024,
+  "fields": 13,
+  "source": "新潟县产业振兴课「新潟県の石油・天然ガス」（令和6年数据）"
+ },
+ {
+  "code": "gas",
+  "resource": "天然气",
+  "niigata": 1375696,
+  "japan": 1902602,
+  "unit": "千m³",
+  "year": 2024,
+  "fields": 13,
+  "source": "新潟县产业振兴课「新潟県の石油・天然ガス」（令和6年数据）"
+ }
+]
