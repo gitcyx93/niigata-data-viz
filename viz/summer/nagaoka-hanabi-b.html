@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>长冈花火</title>
+<title>长冈花火 B</title>
 <style>
   html,body{margin:0;height:100%;background:#03040a}
   body{display:flex;align-items:center;justify-content:center}
@@ -13,12 +13,11 @@
 <body>
 <canvas id="c" width="1080" height="1920"></canvas>
 <script>
-// 长冈花火（新潟县长冈市）—— 夏季场景
-// 画面：信浓川上的「凤凰」与「正三尺玉」，远处是长生桥。
-// render(t) 是确定性的：同一个 t 永远画出同一帧，便于逐帧录制；所有动画在 T 秒内首尾相接。
+// 长冈花火（新潟县长冈市）—— 夏季场景，方案 B「海报」：巨大的空心字压在夜空里，烟花从字上炸开。
+// 节奏：开场 → 正三尺玉（预热）→ 凤凰两波扫场 → 凤凰展翅（全片高潮）→ 金色垂柳 → 提醒。
+// render(t) 是确定性的：同一个 t 永远画出同一帧；所有动画在 T 秒内首尾相接。
 
-// ---- 视觉参数 ----
-// SCENE：夜景和烟花（高对比、彩色）。TYPE：文字（与 Facebook 统一的蓝白）。
+// ======== 场景（方案 A / B 共用）========
 const SCENE = {
   skyTop:'#020309', skyMid:'#070b22', skyLow:'#1a1638', hills:'#05071a', city:'#04060f',
   bridge:'#010205', riverTop:'#0f0d26', river:'#03040d', shore:'#010206', crowd:'#000105',
@@ -26,17 +25,12 @@ const SCENE = {
   // 烟花颜色 [色相, 饱和度]：0 金 1 红 2 品红 3 绿 4 青 5 白 6 银蓝
   fw:[[42,95],[355,92],[318,88],[138,75],[188,92],[0,0],[210,45]]
 };
-const TYPES = {
-  // 雾蓝：在深色夜景上不刺眼，和 Facebook 的蓝同一色相（约 214°），饱和度降到一半左右
-  // 金色用来突出数字，珊瑚色只用于提醒（TIPS），其余保持雾蓝和白
-  mist: { text:'#f4f7fb', soft:'rgba(232,239,249,.74)', accent:'#9dbde8', bar:'#6f97d2',
-          gold:'#f3c776', coral:'#ff8f7a', card:'rgba(5,9,26,.74)', line:'rgba(157,189,232,.28)' },
-};
-const TYPE = TYPES.mist;   // ← 换文字配色只改这一行
+// 文字配色：雾蓝和白为主；金色只标数字，珊瑚色只用于提醒
+const TYPE = { text:'#f4f7fb', soft:'rgba(232,239,249,.78)', accent:'#9dbde8', bar:'#6f97d2', gold:'#f3c776', coral:'#ff8f7a' };
 const FONT = '"Noto Sans SC","PingFang SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
 
-const W = 1080, H = 1920, T = 20;          // 画布尺寸、循环周期（秒）
-const HORIZON = 1290, RIVER_END = 1770;    // 河面范围
+const W = 1080, H = 1920, T = 20;
+const HORIZON = 1290, RIVER_END = 1770;
 
 const cv = document.getElementById('c'), g = cv.getContext('2d');
 const TAU = Math.PI * 2;
@@ -45,8 +39,7 @@ const rnd = (a, b = 0) => fract(Math.sin(a * 127.1 + b * 311.7) * 43758.5453);
 const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 const ease = x => x * x * (3 - 2 * x);
 const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
-const fade = (t, a, b, d = .5) => clamp((t - a) / d) * clamp((b - t) / d);
-const bump = (x, w = .35) => x > 0 && x < w ? Math.sin(x / w * Math.PI) : 0;   // 一次短促的弹跳
+const since = (t, t0) => fract((t - t0) / T) * T;      // 距离 t0 过去了多久（跨循环首尾）
 
 // ---- 烟花编排 ----
 const bursts = [];
@@ -57,18 +50,26 @@ function shell(t0, x, y, R, c, o = {}) {
 // 开场：第 0 秒就有一朵正在盛开的烟花，平台截第一帧当封面时也好看
 shell(T - 1.5, 540, 830, 280, 1, {n: 120, life: 3.0, rise: 1.0});
 shell(T - 1.2, 540, 830, 150, 0, {n: 60, life: 2.6, rise: 1.0});
-shell(0.9, 250, 920, 190, 3);
-shell(1.5, 840, 860, 210, 2);
-shell(2.5, 560, 760, 220, 0, {n: 70, life: 3.2, G: 120, trail: .45, sat: 80});         // 金色垂柳
-// 凤凰：三波，横跨整个画面
-for (let i = 0; i < 16; i++) shell(4.0 + i * .13, 70 + i * 63, 960 - Math.sin(i / 15 * Math.PI) * 110, 170, i % 2 ? 0 : 5, {n: 64, life: 2.2, rise: .8});
-for (let i = 0; i < 16; i++) shell(6.0 + i * .13, 1010 - i * 63, 920 - Math.sin(i / 15 * Math.PI) * 150, 175, [1, 2, 4, 3][i % 4], {n: 64, life: 2.2, rise: .8});
-for (let i = 0; i < 9; i++) shell(8.4, 80 + i * 115, 860 + (i % 2) * 70, 190, 5, {n: 56, life: 2.8, rise: .9, crackle: true});
-// 正三尺玉：金色，炸开后慢慢垂落、噼啪闪烁
-const SANSHAKU = 12.6 + 1.9, SK = {x: 540, y: 890, R: 350};
-shell(12.6, SK.x, SK.y, SK.R, 0, {n: 340, life: 5.2, G: 62, rise: 1.9, trail: .34, crackle: true, big: true, sat: 75});
-shell(12.6, SK.x, SK.y, SK.R * .45, 5, {n: 120, life: 2.2, rise: 1.9, trail: .2});
-shell(17.0, 820, 920, 160, 4, {n: 50});
+shell(0.9, 250, 930, 180, 3);
+shell(1.6, 840, 880, 200, 2);
+// 正三尺玉（预热）
+const SK = {t: 3.2 + 1.6, x: 540, y: 880, R: 330};
+shell(3.2, SK.x, SK.y, SK.R, 0, {n: 300, life: 4.4, G: 62, rise: 1.6, trail: .3, crackle: true, big: true, sat: 75});
+shell(3.2, SK.x, SK.y, SK.R * .42, 5, {n: 100, life: 2.0, rise: 1.6, trail: .2});
+// 凤凰：第一波从左往右（金白），第二波从右往左（彩色）
+const WAVE1 = 8.2 + .8;
+for (let i = 0; i < 16; i++) shell(8.2 + i * .11, 70 + i * 63, 960 - Math.sin(i / 15 * Math.PI) * 110, 165, i % 2 ? 0 : 5, {n: 64, life: 2.2, rise: .8});
+for (let i = 0; i < 16; i++) shell(9.9 + i * .11, 1010 - i * 63, 930 - Math.sin(i / 15 * Math.PI) * 140, 170, [1, 2, 4, 3][i % 4], {n: 64, life: 2.2, rise: .8});
+// 凤凰展翅：15 发同时炸开，排成张开的双翼，中间一发白色大芯 —— 全片高潮
+const PHX = {t: 11.6 + .8, x: 540, y: 900};
+for (let i = -7; i <= 7; i++) {
+  const u = Math.abs(i) / 7;
+  shell(11.6, 540 + i * 68, 960 - Math.pow(u, 1.1) * 360, 150 - u * 30, u > .6 ? 0 : 5, {n: 80, life: 2.6, rise: .8, crackle: true});
+}
+shell(11.6, PHX.x, PHX.y, 300, 5, {n: 180, life: 2.4, rise: .8, trail: .2, big: true});
+// 金色垂柳：整片落下来
+for (let i = 0; i < 10; i++) shell(12.1 + (i % 2) * .15, 90 + i * 100, 760 + (i % 3) * 30, 190, 0, {n: 60, life: 4.4, G: 150, rise: .8, trail: .6, sat: 80});
+shell(17.4, 820, 920, 160, 4, {n: 50});
 
 // ---- 静态背景（只画一次）----
 const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
@@ -77,14 +78,14 @@ const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
   let gr = b.createLinearGradient(0, 0, 0, HORIZON);
   gr.addColorStop(0, SCENE.skyTop); gr.addColorStop(.6, SCENE.skyMid); gr.addColorStop(1, SCENE.skyLow);
   b.fillStyle = gr; b.fillRect(0, 0, W, HORIZON);
-  for (let i = 0; i < 180; i++) {                       // 星星
+  for (let i = 0; i < 180; i++) {
     b.fillStyle = `rgba(255,255,255,${.1 + rnd(i, 3) * .35})`;
     b.fillRect(rnd(i, 1) * W, rnd(i, 2) * 1000, 1.6, 1.6);
   }
   b.fillStyle = SCENE.hills; b.beginPath(); b.moveTo(0, HORIZON - 40);   // 东山连峰
   for (let x = 0; x <= W; x += 20) b.lineTo(x, HORIZON - 52 - Math.sin(x / 210) * 26 - Math.sin(x / 67) * 8 - (x > 600 ? (x - 600) * .1 : 0));
   b.lineTo(W, HORIZON); b.lineTo(0, HORIZON); b.fill();
-  b.fillStyle = SCENE.city;                              // 对岸街区
+  b.fillStyle = SCENE.city;
   for (let x = -10; x < W; ) {
     const w = 18 + rnd(x, 7) * 40, h = 10 + rnd(x, 8) * 38;
     b.fillRect(x, HORIZON - h, w, h);
@@ -124,9 +125,8 @@ function particle(b, i, a) {
   const rr = b.R * sp * (1 - Math.exp(-3.1 * a));
   return [b.x + Math.cos(th) * rr, b.y + Math.sin(th) * rr * .96 + b.G * a * a];
 }
-// 返回这一发此刻的亮度和颜色，用来照亮天空、人群和标题
 function drawBurst(b, t, mirror) {
-  const age = fract((t - b.t0) / T) * T;          // 取模，让循环首尾相接
+  const age = since(t, b.t0);
   if (age < b.rise) {                              // 升空的光尾
     const p = ease(age / b.rise), y = HORIZON - (HORIZON - b.y) * p;
     line(b.x + Math.sin(p * 9) * 2, y, b.x, Math.min(HORIZON, y + 46), `hsla(40,70%,82%,${.85 * (1 - p * .3)})`, 2.5, mirror);
@@ -180,7 +180,7 @@ function drawCrowd(light, rim) {
   });
 }
 
-// ---- 文字 ----
+// ---- 文字工具 ----
 function setFont(size, weight = 500, spacing = 0) {
   g.font = `${weight} ${size}px ${FONT}`;
   if ('letterSpacing' in g) g.letterSpacing = spacing + 'px';
@@ -188,10 +188,26 @@ function setFont(size, weight = 500, spacing = 0) {
 function text(s, x, y, size, color, weight = 500, align = 'left', spacing = 0) {
   setFont(size, weight, spacing); g.fillStyle = color; g.textAlign = align; g.fillText(s, x, y);
   if ('letterSpacing' in g) g.letterSpacing = '0px';
+  setFont(size, weight, spacing); const w = g.measureText(s).width;
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+  return w;
 }
-function shadowText(s, x, y, size, color, weight, align, spacing) {
-  g.save(); g.shadowColor = 'rgba(0,0,0,.65)'; g.shadowBlur = 18;
-  text(s, x, y, size, color, weight, align, spacing); g.restore();
+function shadowText(...args) {
+  g.save(); g.shadowColor = 'rgba(0,0,0,.8)'; g.shadowBlur = 22; g.shadowOffsetY = 2;
+  const w = text(...args); g.restore(); return w;
+}
+// 一段文字的出场/退场：从下往上「升起」显露，结束时淡出
+function scene(t, from, to) {
+  const age = since(t, from), dur = since(to, from);
+  if (age > dur) return 0;
+  return {p: from > to && t < to ? 1 : easeOut(age / .55), out: clamp((dur - age) / .35), age};
+}
+function reveal(s, y, h, draw) {
+  if (!s) return;
+  g.save(); g.globalAlpha = s.out;
+  g.beginPath(); g.rect(0, y - h, W, h * 1.35); g.clip();
+  g.translate(0, (1 - s.p) * h * .9);
+  draw(); g.restore();
 }
 
 function drawTitle() {
@@ -201,72 +217,77 @@ function drawTitle() {
   text('日本三大花火之一 · 每年 8 月 2–3 日', 80, 468, 34, TYPE.soft, 500, 'left', 2);
 }
 
-// ---- 每个场景一张字幕卡 ----
-// from/to：出现的时间（秒），可以跨过循环的首尾；head：标题分段，[文字, 颜色]
-const CAPTIONS = [
-  {from: 19.6, to: 3.9, tag: '规模', tagColor: 'gold',
-   head: [['两晚约 ', 'text'], ['2 万发', 'gold']], sub: '每年到场观看的人超过 100 万'},
-  {from: 4.2, to: 8.2, tag: '看点', tagColor: 'accent',
-   head: [['「凤凰」横跨约 ', 'text'], ['2 公里', 'gold']], sub: '2005 年起燃放，为中越地震的复兴祈愿'},
-  {from: 8.5, to: 12.5, tag: 'TIPS', tagColor: 'coral',
-   head: [['观览席很抢手', 'text']], sub: '建议提前预约，也可以找旅行社代订'},
-  {from: 14.6, to: 19.3, tag: '高潮', tagColor: 'gold',
-   head: [['正三尺玉 · 直径约 ', 'text'], ['650 米', 'gold']], sub: '一发炸开，整片夜空被照亮'},
-];
-function roundRect(x, y, w, h, r) {
-  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
-  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+// ======== 方案 B 的文字：巨大的空心字压在夜空里，烟花从字上炸开；河面上只留一行说明 ========
+const CAP = 1470;                                  // 河面上说明文字的基线
+
+// 巨型空心字（画在烟花后面、跟着镜头一起动）
+function bigWord(s, size, color, vis, opt = {}) {
+  if (vis <= 0) return;
+  const {y = 1060, fill = 0, clipX = W, scale = 1} = opt;
+  g.save(); g.globalAlpha = vis;
+  g.beginPath(); g.rect(0, 0, clipX, H); g.clip();
+  g.translate(W / 2, y); g.scale(scale, scale);
+  setFont(size, 900, -size * .04); g.textAlign = 'center';
+  if (fill > 0) { g.fillStyle = color; g.globalAlpha = vis * fill; g.fillText(s, 0, 0); g.globalAlpha = vis; }
+  g.strokeStyle = color; g.lineWidth = 3; g.strokeText(s, 0, 0);
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+  g.restore();
 }
-function drawCaption(t) {
-  CAPTIONS.forEach(c => {
-    const age = fract((t - c.from) / T) * T, dur = fract((c.to - c.from) / T) * T;   // 支持跨循环首尾
-    if (age > dur) return;
-    const inP = easeOut(age / .4), out = clamp((dur - age) / .3);
-    // 第 0 秒那张卡直接完整显示，保证封面上有字
-    const p = c.from > c.to && t < c.to ? 1 : inP;
-    const x = 80, y = 1336 + (1 - p) * 36, w = 920, h = 192;
-    g.globalAlpha = p * out;
-    roundRect(x, y, w, h, 22); g.fillStyle = TYPE.card; g.fill();
-    g.strokeStyle = TYPE.line; g.lineWidth = 1.5; g.stroke();
-    // 标签
-    setFont(24, 700, 3); const tw = g.measureText(c.tag).width + 30;
-    roundRect(x + 32, y + 26, tw, 38, 19); g.fillStyle = TYPE[c.tagColor]; g.fill();
-    text(c.tag, x + 32 + tw / 2, y + 54, 24, '#0a0f24', 700, 'center', 3);
-    // 标题（数字用金色）
-    let hx = x + 32;
-    c.head.forEach(([s, col]) => { text(s, hx, y + 124, 52, TYPE[col], 800, 'left', 1); setFont(52, 800, 1); hx += g.measureText(s).width; });
-    text(c.sub, x + 32, y + 166, 30, TYPE.soft, 500, 'left', 1);
-    g.globalAlpha = 1;
+function typoBack(t) {
+  let s;
+  if ((s = scene(t, 19.5, 4.4))) bigWord('2万', 470, TYPE.accent, s.out * s.p * .75, {scale: 1.08 - .08 * s.p});
+  if ((s = scene(t, 5.0, 8.6))) bigWord('650m', 380, TYPE.accent, s.out * s.p * .75, {scale: 1.08 - .08 * s.p});
+  // 2km：跟着凤凰第一波从左往右「写」出来
+  if ((s = scene(t, WAVE1 - .2, PHX.t + .05))) {
+    const p = easeOut((t - WAVE1) / (15 * .11 + .2));
+    bigWord('2km', 520, TYPE.accent, s.out * .8, {clipX: 70 + 945 * p});
+  }
+  // 高潮：「凤凰」两个大字被闪光灌满金色，再慢慢退成空心
+  if ((s = scene(t, PHX.t, 16.2))) {
+    const k = Math.exp(-s.age * 1.6);
+    bigWord('凤凰', 500, TYPE.gold, s.out, {fill: .15 + .7 * k, scale: 1 + .12 * k});
+  }
+  if ((s = scene(t, 16.5, 19.4))) bigWord('早订', 470, TYPE.coral, s.out * s.p * .8, {scale: 1.08 - .08 * s.p});
+}
+
+// 河面上一行说明：分段着色，居中
+function caption(t, from, to, parts, y = CAP) {
+  reveal(scene(t, from, to), y, 60, () => {
+    let total = 0; parts.forEach(([s, c, size = 40]) => { setFont(size, 700, 1); total += g.measureText(s).width; });
+    let x = (W - total) / 2;
+    parts.forEach(([s, c, size = 40]) => { x += shadowText(s, x, y, size, TYPE[c], 700, 'left', 1); });
   });
 }
-
-// 数据：正三尺玉 —— 直径标尺跟着烟花一起张开，数字同步数到 650
-function drawSanshaku(t) {
-  const a = t - SANSHAKU;
-  const vis = clamp((a - .15) / .3) * clamp((19.3 - t) / .6);
-  if (vis <= 0) return;
-  const r = SK.R * .93 * (1 - Math.exp(-3.1 * a)), cx = SK.x, cy = SK.y;
-  g.globalAlpha = vis;
-  g.strokeStyle = TYPE.accent; g.lineWidth = 3;
-  g.beginPath(); g.moveTo(cx - r, cy); g.lineTo(cx + r, cy); g.stroke();
-  [-1, 1].forEach(d => { g.beginPath(); g.moveTo(cx + d * r, cy - 16); g.lineTo(cx + d * r, cy + 16); g.stroke(); });
-  shadowText(String(Math.round(650 * easeOut(a / 1.6))), cx + 40, cy - 34, 104, TYPE.text, 800, 'right');
-  shadowText('米', cx + 54, cy - 36, 44, TYPE.accent, 700, 'left');
-  g.globalAlpha = 1;
+function typoFront(t) {
+  caption(t, 19.5, 4.4, [['两晚 ', 'text'], ['2 万发', 'gold', 52], [' · 每年 100 万人到场', 'soft']]);
+  caption(t, 5.0, 8.6, [['正三尺玉 · 一发的直径 ', 'text'], ['650 米', 'gold', 52]]);
+  caption(t, WAVE1 - .2, PHX.t, [['「凤凰」从河的一头扫到另一头 ', 'text'], ['2 公里', 'gold', 52]]);
+  caption(t, PHX.t + .3, 16.2, [['PHOENIX', 'gold', 40], [' · 为中越地震的复兴祈愿', 'text']]);
+  caption(t, 16.6, 19.4, [['TIPS  ', 'coral', 40], ['观览席很抢手：提前预约，或找旅行社代订', 'text', 38]]);
 }
 
+// ======== 渲染 ========
+function hits(t) {           // 镜头冲击：正三尺玉小一点，凤凰展翅最大
+  return [[SK, .45], [PHX, 1]].map(([e, s]) => {
+    const sa = since(t, e.t);
+    return sa < 3 ? {e, sa, s} : null;
+  }).filter(Boolean);
+}
 function render(t) {
   now = t = fract(t / T) * T;
-  // 镜头：平时静止；正三尺玉炸开的瞬间猛地推近、强震，然后慢慢回位
-  const sa = t - SANSHAKU, hit = sa > 0 ? Math.exp(-sa * 2.2) : 0;
-  const zoom = 1 + .07 * hit * clamp(sa / .08);
-  const shake = sa > 0 && sa < 1 ? Math.exp(-sa * 5) * 26 : 0;
+  let zoom = 1, ox = 0, oy = 0, cx = 540, cy = 900;
+  hits(t).forEach(({e, sa, s}) => {
+    zoom += .08 * s * Math.exp(-sa * 2.2) * clamp(sa / .08);
+    const sh = sa < 1 ? Math.exp(-sa * 5) * 30 * s : 0;
+    ox += Math.sin(sa * 70) * sh; oy += Math.cos(sa * 55) * sh; cx = e.x; cy = e.y;
+  });
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.fillStyle = SCENE.skyTop; g.fillRect(0, 0, W, H);
-  g.setTransform(zoom, 0, 0, zoom, SK.x * (1 - zoom) + Math.sin(sa * 70) * shake, SK.y * (1 - zoom) + Math.cos(sa * 55) * shake);
+  g.setTransform(zoom, 0, 0, zoom, cx * (1 - zoom) + ox, cy * (1 - zoom) + oy);
 
   g.globalCompositeOperation = 'source-over';
   g.drawImage(bg, 0, 0);
+  typoBack(t);
   g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
   const lights = [];
   g.save(); g.beginPath(); g.rect(0, 0, W, HORIZON - 8); g.clip();
@@ -276,7 +297,6 @@ function render(t) {
   g.globalAlpha = .34; bursts.forEach(b => drawBurst(b, t, true)); g.globalAlpha = 1;
   g.restore();
 
-  // 每一发烟花用自己的颜色照亮周围的天空
   let light = 0, glow = {v: 0, col: 'transparent'};
   lights.forEach(l => {
     light += l.v;
@@ -286,34 +306,33 @@ function render(t) {
     g.fillStyle = gr; g.fillRect(0, 0, W, RIVER_END);
     if (l.v > glow.v) glow = {v: l.v, col: `hsla(${l.hue},${Math.max(30, l.sat)}%,62%,${Math.min(.9, l.v)})`};
   });
-  // 冲击波：一圈光环从炸点扩散出去
-  if (sa > 0 && sa < 1) {
-    const p = easeOut(sa / 1);
-    g.strokeStyle = `rgba(255,226,170,${.55 * (1 - sa)})`; g.lineWidth = 10 * (1 - sa) + 2;
-    g.beginPath(); g.arc(SK.x, SK.y, 80 + p * 900, 0, TAU); g.stroke();
-  }
+  // 冲击波和闪光
+  hits(t).forEach(({e, sa, s}) => {
+    if (sa < 1.1) {
+      g.strokeStyle = `rgba(255,226,170,${.6 * s * (1 - sa / 1.1)})`; g.lineWidth = 12 * (1 - sa / 1.1) + 2;
+      g.beginPath(); g.arc(e.x, e.y, 80 + easeOut(sa / 1.1) * 1000, 0, TAU); g.stroke();
+    }
+    if (sa < .8) {
+      const k = Math.pow(1 - sa / .8, 2), fl = g.createRadialGradient(e.x, e.y, 0, e.x, e.y, 1400);
+      fl.addColorStop(0, `rgba(255,236,190,${.9 * s * k})`); fl.addColorStop(1, `rgba(255,170,90,${.28 * s * k})`);
+      g.fillStyle = fl; g.fillRect(-100, -100, W + 200, H + 200);
+    }
+  });
   g.globalCompositeOperation = 'source-over';
   drawCrowd(light, a => glow.col.replace(/[\d.]+\)$/, a + ')'));
   g.setTransform(1, 0, 0, 1, 0, 0);
-
-  // 正三尺玉的白色闪光
-  if (sa > 0 && sa < .7) {                       // 用加色提亮，而不是盖一层白，避免画面发灰
-    const k = Math.pow(1 - sa / .7, 2), fl = g.createRadialGradient(SK.x, SK.y, 0, SK.x, SK.y, 1300);
-    fl.addColorStop(0, `rgba(255,236,190,${.85 * k})`); fl.addColorStop(1, `rgba(255,170,90,${.25 * k})`);
-    g.globalCompositeOperation = 'lighter'; g.fillStyle = fl; g.fillRect(0, 0, W, H);
-    g.globalCompositeOperation = 'source-over';
-  }
 
   // 文字层（不跟镜头动，保证清晰）
   const tg = g.createLinearGradient(0, 0, 0, 600);
   tg.addColorStop(0, 'rgba(1,3,12,.8)'); tg.addColorStop(1, 'rgba(1,3,12,0)');
   g.fillStyle = tg; g.fillRect(0, 0, W, 600);
+  const bgr = g.createLinearGradient(0, 1300, 0, 1620);        // 河面上压一点暗，托住文字
+  bgr.addColorStop(0, 'rgba(1,3,12,0)'); bgr.addColorStop(.5, 'rgba(1,3,12,.62)'); bgr.addColorStop(1, 'rgba(1,3,12,0)');
+  g.fillStyle = bgr; g.fillRect(0, 1300, W, 320);
   drawTitle();
-  drawSanshaku(t);
-  drawCaption(t);
+  typoFront(t);
 }
 
-// ---- 播放 ----
 window.render = render;
 window.LOOP_SECONDS = T;
 const ready = document.fonts ? document.fonts.ready : Promise.resolve();
