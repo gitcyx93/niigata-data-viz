@@ -22,6 +22,7 @@ FAMILIES = {
     'Source Han Serif SC': [('@fontsource-variable/noto-serif-sc@5.3.1', 'wght.css', '200 900')],  # 思源宋体
     'LXGW WenKai':         [('lxgw-wenkai-webfont@1.7.0', 'lxgwwenkai-bold.css', '700')],          # 霞鹜文楷（粗）
     'Oswald':              [('@fontsource-variable/oswald@5.3.0', 'wght.css', '200 700')],          # 英文窄体
+    'Sora':                [('@fontsource-variable/sora@5.3.0', 'wght.css', '100 800')],            # 现代几何无衬线（数字、英文）
 }
 CACHE = Path(os.environ.get('NIIGATA_FONT_CACHE', Path.home() / '.cache' / 'niigata-fonts'))
 
