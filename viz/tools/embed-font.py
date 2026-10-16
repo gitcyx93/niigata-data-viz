@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""把页面用到的字体按实际用到的字裁剪后，嵌进 HTML。
+"""生成可以单独打开的页面：嵌入系列公共代码（viz/common/series.js），再把用到的字体裁剪后嵌进 HTML。
+
+1. 公共代码：页面里写 <script src="../common/series.js"></script>（或者已经嵌过的 /*SERIES-START*/ … /*SERIES-END*/），
+   脚本把它换成 series.js 当前的内容。这样一个 HTML 文件就能单独打开、单独发给别人（不嵌的话单独打开是黑屏）。
+   公共代码只改 series.js，改完对每一集重新跑一次这个脚本。
+2. 字体：
 
 页面里要有一段占位，写明要哪几种字体（名字见下面的 FAMILIES）：
     /*FONTS-START Source Han Sans SC|LXGW WenKai*/ ... /*FONTS-END*/
@@ -50,6 +55,7 @@ def parse_ranges(spec):
 
 def used_chars(html):
     html = re.sub(r'/\*FONTS-START.*?/\*FONTS-END\*/', '', html, flags=re.S)
+    html = re.sub(r'/\*SERIES-START.*?/\*SERIES-END\*/', '', html, flags=re.S)   # 公共代码里没有画面上的中文
     html = re.sub(r'/\*.*?\*/', '', html, flags=re.S)           # 注释里的字不需要字形
     html = re.sub(r'(^|\s)//[^\n]*', r'\1', html)
     chars = {ord(c) for c in html if ord(c) > 0x7e}
@@ -81,9 +87,19 @@ def faces_of(family, chars, spec, css_name, weight):
         yield [family, weight, rng.replace(' ', ''), base64.b64encode(buf.getvalue()).decode()]
 
 
+SERIES = Path(__file__).resolve().parent.parent / 'common' / 'series.js'
+
+
+def inline_series(html):
+    js = SERIES.read_text(encoding='utf-8')
+    block = '<script>\n/*SERIES-START 系列公共代码，由 viz/tools/embed-font.py 从 viz/common/series.js 嵌入，不要在这里改*/\n' + js + '/*SERIES-END*/\n</script>'
+    html = re.sub(r'<script src="\.\./common/series\.js"></script>', lambda _: block, html)
+    return re.sub(r'<script>\n/\*SERIES-START.*?/\*SERIES-END\*/\n</script>', lambda _: block, html, flags=re.S)
+
+
 def main(path):
     page = Path(path)
-    html = page.read_text(encoding='utf-8')
+    html = inline_series(page.read_text(encoding='utf-8'))
     m = re.search(r'/\*FONTS-START ([^*]+)\*/', html)
     if not m:
         sys.exit('页面里没有找到 /*FONTS-START 字体名|字体名*/ ... /*FONTS-END*/ 占位')

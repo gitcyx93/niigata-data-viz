@@ -1,9 +1,7 @@
 // 新潟系列的公共部分：四季每一集都用同一套文字层、标题、旁白和导出接口，保证系列视觉统一。
-// 页面里先放字体数据（FONT_DATA），再引入这个文件，最后写自己的场景：
-//   <canvas id="c" width="1080" height="1920"></canvas>
-//   <script>/*FONTS-START Source Han Sans SC|Sora*/ … /*FONTS-END*/</script>
-//   <script src="../common/series.js"></script>
-//   <script> const T = 20; … function render(t) { … drawHeader(t, light, HEADER); typo… } boot(render); </script>
+// 页面的写法（照着 viz/summer/nagaoka-hanabi-a.html）：
+//   canvas#c（1080×1920）→ 字体占位的 script → 引入这个文件的 script → 页面自己的场景 script（最后调用 boot(render)）。
+// 跑 viz/tools/embed-font.py 时，这个文件的内容会被直接嵌进页面，页面就能单独打开。
 // 页面需要定义：T（循环秒数）。画面上的中文都写在页面里（字体按页面里的字裁剪，繁体版也只转换页面）。
 // 改了这里的样式，四集一起变；改完把每一集都重新检查、重新导出。
 
