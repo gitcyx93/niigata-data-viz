@@ -76,7 +76,7 @@ function shell(t0, x, y, R, c, o = {}) {
   const [hue, sat] = SCENE.fw[c];
   bursts.push(Object.assign({t0, x, y, R, hue, sat, n: 70, life: 2.4, G: 46, rise: 1.1, trail: .14, crackle: false}, o));
 }
-// 开场：上一轮淡出的黑幕里就已经升空，第 0 秒正好盛开（第一帧可当封面）
+// 开场：上一轮最后半秒已经升空，第 0 秒正好盛开——循环播放时首尾无缝衔接（第一帧可当封面）
 shell(T - .7, 540, 830, 280, 1, {n: 120, life: 3.0, rise: .3});
 shell(0.2, 540, 830, 150, 0, {n: 60, life: 2.6, rise: .25});
 shell(0.9, 250, 930, 180, 3);
@@ -481,7 +481,7 @@ const TT = '长冈花火', TX = 30, TB = 190;
 //  b 镜面：深色抛光金属，字面上真的映出此刻天上的烟花（把画面倒过来贴进字里）
 // 两种都会被烟花照出一块柔和的高光，位置、颜色跟着烟花走，亮度有上限
 const params = new URLSearchParams(location.search);
-const STYLE = {title: params.get('title') || 'a'};
+const STYLE = {title: params.get('title') || 'b'};
 const TITLES = {a: '拉丝铬', b: '镜面反射'};
 const titleWork = document.createElement('canvas'); titleWork.width = 860; titleWork.height = 300;
 const mask = () => titleLayer('mask', x => { x.fillStyle = '#fff'; x.fillText(TT, TX, TB); });
@@ -503,14 +503,22 @@ function chromeA(x) {
   }
   x.globalCompositeOperation = 'source-over'; x.drawImage(bevel(), 0, 0);
 }
-const titleShadow = () => titleLayer('shadow', x => {
-  x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 34; x.shadowOffsetY = 10; x.shadowOffsetX = 5000; x.fillStyle = '#000'; x.fillText(TT, TX - 5000, TB);
+const titleShadow = () => titleLayer('shadow', x => {    // 很轻的投影，只为把字从夜空里托起来
+  x.shadowColor = 'rgba(0,0,0,.42)'; x.shadowBlur = 26; x.shadowOffsetY = 6; x.shadowOffsetX = 5000; x.fillStyle = '#000'; x.fillText(TT, TX - 5000, TB);
 });
-function chromeB(x) {                                     // 抛光的枪灰色金属（不含阴影，阴影单独一层）
+function chromeB(x) {                                     // 哑光银：接近白色，跟画面里其他白字是一个调子；中间的「地平线」很淡
   const top = TB - 112, h = 124, m = x.createLinearGradient(0, top, 0, top + h);
-  [[0, '#b7c2d4'], [.42, '#56627a'], [.5, '#2c3446'], [.55, '#c9d3e3'], [.7, '#6b7891'], [1, '#8d99ae']].forEach(([o, c]) => m.addColorStop(o, c));
+  [[0, '#f6f8fc'], [.44, '#c9d2df'], [.52, '#9aa7ba'], [.6, '#e3e8f0'], [1, '#aab5c6']].forEach(([o, c]) => m.addColorStop(o, c));
   x.fillStyle = m; x.fillText(TT, TX, TB);
 }
+const bevelSoft = () => titleLayer('bevelSoft', x => {   // 细倒角：上沿一道淡亮边、下沿一道淡暗边
+  x.fillStyle = 'rgba(255,255,255,.7)'; x.fillText(TT, TX, TB - 1.5);
+  x.globalCompositeOperation = 'destination-out'; x.fillText(TT, TX, TB);
+  x.globalCompositeOperation = 'source-over'; x.fillStyle = 'rgba(20,28,45,.35)'; x.fillText(TT, TX, TB + 2);
+  x.globalCompositeOperation = 'destination-in'; x.fillText(TT, TX, TB);
+});
+// 字面映出的天空：先缩到很小（相当于磨砂金属的模糊），再放大贴进字里
+const sheen = document.createElement('canvas'); sheen.width = 96; sheen.height = 30;
 function drawTitle(t, L) {
   const ew = text('NIIGATA', 80, 262, 26, TYPE.accent, 500, 'left', 8);
   text('新潟县长冈市', 80 + ew + 22, 262, 26, 'rgba(222,230,244,.68)', 400, 'left', 4);
@@ -518,15 +526,17 @@ function drawTitle(t, L) {
   const base = titleLayer('chrome' + STYLE.title, STYLE.title === 'b' ? chromeB : chromeA);
   const w = titleWork.getContext('2d');
   w.setTransform(1, 0, 0, 1, 0, 0); w.globalCompositeOperation = 'source-over'; w.globalAlpha = 1; w.clearRect(0, 0, 860, 300);
-  if (STYLE.title === 'b') {                                // 镜面：把此刻天上的烟花倒过来、加亮映进金属里
+  if (STYLE.title === 'b') {                                // 镜面：此刻天上的烟花，模糊后以「柔光」映在银色金属上
     g.drawImage(titleShadow(), X, Y);
+    const sc = sheen.getContext('2d');
+    sc.setTransform(1, 0, 0, -1, 0, 30);                    // 上下翻转：天空映在字面上是倒的
+    sc.drawImage(cv, 60, 520, W - 120, 760, 0, 0, 96, 30);
     w.drawImage(base, 0, 0);
-    w.save(); w.globalCompositeOperation = 'lighter'; w.globalAlpha = .95;
-    w.translate(0, TB + 30); w.scale(1, -1);
-    w.drawImage(cv, 60, 560, W - 120, 720, TX - 10, 0, 640, 190);
-    w.restore();
-    w.globalCompositeOperation = 'destination-in'; w.drawImage(mask(), 0, 0);
-    w.globalCompositeOperation = 'source-over'; w.drawImage(bevel(), 0, 0);
+    w.imageSmoothingEnabled = true; w.imageSmoothingQuality = 'high';
+    w.globalCompositeOperation = 'soft-light'; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
+    w.globalCompositeOperation = 'lighter'; w.globalAlpha = .35; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
+    w.globalAlpha = 1; w.globalCompositeOperation = 'destination-in'; w.drawImage(mask(), 0, 0);
+    w.globalCompositeOperation = 'source-over'; w.drawImage(bevelSoft(), 0, 0);
   } else w.drawImage(base, 0, 0);
   if (L.light > .03) {                                       // 高光：跟着烟花的位置和颜色
     const hx = TX + clamp(L.x / W) * 600;
@@ -677,9 +687,6 @@ function render(t) {
   g.drawImage(verticalSprite('riverband', [[0, [1, 3, 12, 0]], [.5, [1, 3, 12, 158]], [1, [1, 3, 12, 0]]]), 0, 1300, W, 320);   // 河面上压一点暗，托住文字
   drawTitle(t, {light, lc, x: light > 0 ? lx / light : W / 2});
   typoFront(t);
-  // 结尾淡出成黑（开头不淡入，第一帧就是完整画面）
-  const dark = ease(clamp((t - 19.1) / .9));
-  if (dark > 0) { g.fillStyle = `rgba(0,0,0,${dark})`; g.fillRect(0, 0, W, H); }
 }
 
 window.render = render;
