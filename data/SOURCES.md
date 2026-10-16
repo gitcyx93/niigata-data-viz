@@ -31,7 +31,7 @@
 ## 长冈花火（viz/summer/nagaoka-hanabi-a.html）
 
 - 两晚约 2 万发、每年 100 万人以上、「凤凰」2005 年起为中越地震复兴祈愿、横向约 2 km、正三尺玉直径约 650 m：LIVE JAPAN https://livejapan.com/ja/in-tohoku/in-pref-niigata/in-joetsu_uonuma_yuzawa/spot-lj0012210 ；観光庁 多言語解説文DB https://www.mlit.go.jp/tagengo-db/en/R2-01246.html
-- 日本三大花火的另外两个是秋田大曲、茨城土浦；凤凰起因是 2004 年新潟县中越大地震：同上 LIVE JAPAN。
+- 日本三大花火大会：新潟长冈、秋田大曲、茨城土浦；凤凰起因是 2004 年新潟县中越大地震：同上 LIVE JAPAN。
 - 「约 6 个足球场首尾相接」：650 m ÷ 105 m（标准足球场长度）≈ 6.2，自行换算。
 - 中越地震为 2004 年，PHOENIX 2005 年（第二年）起燃放：同上 LIVE JAPAN。
 - 观览席抢手、建议提前预约或找旅行社：Chen 提供的经验信息。
