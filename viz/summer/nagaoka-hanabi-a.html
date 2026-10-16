@@ -482,104 +482,85 @@ const TT = '长冈花火', TX = 30, TB = 190;
 //  - 被烟花照出一块柔和的高光，位置、颜色跟着烟花走，亮度有上限
 // 不变的几层只画一次；每帧只在一张小画布上贴几次图
 const params = new URLSearchParams(location.search);
-// 标题方案（网址加 ?title=a|b|c|d 切换；不录制时页面下方也有按钮）
-const TITLES = {a: '原版', b: '圆润倒角', c: '斜切倒角', d: '斜切倒角 + 薄厚度'};
-const STYLE = {title: TITLES[params.get('title')] ? params.get('title') : 'c'};
+// 标题方案（网址加 ?title=a|e|f|g 切换；不录制时页面下方也有按钮）。都在原版上叠浮雕，原版的几层不变
+const TITLES = {a: '原版', e: '原版 + 内浮雕', f: '原版 + 外浮雕', g: '原版 + 内外浮雕'};
+const STYLE = {title: TITLES[params.get('title')] ? params.get('title') : 'e'};
 const titleWork = document.createElement('canvas'); titleWork.width = 860; titleWork.height = 300;
 const mask = () => titleLayer('mask', x => { x.fillStyle = '#fff'; x.fillText(TT, TX, TB); });
 const titleShadow = () => titleLayer('shadow', x => {
   x.shadowColor = 'rgba(0,0,0,.42)'; x.shadowBlur = 26; x.shadowOffsetY = 6; x.shadowOffsetX = 5000; x.fillStyle = '#000'; x.fillText(TT, TX - 5000, TB);
 });
-const silverOf = (key, stops) => titleLayer(key, x => {
-  const m = x.createLinearGradient(0, TB - 112, 0, TB + 12);
-  stops.forEach(([o, c]) => m.addColorStop(o, c));
+const silver = () => titleLayer('silver', x => {
+  const top = TB - 112, m = x.createLinearGradient(0, top, 0, TB + 12);
+  m.addColorStop(0, '#f8fafd'); m.addColorStop(.55, '#dce2eb'); m.addColorStop(1, '#b2bdcd');
   x.fillStyle = m; x.fillText(TT, TX, TB);
 });
-const silver = () => STYLE.title === 'a'
-  ? silverOf('silver', [[0, '#f8fafd'], [.55, '#dce2eb'], [1, '#b2bdcd']])
-  : silverOf('silver2', [[0, '#ffffff'], [.5, '#d9dfe8'], [1, '#9aa5b6']]);   // 对比更大，但仍是平滑的一段
 const bevel = () => titleLayer('bevel', x => {
   x.fillStyle = 'rgba(255,255,255,.85)'; x.fillText(TT, TX, TB - 2);          // 上沿亮边
   x.globalCompositeOperation = 'destination-out'; x.fillText(TT, TX, TB);
   x.globalCompositeOperation = 'source-over'; x.fillStyle = 'rgba(18,26,44,.45)'; x.fillText(TT, TX, TB + 2.5);   // 下沿暗边
   x.globalCompositeOperation = 'destination-in'; x.fillText(TT, TX, TB);
 });
-// 真正的倒角：按字形算出每一点离边缘多远，靠边的一圈做成斜面，
-// 再按「光从上方偏左照下来」算每个斜面的明暗：朝上的面亮，朝下的面暗，字面中间保持平整。
-// 只在第一次用到时算一次（约 0.1 秒），之后和其他层一样每帧贴图。
-function edt(f, w, h) {                       // 精确欧氏距离变换（Felzenszwalb），f 为 0 / INF
-  const n = Math.max(w, h), d = new Float64Array(n), v = new Int32Array(n), z = new Float64Array(n + 1), line = new Float64Array(n);
-  const pass = (get, set, len) => {
-    for (let i = 0; i < len; i++) line[i] = get(i);
-    let k = 0; v[0] = 0; z[0] = -Infinity; z[1] = Infinity;
-    const sect = (q, p) => ((line[q] + q * q) - (line[p] + p * p)) / (2 * q - 2 * p);
-    for (let q = 1; q < len; q++) {
-      let s = sect(q, v[k]);
-      while (s <= z[k]) { k--; s = sect(q, v[k]); }
-      k++; v[k] = q; z[k] = s; z[k + 1] = Infinity;
+// 浮雕：把字形模糊一下当成高度（字的中间高、边缘往外慢慢落下去），
+// 再按「光从左上方照下来」算明暗：朝光的坡亮，背光的坡暗，平的地方不变。
+//  - 内浮雕：只取字里面的部分，笔画像是鼓起来的
+//  - 外浮雕：只取字外面的部分，右下方落一圈柔和的暗、左上方一点点亮，字像从夜空里凸出来
+// 只在第一次用到时算一次，之后每帧贴图
+function blurF(a, w, h, r) {                   // 三次盒式模糊 ≈ 高斯模糊
+  const tmp = new Float32Array(w * h), n = 2 * r + 1;
+  for (let k = 0; k < 3; k++) {
+    for (let y = 0; y < h; y++) {
+      let acc = 0; const o = y * w;
+      for (let x = -r; x <= r; x++) acc += a[o + Math.min(w - 1, Math.max(0, x))];
+      for (let x = 0; x < w; x++) { tmp[o + x] = acc / n; acc += a[o + Math.min(w - 1, x + r + 1)] - a[o + Math.max(0, x - r)]; }
     }
-    k = 0;
-    for (let q = 0; q < len; q++) { while (z[k + 1] < q) k++; const p = v[k]; d[q] = (q - p) * (q - p) + line[p]; }
-    for (let i = 0; i < len; i++) set(i, d[i]);
-  };
-  for (let x = 0; x < w; x++) pass(y => f[y * w + x], (y, val) => f[y * w + x] = val, h);
-  for (let y = 0; y < h; y++) pass(x => f[y * w + x], (x, val) => f[y * w + x] = val, w);
-  return f;
+    for (let x = 0; x < w; x++) {
+      let acc = 0;
+      for (let y = -r; y <= r; y++) acc += tmp[Math.min(h - 1, Math.max(0, y)) * w + x];
+      for (let y = 0; y < h; y++) { a[y * w + x] = acc / n; acc += tmp[Math.min(h - 1, y + r + 1) * w + x] - tmp[Math.max(0, y - r) * w + x]; }
+    }
+  }
+  return a;
 }
-const embossLayer = (key, o) => titleLayer(key, x => {
-  const w = 860, h = 300, a = mask().getContext('2d').getImageData(0, 0, w, h).data;
-  const f = new Float64Array(w * h);
-  for (let i = 0; i < w * h; i++) f[i] = a[i * 4 + 3] > 127 ? 1e12 : 0;
-  edt(f, w, h);
-  const H = new Float32Array(w * h);           // 高度：边缘 0，往里 o.depth 像素升到 1
-  for (let i = 0; i < w * h; i++) {
-    const u = Math.min(1, Math.max(0, (Math.sqrt(f[i]) - .5 + a[i * 4 + 3] / 255 * .5) / o.depth));
-    H[i] = o.round ? Math.sqrt(1 - (1 - u) * (1 - u)) : u;
+function emboss(key, o) {
+  if (titleLayers[key]) return titleLayers[key];
+  const w = 860, h = 300, m = mask().getContext('2d').getImageData(0, 0, w, h).data;
+  const height = r => { const a = new Float32Array(w * h); for (let i = 0; i < w * h; i++) a[i] = m[i * 4 + 3] / 255; return blurF(a, w, h, r); };
+  const Hi = height(o.ri), Ho = o.ro === o.ri ? Hi : height(o.ro);    // 字里、字外可以用不同的坡宽
+  const L = [-.5, -.7, .5], ll = Math.hypot(...L); L[0] /= ll; L[1] /= ll; L[2] /= ll;
+  const mk = () => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  const inC = mk(), outC = mk(), inI = inC.getContext('2d').createImageData(w, h), outI = outC.getContext('2d').createImageData(w, h);
+  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+    const i = y * w + x, al = m[i * 4 + 3] / 255;
+    const shade = (H, k) => {
+      const gx = (H[i + 1] - H[i - 1]) / 2 * k, gy = (H[i + w] - H[i - w]) / 2 * k;
+      return (-gx * L[0] - gy * L[1] + L[2]) / Math.hypot(gx, gy, 1) - L[2];
+    };
+    const put = (img, A, hiA, loA, sh) => {
+      if (Math.abs(sh) < .004) return;
+      const j = i * 4, d = img.data;
+      if (sh > 0) { d[j] = d[j + 1] = d[j + 2] = 255; d[j + 3] = Math.min(1, sh * 1.6) * hiA * A * 255; }
+      else { d[j] = 6; d[j + 1] = 8; d[j + 2] = 14; d[j + 3] = Math.min(1, -sh * 1.6) * loA * A * 255; }
+    };
+    if (al > 0 && (o.inHi || o.inLo)) put(inI, al, o.inHi, o.inLo, shade(Hi, o.ki));
+    if (al < 1 && (o.outHi || o.outLo)) put(outI, 1 - al, o.outHi, o.outLo, shade(Ho, o.ko));
   }
-  const L = [-.35, -.78, .52], ll = Math.hypot(...L); L[0] /= ll; L[1] /= ll; L[2] /= ll;
-  const img = x.createImageData(w, h), px = img.data;
-  for (let y = 1; y < h - 1; y++) for (let xx = 1; xx < w - 1; xx++) {
-    const i = y * w + xx, al = a[i * 4 + 3] / 255;
-    if (!al) continue;
-    const gx = (H[i + 1] - H[i - 1]) / 2 * o.depth * o.slope, gy = (H[i + w] - H[i - w]) / 2 * o.depth * o.slope;
-    const nl = Math.hypot(gx, gy, 1);
-    const sh = (-gx * L[0] - gy * L[1] + L[2]) / nl - L[2];      // 平面为 0，朝光为正
-    const j = i * 4;
-    if (sh > 0) { const v = Math.min(1, Math.pow(sh * o.hi, .85)); px[j] = px[j + 1] = px[j + 2] = 255; px[j + 3] = v * o.hiA * 255 * al; }
-    else { const v = Math.min(1, -sh * o.lo); px[j] = 20; px[j + 1] = 24; px[j + 2] = 32; px[j + 3] = v * o.loA * 255 * al; }
-  }
-  x.putImageData(img, 0, 0);
-  if (o.rim) {                                 // 斜切的棱：上沿一道细亮线
-    const r = document.createElement('canvas'); r.width = w; r.height = h;
-    const rx = r.getContext('2d'); rx.font = x.font; if ('letterSpacing' in rx) rx.letterSpacing = '6px';
-    rx.fillStyle = 'rgba(255,255,255,.9)'; rx.fillText(TT, TX, TB - 1.2);
-    rx.globalCompositeOperation = 'destination-out'; rx.fillText(TT, TX, TB);
-    rx.globalCompositeOperation = 'destination-in'; rx.fillText(TT, TX, TB);
-    x.drawImage(r, 0, 0);
-  }
-});
-const BEVELS = {
-  b: () => embossLayer('emb-round', {depth: 7, round: true, slope: 1.1, hi: 1.6, hiA: .85, lo: 1.5, loA: .62}),
-  c: () => embossLayer('emb-chisel', {depth: 5.5, slope: 1.3, hi: 1.9, hiA: .95, lo: 1.7, loA: .7, rim: true}),
+  inC.getContext('2d').putImageData(inI, 0, 0); outC.getContext('2d').putImageData(outI, 0, 0);
+  return titleLayers[key] = {inner: inC, outer: outC};
+}
+const RELIEF = {
+  e: () => emboss('relief-e', {ri: 5, ki: 18, inHi: .85, inLo: .6, ro: 5, ko: 0, outHi: 0, outLo: 0}),
+  f: () => emboss('relief-f', {ri: 5, ki: 0, inHi: 0, inLo: 0, ro: 2, ko: 7, outHi: .55, outLo: .85}),
+  g: () => emboss('relief-g', {ri: 5, ki: 18, inHi: .8, inLo: .55, ro: 2, ko: 7, outHi: .5, outLo: .85}),
 };
-BEVELS.d = BEVELS.c;
-// 薄厚度：字往右下方偏移着叠几层中性的深钢色，看起来像一块有厚度的金属牌（不是夸张的 3D 挤出）
-const side = () => titleLayer('side', x => {
-  const N = 7;
-  for (let i = N; i >= 1; i--) {
-    const k = i / N, c = Math.round(104 - 62 * k);
-    x.fillStyle = `rgb(${c},${c + 3},${c + 9})`; x.fillText(TT, TX + i * .45, TB + i);
-  }
-  x.fillStyle = 'rgba(255,255,255,.22)'; x.fillText(TT, TX + .45, TB + 1);    // 紧贴字面的一道亮棱
-});
 const sheen = document.createElement('canvas'); sheen.width = 96; sheen.height = 24;
 function drawTitle(t, L) {
   const ew = text('NIIGATA', 80, 262, 26, TYPE.accent, 500, 'left', 8);
   text('新潟县长冈市', 80 + ew + 22, 262, 26, 'rgba(222,230,244,.68)', 400, 'left', 4);
   const X = 74 - TX, Y = 404 - TB;
-  const v = STYLE.title;
+  const relief = RELIEF[STYLE.title] && RELIEF[STYLE.title]();
   g.drawImage(titleShadow(), X, Y);
-  if (v === 'd') g.drawImage(side(), X, Y);
+  if (relief) g.drawImage(relief.outer, X, Y);
   // 只截夜空（不含远山和桥），免得深色的山在字里映出一条暗带
   const sc = sheen.getContext('2d');
   sc.setTransform(1, 0, 0, -1, 0, 24);
@@ -589,7 +570,7 @@ function drawTitle(t, L) {
   w.drawImage(silver(), 0, 0);
   w.imageSmoothingEnabled = true; w.imageSmoothingQuality = 'high';
   w.globalCompositeOperation = 'soft-light'; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
-  w.globalCompositeOperation = 'lighter'; w.globalAlpha = v === 'a' ? .35 : .45; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
+  w.globalCompositeOperation = 'lighter'; w.globalAlpha = .35; w.drawImage(sheen, TX - 20, TB - 130, 660, 160);
   w.globalAlpha = 1;
   if (L.light > .03) {                                       // 高光：跟着烟花的位置和颜色
     const hx = TX + clamp(L.x / W) * 600;
@@ -598,7 +579,9 @@ function drawTitle(t, L) {
     w.globalAlpha = 1;
   }
   w.globalCompositeOperation = 'destination-in'; w.drawImage(mask(), 0, 0);
-  w.globalCompositeOperation = 'source-over'; w.drawImage(v === 'a' ? bevel() : BEVELS[v](), 0, 0);
+  w.globalCompositeOperation = 'source-over';
+  if (relief) w.drawImage(relief.inner, 0, 0);
+  w.drawImage(bevel(), 0, 0);
   g.drawImage(titleWork, X, Y);
   drawStory(t);
 }
