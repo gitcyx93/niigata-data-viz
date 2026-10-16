@@ -28,7 +28,9 @@ const SCENE = {
 };
 const TYPES = {
   // 雾蓝：在深色夜景上不刺眼，和 Facebook 的蓝同一色相（约 214°），饱和度降到一半左右
-  mist: { text:'#f4f7fb', soft:'rgba(232,239,249,.72)', accent:'#9dbde8', bar:'#6f97d2' },
+  // 金色用来突出数字，珊瑚色只用于提醒（TIPS），其余保持雾蓝和白
+  mist: { text:'#f4f7fb', soft:'rgba(232,239,249,.74)', accent:'#9dbde8', bar:'#6f97d2',
+          gold:'#f3c776', coral:'#ff8f7a', card:'rgba(5,9,26,.74)', line:'rgba(157,189,232,.28)' },
 };
 const TYPE = TYPES.mist;   // ← 换文字配色只改这一行
 const FONT = '"Noto Sans SC","PingFang SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
@@ -199,6 +201,45 @@ function drawTitle() {
   text('日本三大花火之一 · 每年 8 月 2–3 日', 80, 468, 34, TYPE.soft, 500, 'left', 2);
 }
 
+// ---- 每个场景一张字幕卡 ----
+// from/to：出现的时间（秒），可以跨过循环的首尾；head：标题分段，[文字, 颜色]
+const CAPTIONS = [
+  {from: 19.6, to: 3.9, tag: '规模', tagColor: 'gold',
+   head: [['两晚约 ', 'text'], ['2 万发', 'gold']], sub: '每年到场观看的人超过 100 万'},
+  {from: 4.2, to: 8.2, tag: '看点', tagColor: 'accent',
+   head: [['「凤凰」横跨约 ', 'text'], ['2 公里', 'gold']], sub: '2005 年起燃放，为中越地震的复兴祈愿'},
+  {from: 8.5, to: 12.5, tag: 'TIPS', tagColor: 'coral',
+   head: [['观览席很抢手', 'text']], sub: '建议提前预约，也可以找旅行社代订'},
+  {from: 14.6, to: 19.3, tag: '高潮', tagColor: 'gold',
+   head: [['正三尺玉 · 直径约 ', 'text'], ['650 米', 'gold']], sub: '一发炸开，整片夜空被照亮'},
+];
+function roundRect(x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+function drawCaption(t) {
+  CAPTIONS.forEach(c => {
+    const age = fract((t - c.from) / T) * T, dur = fract((c.to - c.from) / T) * T;   // 支持跨循环首尾
+    if (age > dur) return;
+    const inP = easeOut(age / .4), out = clamp((dur - age) / .3);
+    // 第 0 秒那张卡直接完整显示，保证封面上有字
+    const p = c.from > c.to && t < c.to ? 1 : inP;
+    const x = 80, y = 1336 + (1 - p) * 36, w = 920, h = 192;
+    g.globalAlpha = p * out;
+    roundRect(x, y, w, h, 22); g.fillStyle = TYPE.card; g.fill();
+    g.strokeStyle = TYPE.line; g.lineWidth = 1.5; g.stroke();
+    // 标签
+    setFont(24, 700, 3); const tw = g.measureText(c.tag).width + 30;
+    roundRect(x + 32, y + 26, tw, 38, 19); g.fillStyle = TYPE[c.tagColor]; g.fill();
+    text(c.tag, x + 32 + tw / 2, y + 54, 24, '#0a0f24', 700, 'center', 3);
+    // 标题（数字用金色）
+    let hx = x + 32;
+    c.head.forEach(([s, col]) => { text(s, hx, y + 124, 52, TYPE[col], 800, 'left', 1); setFont(52, 800, 1); hx += g.measureText(s).width; });
+    text(c.sub, x + 32, y + 166, 30, TYPE.soft, 500, 'left', 1);
+    g.globalAlpha = 1;
+  });
+}
+
 // 数据：正三尺玉 —— 直径标尺跟着烟花一起张开，数字同步数到 650
 function drawSanshaku(t) {
   const a = t - SANSHAKU;
@@ -211,7 +252,6 @@ function drawSanshaku(t) {
   [-1, 1].forEach(d => { g.beginPath(); g.moveTo(cx + d * r, cy - 16); g.lineTo(cx + d * r, cy + 16); g.stroke(); });
   shadowText(String(Math.round(650 * easeOut(a / 1.6))), cx + 40, cy - 34, 104, TYPE.text, 800, 'right');
   shadowText('米', cx + 54, cy - 36, 44, TYPE.accent, 700, 'left');
-  shadowText('正三尺玉 · 一发的直径', cx, cy + 62, 32, TYPE.text, 600, 'center', 2);
   g.globalAlpha = 1;
 }
 
@@ -270,6 +310,7 @@ function render(t) {
   g.fillStyle = tg; g.fillRect(0, 0, W, 600);
   drawTitle();
   drawSanshaku(t);
+  drawCaption(t);
 }
 
 // ---- 播放 ----
