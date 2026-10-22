@@ -84,7 +84,7 @@
 
 ## 检查
 
-改完页面跑一次（只输出几行结果）：
+需要检查时（Chen 说要检查，或者导出视频前）跑一次，只输出几行结果：
 `NODE_PATH=/opt/node22/lib/node_modules node viz/tools/check.js <页面.html> [--strip 缩略图.png] [--at 秒,秒] [--compare 旧页面.html]`
 它检查报错、字体、单独打开、首尾接缝、每帧耗时；`--strip` 出每 0.5 秒一格的全片缩略图，用来自己先看一遍节奏和构图；改了 series.js 后用 `--compare` 确认其他集没变。
 
@@ -108,5 +108,7 @@
 - Chen 的电脑上没有 git，文件通过 GitHub 网页拖拽上传到这个仓库。
 - 给 Chen 发网页、图片、视频时，一律用预览方式发送（SendUserFile 设 `display: 'render'`），单击就在右侧面板打开，不要默认成下载。
 - 云端会话可能打不开日本政府网站（stat.go.jp、pref.niigata.lg.jp、mlit.go.jp 等）。需要原始 PDF 时，请 Chen 下载后放进 `data/sources/`。
-- 大的改动先提案、给方案对比，确认后再做；文案拿不准就问 Chen。改完先自己检查（见「检查」）再发。
+- 大的改动先提案、给几个方案对比，确认后再做。
+- 文案拿不准就问 Chen。
+- 改完直接给 Chen 看，不用每轮自己逐帧检查；需要检查时 Chen 会说（检查工具见「检查」）。
 - 不确定的内容先标「待定」，不要硬定。
