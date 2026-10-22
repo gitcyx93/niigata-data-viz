@@ -126,7 +126,7 @@ function drawStory(t, story, color = NARRATION, bar = TYPE.accent, shadow = null
     g.globalAlpha = out * clamp((t - from) / .3);
     g.fillStyle = bar; g.fillRect(80, y - 30, 2, 38);          // 竖细线：提示「这是旁白」
     setFont(32, 400, 1.5); g.textAlign = 'left';
-    if (shadow) { g.shadowColor = shadow; g.shadowBlur = 12; g.shadowOffsetY = 1; }   // 背景亮的时候（如雪地）给小字一层深色的柔和字影
+    if (shadow) { g.shadowColor = shadow; g.shadowBlur = 9; g.shadowOffsetY = 1; }   // 背景亮的时候（如雪地）给小字一层深色的柔和字影
     let x = 100;
     [...s].forEach((c, i) => {
       const p = clamp((t - from - i * .05) / .45);           // 每个字晚 0.05 秒出现
@@ -249,7 +249,7 @@ function drawHeader(t, L, header) {
   w.globalCompositeOperation = 'source-over';
   w.drawImage(bevel(), 0, 0);
   g.drawImage(titleWork, X, Y);
-  drawStory(t, header.story, narr, accent, header.storyShadow);
+  drawStory(t, header.story, narr, accent, pick(header.storyShadow));
 }
 // 文字层底下的压暗：上面托住标题，下面托住大字（y0 ~ y0+h 的中间最暗）
 function scrims(bandY = 1300, bandH = 320, top = 204, band = 158) {
