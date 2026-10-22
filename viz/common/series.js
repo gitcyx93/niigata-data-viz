@@ -119,20 +119,21 @@ const TS = () => ({num: [140, 200, -4], name: [68, 300, 8], word: [112, 200, 30]
 // ======== 左上角：讲故事的小字 ========
 // 小字是「背景知识」：比大字小、细、灰，前面一根竖细线；一个字一个字慢慢浮现，说完淡出。
 // story: [[开始秒, 结束秒, 一句话], ...]，一次只放一行
-function drawStory(t, story, color = NARRATION, bar = TYPE.accent) {
+function drawStory(t, story, color = NARRATION, bar = TYPE.accent, shadow = null) {
   story.forEach(([from, to, s]) => {
     if (t < from || t > to) return;
     const out = clamp((to - t) / .5), y = 480;
     g.globalAlpha = out * clamp((t - from) / .3);
     g.fillStyle = bar; g.fillRect(80, y - 30, 2, 38);          // 竖细线：提示「这是旁白」
     setFont(32, 400, 1.5); g.textAlign = 'left';
+    if (shadow) { g.shadowColor = shadow; g.shadowBlur = 12; g.shadowOffsetY = 1; }   // 背景亮的时候（如雪地）给小字一层深色的柔和字影
     let x = 100;
     [...s].forEach((c, i) => {
       const p = clamp((t - from - i * .05) / .45);           // 每个字晚 0.05 秒出现
-      if (p > 0) { g.globalAlpha = ease(p) * out; g.fillStyle = color; g.fillText(c, x, y + 8 * (1 - ease(p))); }
+      if (p > 0) { g.globalAlpha = ease(p) * out; g.fillStyle = color; g.fillText(c, x, y + 8 * (1 - ease(p))); if (shadow) g.fillText(c, x, y + 8 * (1 - ease(p))); }   // 有字影时叠两次，字影更实
       x += g.measureText(c).width;
     });
-    g.globalAlpha = 1; resetSpacing();
+    g.globalAlpha = 1; g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetY = 0; resetSpacing();
   });
 }
 
@@ -213,6 +214,7 @@ const sheen = document.createElement('canvas'); sheen.width = 96; sheen.height =
 // 标题区：NIIGATA + 地名 / 金属大标题 / 讲故事的小字
 // header = {title, place, story, sheen: [x, y, w, h]（字面映出的那块画面，只取天空，不要深色的山）,
 //           可选 storyColor / accent：小字和 NIIGATA、竖线的颜色（固定值或 t => 颜色）；
+//           storyShadow: 旁白小字的字影颜色（背景亮时用）；
 //           reflect: false 关掉字面的反射和高光（如冬季标题上已经有落雪，再反光就太花）}
 // L = {light: 光的强度, lc: [r,g,b] 光的颜色, x: 光的水平位置}
 function drawHeader(t, L, header) {
@@ -247,7 +249,7 @@ function drawHeader(t, L, header) {
   w.globalCompositeOperation = 'source-over';
   w.drawImage(bevel(), 0, 0);
   g.drawImage(titleWork, X, Y);
-  drawStory(t, header.story, narr, accent);
+  drawStory(t, header.story, narr, accent, header.storyShadow);
 }
 // 文字层底下的压暗：上面托住标题，下面托住大字（y0 ~ y0+h 的中间最暗）
 function scrims(bandY = 1300, bandH = 320, top = 204, band = 158) {
