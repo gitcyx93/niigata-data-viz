@@ -3,7 +3,7 @@
 import pathlib, re
 here = pathlib.Path(__file__).parent
 js = (here / 'yahiko-shrine3d.js').read_text(encoding='utf-8')
-for name in ['yahiko-claude.html', 'yahiko-transition-lab.html']:
+for name in ['yahiko-transition-lab.html']:
     p = here / name
     h = p.read_text(encoding='utf-8')
     h2, n = re.subn(r'/\*SHRINE3D-START\*/.*?/\*SHRINE3D-END\*/', lambda _: '/*SHRINE3D-START*/\n' + js + '/*SHRINE3D-END*/', h, flags=re.S)
