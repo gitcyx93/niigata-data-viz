@@ -57,5 +57,5 @@
 - 大的改动先给几个方案对比，Chen 确认后再做。
 - 文案拿不准就问 Chen，不确定的先标「待定」。
 - 改完直接给 Chen 看，不用每轮自己检查。
-- 发网页、图片、视频都用预览方式（SendUserFile `display: 'render'`）。
+- 给 Chen 看网页：发布成 Artifact（私有网页链接，点开就能看；同一份文件重复发布会更新同一个链接）。SendUserFile 发 HTML 有时会变成下载。图片、视频仍用 SendUserFile `display: 'render'`。
 - 需要原始 PDF 时可以存到 `data/sources/`。
