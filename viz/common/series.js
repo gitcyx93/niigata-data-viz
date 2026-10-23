@@ -8,7 +8,7 @@
 // ======== 文字配色（全系列统一，换方案只改这里）========
 // 雾蓝和白为主；金色只标数字，珊瑚色只用于提醒
 const TYPE = { text:'#f4f7fb', soft:'rgba(232,239,249,.78)', accent:'#9dbde8', bar:'#6f97d2', gold:'#f3c776', coral:'#ff8f7a' };
-const NARRATION = 'rgba(222,230,244,.68)';      // 左上角讲故事的小字
+const NARRATION = 'rgba(232,238,248,.9)';       // 左上角讲故事的小字
 const WHITE = TYPE.text, SOFT = 'rgba(232,239,249,.74)';
 
 const W = 1080, H = 1920;
@@ -117,20 +117,23 @@ function rise(s, draw) {
 const TS = () => ({num: [140, 200, -4], name: [68, 300, 8], word: [112, 200, 30], unit: [40, 300, 2], sub: [30, 300, 2]});
 
 // ======== 左上角：讲故事的小字 ========
-// 小字是「背景知识」：比大字小、细、灰，前面一根竖细线；一个字一个字慢慢浮现，说完淡出。
+// 小字是「背景知识」：比大字小，前面一根竖细线；一个字一个字慢慢浮现，说完淡出。
+// 字号偏大、中等字重，一律带柔和的深色字影，叠在任何背景上都看得清、也有一点立体感。一句太长时自动缩小字号。
 // story: [[开始秒, 结束秒, 一句话], ...]，一次只放一行
-function drawStory(t, story, color = NARRATION, bar = TYPE.accent, shadow = null) {
+const STORY_SHADOW = 'rgba(4,6,16,.85)';
+function drawStory(t, story, color = NARRATION, bar = TYPE.accent, shadow = STORY_SHADOW) {
   story.forEach(([from, to, s]) => {
     if (t < from || t > to) return;
     const out = clamp((to - t) / .5), y = 480;
+    let size = 38; while (size > 30 && measure(s, size, 500, 1.5) > 900) size--;
     g.globalAlpha = out * clamp((t - from) / .3);
-    g.fillStyle = bar; g.fillRect(80, y - 30, 2, 38);          // 竖细线：提示「这是旁白」
-    setFont(32, 400, 1.5); g.textAlign = 'left';
-    if (shadow) { g.shadowColor = shadow; g.shadowBlur = 9; g.shadowOffsetY = 1; }   // 背景亮的时候（如雪地）给小字一层深色的柔和字影
-    let x = 100;
+    g.fillStyle = bar; g.fillRect(80, y - 33, 3, 44);          // 竖细线：提示「这是旁白」
+    setFont(size, 500, 1.5); g.textAlign = 'left';
+    g.shadowColor = shadow || STORY_SHADOW; g.shadowBlur = 9; g.shadowOffsetY = 1;
+    let x = 102;
     [...s].forEach((c, i) => {
       const p = clamp((t - from - i * .05) / .45);           // 每个字晚 0.05 秒出现
-      if (p > 0) { g.globalAlpha = ease(p) * out; g.fillStyle = color; g.fillText(c, x, y + 8 * (1 - ease(p))); if (shadow) g.fillText(c, x, y + 8 * (1 - ease(p))); }   // 有字影时叠两次，字影更实
+      if (p > 0) { g.globalAlpha = ease(p) * out; g.fillStyle = color; g.fillText(c, x, y + 8 * (1 - ease(p))); g.fillText(c, x, y + 8 * (1 - ease(p))); }   // 叠两次，字影更实
       x += g.measureText(c).width;
     });
     g.globalAlpha = 1; g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetY = 0; resetSpacing();
@@ -266,15 +269,19 @@ async function loadFonts() {
     document.fonts.add(f); return f.load();
   }));
 }
+// 视频从第几秒开始（循环是无缝的，从哪一秒开始都是完整的一圈）。页面里可以写 const START = 11.9;
+// 把高潮放到视频的第一帧，不需要加速或压缩任何画面。网页播放和 record.js 导出都从这里开始。
 function boot(render) {
+  const start0 = typeof START === 'number' ? START : 0;
   window.render = render;
   window.LOOP_SECONDS = T;
+  window.START_SECONDS = start0;
   const ready = loadFonts().catch(() => {});
   if (!params.has('record')) {
     ready.then(() => {
       const start = performance.now();
-      const tick = () => { render((performance.now() - start) / 1000); requestAnimationFrame(tick); };
+      const tick = () => { render(start0 + (performance.now() - start) / 1000); requestAnimationFrame(tick); };
       tick();
     });
-  } else ready.then(() => { render(0); window.READY = true; });
+  } else ready.then(() => { render(start0); window.READY = true; });
 }

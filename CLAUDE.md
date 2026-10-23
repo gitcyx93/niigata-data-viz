@@ -47,6 +47,7 @@
 ## 工具
 
 - 四集共用 `viz/common/series.js`。改了页面或 series.js 后，要跑 `python3 viz/tools/embed-font.py <页面.html>`，不然单独打开是黑屏。
+- 视频从第几秒开始：页面里写 `const START = 秒;`（循环无缝，从哪秒开始都是完整一圈），用来把高潮放到第一帧，不要靠加速或压缩画面。
 - 导出：`NODE_PATH=/opt/node22/lib/node_modules node viz/tools/record.js <页面> <输出.mp4>`。每集出简体、繁体，各有环境音版（如 `viz/tools/ambient-winter.py`，用 ffmpeg 合成）和无声版。
 - 检查（Chen 要求时或导出前）：`NODE_PATH=/opt/node22/lib/node_modules node viz/tools/check.js <页面.html> [--strip 图.png] [--at 秒] [--compare 旧.html]`。
 
