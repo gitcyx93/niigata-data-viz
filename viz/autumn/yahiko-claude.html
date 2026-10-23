@@ -13,7 +13,7 @@
 </head>
 <body>
 <main class="film" aria-label="弥彦秋日山海插画短片"><canvas id="c" width="1080" height="1920" aria-label="红叶谷夜景、杉林神社、缆车上山与 山顶看海，点击可暂停">您的浏览器不支持画布动画。</canvas></main>
-<aside class="panel"><div class="eyebrow">新潟四季 · 秋</div><h1>在弥彦<br>上山看海 入夜看秋</h1><p class="intro">红叶谷亮灯的夜晚，杉林深处的神社，<br>坐缆车上山，在山顶看太阳沉进日本海。</p><div class="control"><div class="buttons"><button id="play">暂停</button><button id="restart">重播</button><button id="watch-end">看后半段</button><span id="clock">0.0 / 25 秒</span></div><input id="seek" aria-label="播放位置（秒）" type="range" min="0" max="24.99" step="0.01" value="0"><div class="chapters"><button data-time="0" data-legacy="0"><small>0 秒</small>红叶谷夜景</button><button data-time="4.5" data-legacy="4"><small>4.5 秒</small>神社参道</button><button data-time="12.9" data-legacy="8"><small>12.9 秒</small>缆车上山</button><button data-time="17.7" data-legacy="13"><small>17.7 秒</small>山顶日落</button></div></div><div class="credit" id="duration-note">弥彦 · 画面方案　/　25 秒</div><div class="sources">画面方案，尚未定稿 · 风格化实景参考<br><a href="https://yahikoyama-ropeway.jp/ropeway/" target="_blank" rel="noopener">缆车运营方实景</a> · <a href="https://niigata-kankou.or.jp/spot/detail_7462.html" target="_blank" rel="noopener">新潟县山顶海景</a></div><div class="sources"><a href="https://www.yahiko-jinjya.or.jp/meguru/ichinotorii/index.html" target="_blank" rel="noopener">神社官方：一之鸟居</a> · <a href="https://www.yahiko-jinjya.or.jp/meguru/gosyaden/index.html" target="_blank" rel="noopener">拜殿实景</a><br>红叶谷夜景开场，神社、缆车，山顶日落收尾。</div></aside>
+<aside class="panel"><div class="eyebrow">新潟四季 · 秋</div><h1>在弥彦<br>上山看海 入夜看秋</h1><p class="intro">红叶谷亮灯的夜晚，杉林深处的神社，<br>坐缆车上山，在山顶看太阳沉进日本海。</p><div class="control"><div class="buttons"><button id="play">暂停</button><button id="restart">重播</button><button id="watch-end">看后半段</button><span id="clock">0.0 / 25 秒</span></div><input id="seek" aria-label="播放位置（秒）" type="range" min="0" max="24.99" step="0.01" value="0"><div class="chapters"><button data-time="0" data-legacy="0"><small>0 秒</small>红叶谷夜景</button><button data-time="4.5" data-legacy="4"><small>4.5 秒</small>神社参道</button><button data-time="11.3" data-legacy="8"><small>11.3 秒</small>缆车上山</button><button data-time="16.1" data-legacy="13"><small>16.1 秒</small>山顶日落</button></div></div><div class="credit" id="duration-note">弥彦 · 画面方案　/　25 秒</div><div class="sources">画面方案，尚未定稿 · 风格化实景参考<br><a href="https://yahikoyama-ropeway.jp/ropeway/" target="_blank" rel="noopener">缆车运营方实景</a> · <a href="https://niigata-kankou.or.jp/spot/detail_7462.html" target="_blank" rel="noopener">新潟县山顶海景</a></div><div class="sources"><a href="https://www.yahiko-jinjya.or.jp/meguru/ichinotorii/index.html" target="_blank" rel="noopener">神社官方：一之鸟居</a> · <a href="https://www.yahiko-jinjya.or.jp/meguru/gosyaden/index.html" target="_blank" rel="noopener">拜殿实景</a><br>红叶谷夜景开场，神社、缆车，山顶日落收尾。</div></aside>
 <script>
 // 嵌入的字体（思源黑体、Sora）：只含本页用到的字，由 viz/tools/embed-font.py 生成。均为 SIL Open Font License 1.1。
 /*FONTS-START Source Han Sans SC|Sora*/
@@ -331,7 +331,7 @@ function boot(render) {
 // 弥彦 · 把秋天多留一晚。独立导演版，原版保持不变。
 // 场景是插画式重构，不表示地理位置、月相或夜间照明的精确再现。
 // 事实来源见 stories/yahiko.md。所有动画以 t 为唯一时间源。
-const T = 24.9;
+const T = 23.3;
 const scenePlan=[
  {id:'reveal',start:0,end:4,source:0,span:4},
  {id:'gate',start:4,end:8,source:4,span:4},
@@ -667,9 +667,9 @@ function shrineShot(b,t){
 
 }
 
-// ======== Claude 版：红叶谷夜景 → 神社（立体场景，俯瞰飞过参道）→ 缆车 → 山顶日落（24.9 秒）========
-// 每段多长按内容定：夜景开场 4.5 秒、神社一条完整的飞行路线 8.4 秒、缆车 4.8 秒、日落 7.2 秒。
-const PLAN=[['night',0,4.5],['shrine',4.5,12.9],['ascent',12.9,17.7],['sunset',17.7,24.9]];
+// ======== Claude 版：红叶谷夜景 → 神社（立体场景，俯瞰飞过参道）→ 缆车 → 山顶日落（23.3 秒）========
+// 每段多长按内容定：夜景开场 4.5 秒、神社 6.8 秒（鸟居 → 一瞬间冲过参道钻进红叶 → 拜殿）、缆车 4.8 秒、日落 7.2 秒。
+const PLAN=[['night',0,4.5],['shrine',4.5,11.3],['ascent',11.3,16.1],['sunset',16.1,23.3]];
 function addGlow(b,x,y,rx,ry,c,a){b.globalCompositeOperation='lighter';glow(b,x,y,rx,ry,c,a);b.globalCompositeOperation='source-over';}
 /*SHRINE3D-START*/
 // 弥彦神社这一段的立体场景（D：从高处俯瞰鸟居，沿参道飞，过随神门后降进林子，枝叶扫过，拜殿出现）
@@ -842,14 +842,25 @@ function camAt(keys,t){
   const cr=(k)=>{const p0=P(i-1)[k],p1=P(i)[k],p2=P(i+1)[k],p3=P(i+2)[k],u2=u*u,u3=u2*u;return .5*(2*p1+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u2+(-p0+3*p1-3*p2+p3)*u3);};
   return {x:cr(1),y:cr(2),z:cr(3),yaw:cr(4),pitch:cr(5)};
 }
-const KEYS=[[0,0,17,-6,0,-.78],[1.9,0,15.2,8,0,-1.02],[3.5,0,14,48,0,-.62],[5.4,.4,13,100,.1,-.55],[6.3,1.6,8,109,.3,-.3],[7,3.2,4.2,114.5,.42,-.08],[8.4,5.5,2.5,121,.48,.02]],DUR=KEYS.at(-1)[0];
+// 镜头沿一条路线走；快慢单独控制：鸟居上方慢慢停留 → 一瞬间冲过参道、钻进红叶 → 拜殿前慢慢停住
+const ROUTE=[[0,17,-6,0,-.78],[0,15.6,3,0,-.95],[0,14,40,0,-.62],[.4,13.6,88,.08,-.5],[.9,14.2,104,.16,-.4],[2,7.6,110.5,.32,-.28],[3.2,4.2,114.5,.42,-.08],[4.6,3,118,.46,0],[5.8,2.5,121.6,.48,.02]];
+const DUR=6.8,PEAK=3.05;
+function routeAt(u){const n=ROUTE.length;u=clamp(u,0,n-1);const i=Math.min(n-2,Math.floor(u)),f=u-i,P=j=>ROUTE[clamp(j,0,n-1)];
+  return [0,1,2,3,4].map(k=>{const p0=P(i-1)[k],p1=P(i)[k],p2=P(i+1)[k],p3=P(i+2)[k],f2=f*f,f3=f2*f;return .5*(2*p1+(-p0+p2)*f+(2*p0-5*p1+4*p2-p3)*f2+(-p0+3*p1-3*p2+p3)*f3);});}
+const ARC=(()=>{const N=3000,L=[0];let prev=routeAt(0);for(let i=1;i<=N;i++){const p=routeAt(i/N*(ROUTE.length-1));L.push(L[i-1]+Math.hypot(p[0]-prev[0],p[1]-prev[1],p[2]-prev[2]));prev=p;}return L;})();
+const TOTAL=ARC.at(-1);
+const SPEED=(()=>{const dt=1/240,n=Math.ceil(DUR/dt),drift=1.5,bump=t=>Math.exp(-Math.pow((t-PEAK)/(t<PEAK?.2:.32),2));
+  let area=0;for(let i=1;i<=n;i++)area+=bump(i*dt)*dt;const A=(TOTAL-drift*DUR)/area,S=[0];          // 平时慢慢漂（每秒 1.5 米），只在一瞬间极快
+  for(let i=1;i<=n;i++)S.push(S[i-1]+(drift+A*bump(i*dt))*dt);return S.map(s=>Math.min(s,TOTAL));})();   // 快慢曲线：两头慢，中间一瞬间极快
+function camAtT(t){const s=SPEED[clamp(Math.round(t*240),0,SPEED.length-1)];let lo=0,hi=ARC.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(ARC[m]<s)lo=m;else hi=m;}
+  const p=routeAt(lo/(ARC.length-1)*(ROUTE.length-1));return {x:p[0],y:p[1],z:p[2],yaw:p[3],pitch:p[4]};}
 const tmp=mk(W,H,()=>{}),tg=tmp.getContext('2d');
 function render(t){
-  const tt=clamp(t,0,DUR),c0=camAt(KEYS,tt),c1=camAt(KEYS,Math.min(DUR,tt+1/30));cam=c0;
+  const tt=clamp(t,0,DUR),c0=camAtT(tt),c1=camAtT(Math.min(DUR,tt+1/30));cam=c0;
   const speed=Math.hypot(c1.x-c0.x,c1.y-c0.y,c1.z-c0.z)*30;
   renderScene(t);
-  if(speed>9){tg.clearRect(0,0,W,H);tg.drawImage(cv,0,0);const sz=clamp((speed-9)*.004,0,.07);   // 飞得快时从中心往外拉的速度模糊
-    for(let i=1;i<=6;i++){g.globalAlpha=1/(i+1);const z=1+sz*i/6;g.drawImage(tmp,W/2-W/2*z,H/2-H/2*z,W*z,H*z);}g.globalAlpha=1;}
+  if(speed>6){tg.clearRect(0,0,W,H);tg.drawImage(cv,0,0);const sz=clamp((speed-6)*.0025,0,.2);   // 冲过去时从中心往外拉的速度模糊
+    for(let i=1;i<=8;i++){g.globalAlpha=1/(i+1);const z=1+sz*i/8;g.drawImage(tmp,W/2-W/2*z,H/2-H/2*z,W*z,H*z);}g.globalAlpha=1;}
   return cv;
 }
 return {render,DUR};
@@ -857,7 +868,7 @@ return {render,DUR};
 /*SHRINE3D-END*/
 function shrineShot3D(b,t){b.drawImage(SHRINE3D.render(t-4.5),0,0);}
 function ascentDay(b,t){
-  ascentShot(b,8+(t-12.9)*5/4.8);
+  ascentShot(b,8+(t-11.3)*5/4.8);
   b.save();b.globalCompositeOperation='soft-light';b.globalAlpha=.4;b.fillStyle='#ffc070';b.fillRect(0,0,W,H);b.restore();
   const q=b.createLinearGradient(0,600,0,1250);q.addColorStop(0,'rgba(244,222,190,0)');q.addColorStop(.4,'rgba(244,222,190,.62)');q.addColorStop(1,'rgba(244,222,190,0)');b.fillStyle=q;b.fillRect(0,600,W,650);
 }
@@ -891,7 +902,7 @@ const summitTop=layer(b=>{
     b.strokeStyle='rgba(255,180,110,.8)';b.lineWidth=1.5;b.beginPath();b.arc(x,y-58*s,7*s,Math.PI*.6,Math.PI*1.4);b.stroke();}
 });
 function sunsetShot(b,t){
-  const u=clamp((t-17.7)/7.2),h=u*(.3+.7*u*(3-2*u))/(1),HY=1000-435*h;
+  const u=clamp((t-16.1)/7.2),h=u*(.3+.7*u*(3-2*u))/(1),HY=1000-435*h;
   const sunY=HY-250+255*u,p=u;
   const mix=(a,c,k)=>`rgb(${a.map((v,i)=>Math.round(v+(c[i]-v)*k)).join(',')})`;
   const q=b.createLinearGradient(0,0,0,HY);q.addColorStop(0,mix([46,72,122],[34,38,86],p));q.addColorStop(.55,mix([226,150,128],[196,98,118],p));q.addColorStop(.85,mix([255,196,128],[244,132,88],p));q.addColorStop(1,mix([255,222,160],[255,170,100],p));
@@ -918,14 +929,14 @@ function sunsetShot(b,t){
   b.restore();
 }
 function nightShot(b,t){valleyShot(b,t,'reveal');}
-const factsC=[[0,4.5,'弥彦公园 · 红叶谷与观月桥'],[4.5,10.9,'弥彦神社 · 杉林里的参道'],[10.9,12.9,'弥彦神社 · 二礼四拍手一礼'],[12.9,17.7,'弥彦山缆车 · 约五分钟上山'],[17.7,24.9,'弥彦山顶 · 日本海的夕阳']];
+const factsC=[[0,4.5,'弥彦公园 · 红叶谷与观月桥'],[4.5,8.2,'弥彦神社 · 杉林里的参道'],[8.2,11.3,'弥彦神社 · 二礼四拍手一礼'],[11.3,16.1,'弥彦山缆车 · 约五分钟上山'],[16.1,23.3,'弥彦山顶 · 日本海的夕阳']];
 function headlineC(s,sub,a,y=1465){if(a<=0)return;g.save();g.globalAlpha=a;g.shadowColor='rgba(8,16,26,.95)';g.shadowBlur=24;g.shadowOffsetY=2;text(s,540,y,66,'#f6ead4',400,'center',5);if(sub)text(sub,540,y+56,28,'#e2d6c2',400,'center',3);g.restore();}
 function titlesC(t){
   g.save();drawHeader(t,{light:.12,lc:[235,196,144],x:785},{title:'弥彦',place:'新潟县弥彦村',story:[],sheen:[100,650,700,600],reflect:false,accent:'#cba77c',storyColor:'#b6c1c8'});g.restore();
   const f=factsC.find(([a,c])=>t>=a&&t<c);
   if(f){g.save();g.shadowColor='#08101a';g.shadowBlur=10;g.shadowOffsetY=2;g.fillStyle='#ca9e73';g.fillRect(80,449,2,29);text(f[2],99,480,32,'#f0e4cc',400,'left',.8);g.restore();}
   headlineC('把秋天多留一晚','新潟 · 弥彦',t<3.6?1:clamp((4-t)/.4));
-  headlineC('上山看海 入夜看秋','新潟 · 弥彦',clamp((t-22.8)/.6));
+  headlineC('上山看海 入夜看秋','新潟 · 弥彦',clamp((t-21.2)/.6));
 }
 
 let variant='A';
@@ -1155,7 +1166,7 @@ seek.oninput=()=>{playing=false;update(Number(seek.value));};
 document.querySelectorAll('[data-time]').forEach(el=>el.onclick=()=>{playing=false;update(Number(variant==='V6'?el.dataset.legacy:el.dataset.time));});
 document.getElementById('restart').onclick=()=>{update(0);playing=true;lastTime=0;status();};
 cv.onclick=()=>play.click();
-document.getElementById('watch-end').onclick=()=>{update(variant==='V6'?8:12.9);playing=true;lastTime=0;status();};
+document.getElementById('watch-end').onclick=()=>{update(variant==='V6'?8:11.3);playing=true;lastTime=0;status();};
 const descriptions={A:'从山顶步道向前轻推，近处枝叶让开，海面在层层山脊后展开。',B:'沿山顶缓缓横移，近坡与远海产生视差，夕光落在海上。',V6:'原 v6 的 Skyline 跟车结尾，保留作对照。'};
 document.querySelectorAll('[data-option]').forEach(el=>el.onclick=()=>{const previousDuration=duration();variant=el.dataset.option;playTime=playTime/previousDuration*duration();document.querySelectorAll('[data-time]').forEach(ch=>{ch.hidden=variant==='V6'&&ch.dataset.chapter==='gate';ch.querySelector('small').textContent=(variant==='V6'?ch.dataset.legacy:ch.dataset.time)+' 秒';});document.querySelectorAll('[data-option]').forEach(b=>b.setAttribute('aria-pressed',String(b===el)));document.getElementById('option-note').textContent=descriptions[variant];update(playTime);});
 

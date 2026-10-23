@@ -168,14 +168,25 @@ function camAt(keys,t){
   const cr=(k)=>{const p0=P(i-1)[k],p1=P(i)[k],p2=P(i+1)[k],p3=P(i+2)[k],u2=u*u,u3=u2*u;return .5*(2*p1+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u2+(-p0+3*p1-3*p2+p3)*u3);};
   return {x:cr(1),y:cr(2),z:cr(3),yaw:cr(4),pitch:cr(5)};
 }
-const KEYS=[[0,0,17,-6,0,-.78],[1.9,0,15.2,8,0,-1.02],[3.5,0,14,48,0,-.62],[5.4,.4,13,100,.1,-.55],[6.3,1.6,8,109,.3,-.3],[7,3.2,4.2,114.5,.42,-.08],[8.4,5.5,2.5,121,.48,.02]],DUR=KEYS.at(-1)[0];
+// 镜头沿一条路线走；快慢单独控制：鸟居上方慢慢停留 → 一瞬间冲过参道、钻进红叶 → 拜殿前慢慢停住
+const ROUTE=[[0,17,-6,0,-.78],[0,15.6,3,0,-.95],[0,14,40,0,-.62],[.4,13.6,88,.08,-.5],[.9,14.2,104,.16,-.4],[2,7.6,110.5,.32,-.28],[3.2,4.2,114.5,.42,-.08],[4.6,3,118,.46,0],[5.8,2.5,121.6,.48,.02]];
+const DUR=6.8,PEAK=3.05;
+function routeAt(u){const n=ROUTE.length;u=clamp(u,0,n-1);const i=Math.min(n-2,Math.floor(u)),f=u-i,P=j=>ROUTE[clamp(j,0,n-1)];
+  return [0,1,2,3,4].map(k=>{const p0=P(i-1)[k],p1=P(i)[k],p2=P(i+1)[k],p3=P(i+2)[k],f2=f*f,f3=f2*f;return .5*(2*p1+(-p0+p2)*f+(2*p0-5*p1+4*p2-p3)*f2+(-p0+3*p1-3*p2+p3)*f3);});}
+const ARC=(()=>{const N=3000,L=[0];let prev=routeAt(0);for(let i=1;i<=N;i++){const p=routeAt(i/N*(ROUTE.length-1));L.push(L[i-1]+Math.hypot(p[0]-prev[0],p[1]-prev[1],p[2]-prev[2]));prev=p;}return L;})();
+const TOTAL=ARC.at(-1);
+const SPEED=(()=>{const dt=1/240,n=Math.ceil(DUR/dt),drift=1.5,bump=t=>Math.exp(-Math.pow((t-PEAK)/(t<PEAK?.2:.32),2));
+  let area=0;for(let i=1;i<=n;i++)area+=bump(i*dt)*dt;const A=(TOTAL-drift*DUR)/area,S=[0];          // 平时慢慢漂（每秒 1.5 米），只在一瞬间极快
+  for(let i=1;i<=n;i++)S.push(S[i-1]+(drift+A*bump(i*dt))*dt);return S.map(s=>Math.min(s,TOTAL));})();   // 快慢曲线：两头慢，中间一瞬间极快
+function camAtT(t){const s=SPEED[clamp(Math.round(t*240),0,SPEED.length-1)];let lo=0,hi=ARC.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(ARC[m]<s)lo=m;else hi=m;}
+  const p=routeAt(lo/(ARC.length-1)*(ROUTE.length-1));return {x:p[0],y:p[1],z:p[2],yaw:p[3],pitch:p[4]};}
 const tmp=mk(W,H,()=>{}),tg=tmp.getContext('2d');
 function render(t){
-  const tt=clamp(t,0,DUR),c0=camAt(KEYS,tt),c1=camAt(KEYS,Math.min(DUR,tt+1/30));cam=c0;
+  const tt=clamp(t,0,DUR),c0=camAtT(tt),c1=camAtT(Math.min(DUR,tt+1/30));cam=c0;
   const speed=Math.hypot(c1.x-c0.x,c1.y-c0.y,c1.z-c0.z)*30;
   renderScene(t);
-  if(speed>9){tg.clearRect(0,0,W,H);tg.drawImage(cv,0,0);const sz=clamp((speed-9)*.004,0,.07);   // 飞得快时从中心往外拉的速度模糊
-    for(let i=1;i<=6;i++){g.globalAlpha=1/(i+1);const z=1+sz*i/6;g.drawImage(tmp,W/2-W/2*z,H/2-H/2*z,W*z,H*z);}g.globalAlpha=1;}
+  if(speed>6){tg.clearRect(0,0,W,H);tg.drawImage(cv,0,0);const sz=clamp((speed-6)*.0025,0,.2);   // 冲过去时从中心往外拉的速度模糊
+    for(let i=1;i<=8;i++){g.globalAlpha=1/(i+1);const z=1+sz*i/8;g.drawImage(tmp,W/2-W/2*z,H/2-H/2*z,W*z,H*z);}g.globalAlpha=1;}
   return cv;
 }
 return {render,DUR};
