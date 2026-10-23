@@ -38,9 +38,42 @@ function broadHaiden(b){
  stoneLantern(b,110,1510,1.05);stoneLantern(b,970,1510,1.05);
 }
 const shrineArchitecture=layer(b=>broadHaiden(b));
+// Oblique foreground gate: a visual compression of the turning approach,
+// not a claim that the torii and haiden occupy one straight real-world axis.
+const shrineSideTorii=layer(b=>{
+ // Contact shadows and stone shoes keep both feet anchored to the courtyard.
+ for(const [x,y,rx] of [[112,1718,58],[368,1550,40]]){
+  glow(b,x+20,y+9,rx*1.5,18,[17,31,26],.27);
+  poly(b,[[x-rx*.55,y-22],[x+rx*.55,y-25],[x+rx*.7,y+6],[x-rx*.7,y+9]],'#465047','#273a32',2);
+ }
+ // Receding posts have different projected heights, with warm edge lighting.
+ for(const [x,top,foot,w] of [[112,855,1716,42],[368,948,1549,28]]){
+  const wood=b.createLinearGradient(x-w/2,0,x+w/2,0);
+  wood.addColorStop(0,'#49382d');wood.addColorStop(.28,'#ac7752');
+  wood.addColorStop(.58,'#8b5d40');wood.addColorStop(1,'#493b2f');
+  poly(b,[[x-w*.36,top],[x+w*.36,top+3],[x+w*.52,foot],[x-w*.52,foot]],wood,'#4c3e30',1.5);
+  b.strokeStyle='rgba(222,177,116,.32)';b.lineWidth=2;
+  b.beginPath();b.moveTo(x-w*.24,top+25);b.lineTo(x-w*.35,foot-32);b.stroke();
+  poly(b,[[x-w*.52,foot-35],[x+w*.52,foot-35],[x+w*.56,foot],[x-w*.56,foot]],'#303d33');
+ }
+ // Curved kasagi and its lit lower beam, seen from beside the path.
+ b.beginPath();b.moveTo(35,801);b.bezierCurveTo(153,865,316,928,430,919);
+ b.lineTo(420,947);b.bezierCurveTo(308,951,151,894,44,836);b.closePath();
+ b.fillStyle='#263e36';b.fill();b.strokeStyle='#627059';b.lineWidth=3;b.stroke();
+ b.beginPath();b.moveTo(45,836);b.bezierCurveTo(159,898,310,951,420,947);
+ b.lineTo(415,966);b.bezierCurveTo(309,971,157,919,50,858);b.closePath();
+ b.fillStyle='#a27650';b.fill();
+ poly(b,[[75,986],[398,1059],[397,1080],[75,1015]],'#80583d','#4e3c2c',2);
+ poly(b,[[75,986],[398,1059],[398,1064],[75,992]],'#c39969');
+ poly(b,[[242,931],[257,936],[257,1027],[242,1023]],'#946a46');
+ // Quiet brass joint plates; no floating sign or decorative lettering.
+ for(const [x,y] of [[112,999],[368,1065]]){b.fillStyle='#514535';b.fillRect(x-9,y-8,18,18);b.fillStyle='#bca176';b.beginPath();b.arc(x,y,2,0,TAU);b.fill();}
+});
 function shrineShot(b,t){
  if(variant==='V6'){shrineShotV6(b,t);return;}
  const u=clamp((t-4)/4),e=ease(u);
- b.save();camera(b,1+.018*e,540+4*e,960);b.drawImage(shrineBackdrop,0,0,W,H);b.restore();
- b.save();camera(b,1.015+.065*e,540+7*e,960-12*e);b.drawImage(shrineArchitecture,0,0,W,H);b.restore();
+ b.save();camera(b,1+.018*e,540+7*e,960);b.drawImage(shrineBackdrop,0,0,W,H);b.restore();
+ b.save();camera(b,1.015+.065*e,540+23*e,960-12*e);b.drawImage(shrineArchitecture,0,0,W,H);b.restore();
+ // A rightward approach sends the close gate left faster than the distant hall.
+ b.save();b.translate(-160*e,18*e);b.translate(112,1718);b.scale(1+.09*e,1+.09*e);b.translate(-112,-1718);b.drawImage(shrineSideTorii,0,0,W,H);b.restore();
 }
