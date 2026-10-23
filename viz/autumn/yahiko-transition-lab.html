@@ -26,14 +26,17 @@ button small{display:block;opacity:.75;font-size:12px;margin-top:2px}
 <body>
 <canvas id="c" width="1080" height="1920"></canvas>
 <div class="panel">
-<h1>神社转场：四种镜头</h1>
-<p>同一个立体场景：杉林参道上一座朱红鸟居，参道往右拐，拜殿在拐弯后面，所以从参道上看拜殿是斜的。只换镜头路线。</p>
-<div class="opts" id="opts"></div>
+<h1>神社：从高处俯瞰飞过参道</h1>
+<p>从高处俯瞰朱红的一之鸟居，沿着杉林里的表参道往前飞，飞过随神门，在拐弯处降进林子：红叶和杉枝从镜头前扫过，散开后是斜着看到的拜殿。</p>
 <div class="row"><button id="play">暂停</button><button id="restart">从头</button><span id="clock"></span></div>
 </div>
 <script>
+/*SHRINE3D-START*/
+// 弥彦神社这一段的立体场景（D：从高处俯瞰鸟居，沿参道飞，过随神门后降进林子，枝叶扫过，拜殿出现）
+// 由 viz/autumn/yahiko-shrine3d.js 维护，用 viz/autumn/build-yahiko.py 嵌入页面。
+const SHRINE3D=(()=>{
 const W=1080,H=1920,F=1180,NEAR=.25,TAU=Math.PI*2;
-const cv=document.getElementById('c'),g=cv.getContext('2d');
+const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t*t*(3-2*t);
 function rnd(i,k){const s=Math.sin(i*127.1+k*311.7)*43758.5453;return s-Math.floor(s);}
 function mk(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);return c;}
@@ -64,15 +67,15 @@ function prism(cx,cz,r0,r1,y0,y1,n,rgb){for(let i=0;i<n;i++){const a=i/n*TAU,b=(
   face([[cx+Math.cos(a)*r0,y0,cz+Math.sin(a)*r0],[cx+Math.cos(b)*r0,y0,cz+Math.sin(b)*r0],[cx+Math.cos(b)*r1,y1,cz+Math.sin(b)*r1],[cx+Math.cos(a)*r1,y1,cz+Math.sin(a)*r1]],rgb,[Math.cos(m),0,Math.sin(m)]);}}
 
 // 参道：从镜头前直走到 z=30，再往右拐进拜殿前的广场
-const PATH=[];for(let i=0;i<=70;i++){const s=i*.6-8;PATH.push(s<28?[0,s]:(()=>{const a=Math.min(1,(s-28)/14)*0.75;return [ (1-Math.cos(a))*18.7*0.9, 28+Math.sin(a)*18.7*0.9 ];})());}
+const PATH=[];for(let i=0;i<=230;i++){const s=i*.6-8;PATH.push(s<118?[0,s]:(()=>{const a=Math.min(1,(s-118)/14)*0.75;return [ (1-Math.cos(a))*18.7*0.9, 118+Math.sin(a)*18.7*0.9 ];})());}
 function pathAt(s){const i=clamp(Math.floor((s+8)/.6),0,PATH.length-2),u=(s+8)/.6-i;return [lerp(PATH[i][0],PATH[i+1][0],u),lerp(PATH[i][1],PATH[i+1][1],u)];}
-const HALL={x:15,z:50};                         // 拜殿正面朝镜头（-z），在参道拐弯后的右前方
+const HALL={x:15,z:140};                         // 拜殿正面朝镜头（-z），在参道拐弯后的右前方
 
 (function build(){
   // 地面：苔和落叶的林地（一格一格，远的先画）
-  for(let x=-60;x<70;x+=5)for(let z=-20;z<120;z+=5){const v=.85+rnd(x*7+z,3)*.3;ground.push({pts:[[x,0,z],[x+5,0,z],[x+5,0,z+5],[x,0,z+5]],rgb:[70*v,82*v,52*v],n:[0,1,0]});}
+  for(let x=-60;x<70;x+=5)for(let z=-20;z<200;z+=5){const v=.85+rnd(x*7+z,3)*.3;ground.push({pts:[[x,0,z],[x+5,0,z],[x+5,0,z+5],[x,0,z+5]],rgb:[70*v,82*v,52*v],n:[0,1,0]});}
   // 拜殿前铺碎石的广场
-  ground.push({pts:[[3,0.01,38],[28,0.01,38],[28,0.01,60],[3,0.01,60]],rgb:[140,138,120],n:[0,1,0],L:1});
+  ground.push({pts:[[3,0.01,128],[28,0.01,128],[28,0.01,150],[3,0.01,150]],rgb:[140,138,120],n:[0,1,0],L:1});
   // 石板参道
   for(let k=0;k<PATH.length-1;k++){const [x0,z0]=PATH[k],[x1,z1]=PATH[k+1],dx=z1-z0,dz=-(x1-x0),l=Math.hypot(dx,dz),nx=dx/l,nz=dz/l;
     for(let j=0;j<4;j++){const a=-1.6+j*.8+.03,b=a+.74,v=.9+rnd(k*4+j,5)*.2;
@@ -85,12 +88,12 @@ const HALL={x:15,z:50};                         // 拜殿正面朝镜头（-z）
   for(let i=0;i<8;i++){const x0=-3.6+i*.9,x1=x0+.9,up=x=>.28*Math.pow(Math.abs(x)/3.6,3);box(x0,x1,5.66+Math.min(up(x0),up(x1)),5.98+Math.max(up(x0),up(x1)),9.7,10.3,K);}
   // 石灯笼
   const S=[150,150,138];
-  for(const [x,z] of [[-2.6,3],[2.6,3],[-2.6,19],[2.6,19],[8.5,41],[21.5,41]]){box(x-.4,x+.4,0,.3,z-.4,z+.4,S);box(x-.13,x+.13,.3,1.3,z-.13,z+.13,S);box(x-.33,x+.33,1.3,1.75,z-.33,z+.33,[200,180,130]);
+  for(const [x,z] of [[-2.6,3],[2.6,3],[-2.6,19],[2.6,19],[-2.6,60],[2.6,60],[-2.6,98],[2.6,98],[8.5,131],[21.5,131]]){box(x-.4,x+.4,0,.3,z-.4,z+.4,S);box(x-.13,x+.13,.3,1.3,z-.13,z+.13,S);box(x-.33,x+.33,1.3,1.75,z-.33,z+.33,[200,180,130]);
     face([[x-.5,1.75,z-.5],[x+.5,1.75,z-.5],[x,2.1,z]],S,[0,.8,-.6]);face([[x+.5,1.75,z+.5],[x-.5,1.75,z+.5],[x,2.1,z]],S,[0,.8,.6]);face([[x-.5,1.75,z+.5],[x-.5,1.75,z-.5],[x,2.1,z]],S,[-.6,.8,0]);face([[x+.5,1.75,z-.5],[x+.5,1.75,z+.5],[x,2.1,z]],S,[.6,.8,0]);}
   // 拜殿：石基、木构正面、深色屋里、铜绿屋顶、向前伸出的唐破风
   const X=HALL.x,Z=HALL.z,WD=[176,138,92],DK=[52,40,30],RF=[66,98,88],ST=[160,158,146];
   box(X-9,X+9,0,.8,Z-5,Z+6,ST);
-  box(X-7,X+7,.8,5,Z-3,Z+4,WD,{front:DK});
+  box(X-7,X+7,.8,5,Z-3,Z+4,WD,{front:DK});faces.find(f=>f.rgb===DK&&f.n[2]===-1).lattice=1;
   for(let i=0;i<=6;i++){const x=X-7+i*14/6;box(x-.2,x+.2,.8,5,Z-3.25,Z-2.85,[196,156,104]);}
   box(X-7.3,X+7.3,4.45,5.05,Z-3.35,Z-2.8,[200,160,108]);
   for(let i=0;i<4;i++)box(X-2.6-i*.25,X+2.6+i*.25,0,.8-i*.2,Z-5.6-i*.55,Z-5,ST);
@@ -116,12 +119,26 @@ const HALL={x:15,z:50};                         // 拜殿正面朝镜头（-z）
   for(let i=0;i<5;i++){const x=X-2+i;face([[x-.12,PE-.35,P0-.02],[x+.12,PE-.35,P0-.02],[x+.12,PE-.95,P0-.02],[x-.12,PE-.95,P0-.02]],[245,242,230],[0,0,-1]);}
   face([[PL+.3,PE-.3,P0-.01],[PR-.3,PE-.3,P0-.01],[PR-.3,PE-.42,P0-.01],[PL+.3,PE-.42,P0-.01]],[196,176,120],[0,0,-1]);
   // 杉树：参道和广场以外，越远越密
-  for(let i=0;i<260;i++){const x=(rnd(i,11)-.5)*90,z=rnd(i,12)*110-14,[px,pz]=pathAt(clamp(z,-8,30));
-    if(Math.abs(x-px)<4.2&&z<32)continue;if(x>1&&x<29&&z>35&&z<61)continue;if(Math.hypot(x-15,z-50)<11)continue;
+  for(let i=0;i<620;i++){const x=(rnd(i,11)-.5)*90,z=rnd(i,12)*200-14,[px,pz]=pathAt(clamp(z,-8,120));
+    if(Math.abs(x-px)<4.2&&z<122)continue;if(x>1&&x<29&&z>125&&z<151)continue;if(Math.hypot(x-15,z-140)<11)continue;if(Math.hypot(x-2,z-104)<6)continue;{const ax=2,az=112,bx=15,bz=140,u=clamp(((x-ax)*(bx-ax)+(z-az)*(bz-az))/((bx-ax)**2+(bz-az)**2));if(Math.hypot(x-ax-u*(bx-ax),z-az-u*(bz-az))<3.5)continue;}
     sprites.push({kind:'trunk',x,z,r:.32+rnd(i,13)*.35,h:34});}
+  for(let i=0;i<520;i++){const x=(rnd(i,71)-.5)*44,z=rnd(i,72)*170-10,[px]=pathAt(clamp(z,-8,120));if(Math.abs(x-px)<2.2&&z<122)continue;if(x>2&&x<28&&z>127&&z<151)continue;sprites.push({kind:'fern',x,y:.45,z,s:1.1+rnd(i,73)*1.2,v:i%3});}
   // 杉树的枝叶（高处）和参道两边的红叶
-  for(let i=0;i<180;i++){const x=(rnd(i,21)-.5)*90,z=rnd(i,22)*110-14,[px]=pathAt(clamp(z,-8,30));if(Math.abs(x-px)<3.5&&z<30)continue;sprites.push({kind:'bough',x,y:9+rnd(i,23)*14,z,s:5+rnd(i,24)*5,v:i%3});}
-  for(const [x,z,s] of [[-5,6,5.5],[5.2,13,5],[-4.6,21,4.6],[-4.2,26,5],[-3.6,33,4],[4.5,37,4.6],[25,43,6],[3.5,56,5],[27,56,5.5],[-7,-2,6]])sprites.push({kind:'maple',x,y:s*.55+1.2,z,s,v:(x*7|0)&3});
+  for(let i=0;i<420;i++){const x=(rnd(i,21)-.5)*90,z=rnd(i,22)*200-14,[px]=pathAt(clamp(z,-8,120));if(Math.abs(x-px)<3.5&&z<120)continue;sprites.push({kind:'bough',x,y:9+rnd(i,23)*14,z,s:5+rnd(i,24)*5,v:i%3});}
+  for(const [x,z,s] of [[-5,6,5.5],[5.2,13,5],[-4.6,21,4.6],[4.8,34,5],[-4.4,47,5],[5,66,4.6],[-4.8,82,5.2],[5,95,4.8],[25,133,6],[3.5,146,5],[27,146,5.5],[-7,-2,6]])sprites.push({kind:'maple',x,y:s*.55+1.2,z,s,v:(x*7|0)&3});
+  // 随神门：参道尽头、拐弯前的两层木门，铜绿屋顶
+  {const Z=104,WD=[150,112,74],DK=[40,30,24],RF=[66,98,88];
+   box(-4.2,-1.3,0,4.2,Z-2,Z+2,WD);box(1.3,4.2,0,4.2,Z-2,Z+2,WD);box(-1.3,1.3,3.2,4.2,Z-2,Z+2,WD);
+   box(-1.3,1.3,0,3.2,Z+1.9,Z+2,DK);
+   const lr=(E,R,o,rg)=>{face([[o[0],E,o[2]],[o[1],E,o[2]],[rg[1],R,rg[2]],[rg[0],R,rg[2]]],RF,[0,.75,-.66],{roof:1});face([[o[1],E,o[3]],[o[0],E,o[3]],[rg[0],R,rg[2]],[rg[1],R,rg[2]]],RF,[0,.75,.66],{roof:1});
+     face([[o[0],E,o[3]],[o[0],E,o[2]],[rg[0],R,rg[2]]],RF,[-.7,.7,0],{roof:1});face([[o[1],E,o[2]],[o[1],E,o[3]],[rg[1],R,rg[2]]],RF,[.7,.7,0],{roof:1});
+     face([[o[0],E-.02,o[3]],[o[1],E-.02,o[3]],[o[1],E-.02,o[2]],[o[0],E-.02,o[2]]],[46,38,30],[0,-1,0]);};
+   lr(4.3,5.6,[-5.4,5.4,Z-3.1,Z+3.1],[-3,3,Z]);
+   box(-3.4,3.4,5.4,8,Z-1.6,Z+1.6,WD,{front:[96,70,48]});
+   lr(8,10.4,[-5,5,Z-2.9,Z+2.9],[-2.2,2.2,Z]);}
+  // 拐弯处的红叶和杉枝：无人机从这里降进林子，枝叶从镜头前扫过，散开后看到拜殿
+  for(const [x,y,z,s] of [[2,6.6,111.2,4.4],[3,5.2,113.4,4.6],[3.6,4.2,115.4,4.8],[4.4,3.4,117.3,4.2],[2.6,4.6,116,3.6],[5,4.2,116.6,3.8],[3.9,3.1,116.4,3.4]])sprites.push({kind:'maple',x,y,z,s,v:(z*3|0)&3});
+  for(const [x,y,z,s] of [[1.4,7.8,110,4.4],[4.2,5.4,114.6,4],[2.8,3.6,117.6,3.6]])sprites.push({kind:'bough',x,y,z,s,v:(z|0)%3});
 })();
 
 // ---------- 贴图 ----------
@@ -129,6 +146,8 @@ const trunkImg=[0,.3,.55,.8].map(f=>mk(48,1024,(b,w,h)=>{const q=b.createLinearG
   for(let i=0;i<26;i++){b.strokeStyle=i%3?'rgba(20,14,10,.35)':'rgba(190,160,120,.18)';b.lineWidth=1+rnd(i,31)*2;const x=rnd(i,32)*w;b.beginPath();b.moveTo(x,0);for(let y=0;y<=h;y+=64)b.lineTo(x+Math.sin(y*.01+i)*2,y);b.stroke();}
   b.fillStyle=`rgba(${HAZE},${f})`;b.fillRect(0,0,w,h);}));
 const boughImg=[0,1,2].map(v=>mk(256,160,(b)=>{for(let i=0;i<140;i++){const a=rnd(i,41+v)*TAU,r=Math.sqrt(rnd(i,42+v)),x=128+Math.cos(a)*r*110,y=80+Math.sin(a)*r*55;b.fillStyle=['#1e3a2a','#2c4a32','#3c5a38','#4f6a3e'][(i+v)%4];b.globalAlpha=.75;b.beginPath();b.ellipse(x,y,10+rnd(i,43)*16,4+rnd(i,44)*6,(rnd(i,45)-.5)*.6,0,TAU);b.fill();}}));
+const fernImg=[0,1,2].map(v=>mk(160,90,b=>{for(let i=0;i<26;i++){const a=-Math.PI*(.1+.8*rnd(i,81+v)),L=40+rnd(i,82+v)*40;b.strokeStyle=['#3c5a2c','#4e6a34','#6a7a3a','#7a5a2a'][(i+v)%4];b.lineWidth=2;b.beginPath();b.moveTo(80,88);b.quadraticCurveTo(80+Math.cos(a)*L*.5,88+Math.sin(a)*L*.8,80+Math.cos(a)*L,88+Math.sin(a)*L*.6);b.stroke();
+  for(let k=1;k<8;k++){const u=k/8,x=80+Math.cos(a)*L*u,y=88+Math.sin(a)*L*.6*u;b.beginPath();b.moveTo(x,y);b.lineTo(x+4,y-6);b.moveTo(x,y);b.lineTo(x-4,y-5);b.stroke();}}}));
 const LEAF=[[0,-1],[.14,-.46],[.3,-.57],[.25,-.2],[.67,-.67],[.55,-.15],[.95,-.26],[.73,.07],[.94,.18],[.47,.31],[.54,.53],[.18,.48],[0,.63],[-.18,.48],[-.54,.53],[-.47,.31],[-.94,.18],[-.73,.07],[-.95,-.26],[-.55,-.15],[-.67,-.67],[-.25,-.2],[-.3,-.57],[-.14,-.46]];
 const REDS=['#b8321e','#d4502a','#e8743a','#c23a2a','#f0a040'];
 const leafImg=REDS.map(c=>mk(64,64,b=>{b.fillStyle=c;b.beginPath();LEAF.forEach(([x,y],i)=>b[i?'lineTo':'moveTo'](32+x*28,32+y*28));b.closePath();b.fill();}));
@@ -140,6 +159,9 @@ const mapleImg=[0,1,2,3].map(v=>mk(400,340,b=>{b.strokeStyle='#2a1d18';b.lineCap
 // ---------- 画一帧 ----------
 function seams(f){const [a,b,c,d]=f.pts;g.strokeStyle='rgba(20,40,34,.35)';g.lineWidth=1.2;
   for(let k=1;k<7;k++){const u=k/7,p=[a.map((v,i)=>lerp(v,d[i],u)),b.map((v,i)=>lerp(v,c[i],u))].map(toCam);if(p[0][2]<NEAR||p[1][2]<NEAR)continue;const s=p.map(proj);g.beginPath();g.moveTo(...s[0]);g.lineTo(...s[1]);g.stroke();}}
+function lattice(f,d){const [a,b,c,dd]=f.pts;g.strokeStyle=shade([170,134,90],[0,0,-1],d);g.lineWidth=Math.max(1,F*.05/d);
+  for(let k=1;k<36;k++){const u=k/36,p=[a.map((v,i)=>lerp(v,b[i],u)),dd.map((v,i)=>lerp(v,c[i],u))].map(toCam);if(p[0][2]<NEAR||p[1][2]<NEAR)continue;const s=p.map(proj);g.beginPath();g.moveTo(...s[0]);g.lineTo(...s[1]);g.stroke();}
+  for(let k=1;k<6;k++){const u=k/6,p=[a.map((v,i)=>lerp(v,dd[i],u)),b.map((v,i)=>lerp(v,c[i],u))].map(toCam);if(p[0][2]<NEAR||p[1][2]<NEAR)continue;const s=p.map(proj);g.beginPath();g.moveTo(...s[0]);g.lineTo(...s[1]);g.stroke();}}
 function drawFace(pts,fill){g.fillStyle=fill;g.beginPath();pts.forEach((p,i)=>g[i?'lineTo':'moveTo'](p[0],p[1]));g.closePath();g.fill();}
 function polyScreen(f){const cp=clipNear(f.pts.map(toCam));if(cp.length<3)return null;return {s:cp.map(proj),d:cp.reduce((a,c)=>a+c[2],0)/cp.length};}
 function renderScene(t){
@@ -153,7 +175,7 @@ function renderScene(t){
   // 立着的东西：按距离排序
   const items=[];
   for(const f of faces){const c=f.pts.reduce((a,p)=>[a[0]+p[0],a[1]+p[1],a[2]+p[2]],[0,0,0]).map(v=>v/f.pts.length);
-    if((c[0]-cam.x)*f.n[0]+(c[1]-cam.y)*f.n[1]+(c[2]-cam.z)*f.n[2]>0)continue;const r=polyScreen(f);if(!r)continue;items.push({d:r.d+(f.bias||0),draw:()=>{drawFace(r.s,shade(f.rgb,f.n,r.d));if(f.roof&&f.pts.length===4)seams(f);}});}
+    if((c[0]-cam.x)*f.n[0]+(c[1]-cam.y)*f.n[1]+(c[2]-cam.z)*f.n[2]>0)continue;const r=polyScreen(f);if(!r)continue;items.push({d:r.d+(f.bias||0),draw:()=>{drawFace(r.s,shade(f.rgb,f.n,r.d));if(f.roof&&f.pts.length===4)seams(f);if(f.lattice)lattice(f,r.d);}});}
   for(const sp of sprites){
     if(sp.kind==='trunk'){let a=toCam([sp.x,0,sp.z]),b=toCam([sp.x,sp.h,sp.z]);if(a[2]<NEAR&&b[2]<NEAR)continue;
       if(a[2]<NEAR){const u=(NEAR-a[2])/(b[2]-a[2]);a=a.map((v,i)=>lerp(v,b[i],u));}if(b[2]<NEAR){const u=(NEAR-b[2])/(a[2]-b[2]);b=b.map((v,i)=>lerp(v,a[i],u));}
@@ -161,54 +183,47 @@ function renderScene(t){
       const wa=F*sp.r*2/a[2],wb=F*sp.r*1.4/b[2];
       items.push({d:a[2]*.6+b[2]*.4,draw:()=>{const img=trunkImg[Math.min(3,Math.round(fogOf(a[2])*3.4))];g.save();g.beginPath();g.moveTo(pa[0]-wa/2,pa[1]);g.lineTo(pa[0]+wa/2,pa[1]);g.lineTo(pb[0]+wb/2,pb[1]);g.lineTo(pb[0]-wb/2,pb[1]);g.closePath();g.clip();
         const ang=Math.atan2(pb[0]-pa[0],pa[1]-pb[1]),len=Math.hypot(pb[0]-pa[0],pb[1]-pa[1]);g.translate(pa[0],pa[1]);g.rotate(ang);g.drawImage(img,-Math.max(wa,wb)/2,-len,Math.max(wa,wb),len);g.restore();}});
-    }else{const c=toCam([sp.x,sp.y,sp.z]);if(c[2]<.8)continue;const p=proj(c),s=F*sp.s/c[2];if(p[0]+s<0||p[0]-s>W||p[1]+s<0||p[1]-s>H)continue;
-      const img=sp.kind==='maple'?mapleImg[sp.v]:boughImg[sp.v],f=fogOf(c[2]),ar=img.height/img.width;
-      items.push({d:c[2],draw:()=>{g.globalAlpha=clamp((c[2]-.8)/1.5);g.drawImage(img,p[0]-s/2,p[1]-s*ar/2,s,s*ar);if(f>.1){g.globalAlpha*=f*.85;g.globalCompositeOperation='source-atop';g.globalCompositeOperation='source-over';}g.globalAlpha=1;}});}
+    }else{const c=toCam([sp.x,sp.y,sp.z]);if(c[2]<.5)continue;const p=proj(c),s=F*sp.s/c[2];if(p[0]+s<0||p[0]-s>W||p[1]+s<0||p[1]-s>H)continue;
+      const img=sp.kind==='maple'?mapleImg[sp.v]:sp.kind==='fern'?fernImg[sp.v]:boughImg[sp.v],f=fogOf(c[2]),ar=img.height/img.width;
+      items.push({d:c[2],draw:()=>{g.globalAlpha=clamp((c[2]-.5)/.6);g.drawImage(img,p[0]-s/2,p[1]-s*ar/2,s,s*ar);if(f>.1){g.globalAlpha*=f*.85;g.globalCompositeOperation='source-atop';g.globalCompositeOperation='source-over';}g.globalAlpha=1;}});}
   }
   items.sort((a,b)=>b.d-a.d).forEach(it=>it.draw());
   // 落叶（立体的，离镜头近的大）
-  for(let i=0;i<160;i++){const x=(rnd(i,61)-.5)*14+(i%3?0:8),z=rnd(i,62)*44-4,y=((7-((t*.55+rnd(i,63)*7)%7))+.2),xx=x+Math.sin(t*.8+i)*.4;
+  for(let i=0;i<260;i++){const x=(rnd(i,61)-.5)*14+(i%3?0:8),z=rnd(i,62)*140-4,y=((7-((t*.55+rnd(i,63)*7)%7))+.2),xx=x+Math.sin(t*.8+i)*.4;
     const c=toCam([xx,y,z]);if(c[2]<.3)continue;const p=proj(c),s=F*.09/c[2];if(p[0]<-s||p[0]>W+s||p[1]<-s||p[1]>H+s)continue;
     g.save();g.globalAlpha=clamp(1-fogOf(c[2])*.8)*clamp((c[2]-.3)/.6);g.translate(p[0],p[1]);g.rotate(t*1.4+i);g.scale(.35+.65*Math.abs(Math.cos(t*.9+i)),1);g.drawImage(leafImg[i%5],-s/2,-s/2,s,s);g.restore();}
   // 斜照进林子的光
   g.save();g.globalCompositeOperation='lighter';for(let i=0;i<6;i++){const x=200+i*160+Math.sin(i*2.1)*60-cam.yaw*500,qq=g.createLinearGradient(x,0,x-600,H);qq.addColorStop(0,'rgba(255,232,180,.09)');qq.addColorStop(1,'rgba(255,232,180,0)');g.fillStyle=qq;g.beginPath();g.moveTo(x,0);g.lineTo(x+70,0);g.lineTo(x-530,H);g.lineTo(x-640,H);g.closePath();g.fill();}g.restore();
 }
 
-// ---------- 四种镜头路线 ----------
-// 每个关键帧：[秒, x, y, z, 左右朝向, 上下俯仰]
-const OPTIONS={
-  A:{name:'A 越过鸟居',note:'像无人机一样升起来，贴着鸟居顶上的黑色笠木飞过去，再降下来斜着靠近拜殿',keys:[[0,0,1.7,-6,0,.03],[2,0,3.4,3,0,.1],[3.3,0,6.7,9.8,0,-.12],[4.6,1.4,6.6,17,.15,-.24],[6.2,2.4,3.6,22,.38,-.06],[7.4,2.8,2.6,24.5,.44,.02]]},
-  B:{name:'B 无人机侧面掠过',note:'从参道左侧斜着飞，鸟居的柱子从镜头右边很近地擦过去，然后看到拐弯后的拜殿',keys:[[0,-7.5,2.6,-4,.5,.02],[2.2,-4.8,3,5,.55,.03],[3.2,-3.1,3.1,9.8,.42,.03],[4.4,-1.6,3.4,15,.38,0],[6.2,1,3,21.5,.45,.01],[7.4,2,2.8,23.5,.47,.02]]},
-  C:{name:'C 从鸟居下穿过，甩镜',note:'人的高度沿参道走，从鸟居下面穿过，抬头看见笠木掠过头顶；镜头往右一甩，拜殿出现',keys:[[0,0,1.6,-5,0,.02],[2.6,0,1.65,7.5,0,.16],[3.4,0,1.65,11.5,0,.2],[4.2,0,1.65,15,.03,.04],[4.8,.2,1.65,18.5,.95,.03],[5.8,.6,1.65,21.5,.55,.04],[7.4,1.2,1.75,24,.45,.05]]},
-  D:{name:'D 从高处俯瞰',note:'从杉树间的高处往下看鸟居，沿着参道往前飞，一边飞一边抬头，拜殿的屋顶从林子里出现',keys:[[0,0,15,-5,0,-.7],[2.4,0,13,7,0,-.98],[4.4,1,11,15,.2,-.6],[6.2,2.2,7,21,.4,-.25],[7.4,2.6,5.8,23.5,.44,-.16]]},
-};
-const HOLD=1.2;
 function camAt(keys,t){
   const ks=keys,n=ks.length;t=clamp(t,0,ks[n-1][0]);let i=0;while(i<n-2&&t>ks[i+1][0])i++;
   const u=(t-ks[i][0])/(ks[i+1][0]-ks[i][0]),P=j=>ks[clamp(j,0,n-1)];
   const cr=(k)=>{const p0=P(i-1)[k],p1=P(i)[k],p2=P(i+1)[k],p3=P(i+2)[k],u2=u*u,u3=u2*u;return .5*(2*p1+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u2+(-p0+3*p1-3*p2+p3)*u3);};
   return {x:cr(1),y:cr(2),z:cr(3),yaw:cr(4),pitch:cr(5)};
 }
+const KEYS=[[0,0,17,-6,0,-.78],[1.9,0,15.2,8,0,-1.02],[3.5,0,14,48,0,-.62],[5.4,.4,13,100,.1,-.55],[6.3,1.6,8,109,.3,-.3],[7,3.2,4.2,114.5,.42,-.08],[8.4,5.5,2.5,121,.48,.02]],DUR=KEYS.at(-1)[0];
 const tmp=mk(W,H,()=>{}),tg=tmp.getContext('2d');
-let opt='A',playing=true,time=0,last=0;
-function renderFrame(t){
-  const o=OPTIONS[opt],dur=o.keys.at(-1)[0];const tt=Math.min(t,dur);
-  const c0=camAt(o.keys,tt),c1=camAt(o.keys,Math.min(dur,tt+1/30));cam=c0;
-  const spin=Math.abs(c1.yaw-c0.yaw)*30,speed=Math.hypot(c1.x-c0.x,c1.y-c0.y,c1.z-c0.z)*30;
+function render(t){
+  const tt=clamp(t,0,DUR),c0=camAt(KEYS,tt),c1=camAt(KEYS,Math.min(DUR,tt+1/30));cam=c0;
+  const speed=Math.hypot(c1.x-c0.x,c1.y-c0.y,c1.z-c0.z)*30;
   renderScene(t);
-  // 镜头甩得快时的横向模糊，冲得快时的往外拉的模糊
-  if(spin>.6||speed>9){tg.clearRect(0,0,W,H);tg.drawImage(cv,0,0);const sx=clamp((spin-.6)*40,0,90),sz=clamp((speed-9)*.006,0,.08);
-    for(let i=1;i<=6;i++){g.globalAlpha=1/(i+1);const z=1+sz*i/6;g.drawImage(tmp,-sx*i/6*Math.sign(c1.yaw-c0.yaw)+W/2-W/2*z,H/2-H/2*z,W*z,H*z);}g.globalAlpha=1;}
-  g.fillStyle='rgba(255,255,255,.75)';g.font='500 34px system-ui,sans-serif';g.fillText(o.name,60,1830);
+  if(speed>9){tg.clearRect(0,0,W,H);tg.drawImage(cv,0,0);const sz=clamp((speed-9)*.004,0,.07);   // 飞得快时从中心往外拉的速度模糊
+    for(let i=1;i<=6;i++){g.globalAlpha=1/(i+1);const z=1+sz*i/6;g.drawImage(tmp,W/2-W/2*z,H/2-H/2*z,W*z,H*z);}g.globalAlpha=1;}
+  return cv;
 }
-const box2=document.getElementById('opts');
-for(const k in OPTIONS){const b=document.createElement('button');b.innerHTML=OPTIONS[k].name+'<small>'+OPTIONS[k].note+'</small>';b.dataset.k=k;b.setAttribute('aria-pressed',k===opt);b.onclick=()=>{opt=k;time=0;playing=true;document.querySelectorAll('#opts button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k===k));};box2.appendChild(b);}
+return {render,DUR};
+})();
+/*SHRINE3D-END*/
+const out=document.getElementById('c'),og=out.getContext('2d');
+let playing=true,time=0,last=0;const LOOP=SHRINE3D.DUR+1.2;
 const play=document.getElementById('play'),clock=document.getElementById('clock');
 play.onclick=()=>{playing=!playing;play.textContent=playing?'暂停':'播放';};
 document.getElementById('restart').onclick=()=>{time=0;playing=true;play.textContent='暂停';};
-cv.onclick=()=>play.click();
-window.render=t=>renderFrame(t);window.setOpt=k=>{opt=k;};
-function tick(now){const dt=last?Math.min(.1,(now-last)/1000):0;last=now;const dur=OPTIONS[opt].keys.at(-1)[0]+HOLD;if(playing)time=(time+dt)%dur;renderFrame(time);clock.textContent=time.toFixed(1)+' / '+dur.toFixed(1)+' 秒';requestAnimationFrame(tick);}
+out.onclick=()=>play.click();
+function frame(t){og.drawImage(SHRINE3D.render(t),0,0);}
+window.render=frame;window.LOOP_SECONDS=LOOP;
+function tick(now){const dt=last?Math.min(.1,(now-last)/1000):0;last=now;if(playing)time=(time+dt)%LOOP;frame(time);clock.textContent=time.toFixed(1)+' / '+LOOP.toFixed(1)+' 秒';requestAnimationFrame(tick);}
 if(!new URLSearchParams(location.search).has('record'))requestAnimationFrame(tick);
 window.READY=true;
 </script>
