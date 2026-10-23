@@ -1,3 +1,66 @@
+// Companion excerpt: shared helpers live in yahiko-shrine-reset.html.
+// Generated from the HTML; edit the HTML first.
+
+const T = 25;
+const scenePlan=[
+ {id:'reveal',start:0,end:4,source:0,span:4},
+ {id:'gate',start:4,end:8,source:4,span:4},
+ {id:'shrine',start:8,end:12.5,source:4,span:4},
+ {id:'ascent',start:12.5,end:18,source:8,span:5},
+ {id:'summit',start:18,end:25,source:13,span:7},
+];
+function duration(){return variant==='V6'?20:T;}
+
+function drawApproachForest(b,includeHall){
+ grad(b,0,0,W,H,[[0,'#0b1b25'],[.37,'#29413f'],[.63,'#566253'],[1,'#172b28']]);
+ glow(b,710,851,430,520,[156,174,140],.16);
+ // Distant trunks vary in spacing, lean and thickness; foliage is above eye level.
+ for(let i=0;i<26;i++){let x=rnd(i,300)*1210-60,base=1165+rnd(i,301)*170;cedarTrunk(b,x,base,1050+rnd(i,302)*400,15+rnd(i,303)*21,310+i,['#293d36','#3c4f40','#2d4137']);}
+ for(let i=0;i<36;i++){let x=rnd(i,340)*1300-110,y=130+rnd(i,341)*710;cedarBough(b,x,y,110+rnd(i,342)*240,350+i,i%3?'#1b3833':'#30473b');}
+ grad(b,0,480,W,850,[[0,'rgba(116,142,127,0)'],[.65,'rgba(116,142,127,.13)'],[1,'rgba(116,142,127,0)']]);
+ for(const [x,y,w,s] of [[267,1310,42,361],[915,1315,48,364],[1061,1380,62,365],[395,1195,22,366]])cedarTrunk(b,x,y,1390,w,s,['#202e29','#615f48','#283e32']);
+ // Uneven woodland floor, stone approach bending gently toward the hall.
+ grad(b,0,1270,W,650,[[0,'rgba(30,51,39,0)'],[.19,'#2b3b2d'],[1,'#152b26']]);
+ for(let i=0;i<1250;i++){let x=rnd(i,380)*W,y=1280+rnd(i,381)*640;b.fillStyle=['#556248','#344d38','#7a7144','#263b2c'][i%4];b.globalAlpha=.15+rnd(i,382)*.4;b.beginPath();b.ellipse(x,y,3+rnd(i,383)*19,2+rnd(i,384)*5,0,0,TAU);b.fill();}b.globalAlpha=1;
+ const center=u=>628-(includeHall?350:88)*u*u,width=u=>116+550*u;
+ b.beginPath();for(let i=0;i<=35;i++){let u=i/35;b[i?'lineTo':'moveTo'](center(u)-width(u)/2,1255+u*665);}for(let i=35;i>=0;i--){let u=i/35;b.lineTo(center(u)+width(u)/2,1255+u*665);}b.closePath();
+ b.fillStyle='#626c5c';b.fill();b.save();b.clip();
+ grad(b,0,1255,W,665,[[0,'rgba(191,180,142,.18)'],[.35,'rgba(160,165,136,.1)'],[1,'rgba(13,36,33,.3)']]);
+ for(let j=0;j<16;j++){let u0=(Math.exp(j/6)-1)/(Math.exp(16/6)-1),u1=(Math.exp((j+1)/6)-1)/(Math.exp(16/6)-1),y0=1255+u0*665,y1=1255+u1*665;
+  for(let k=0;k<4;k++){let f0=k/4-.5,f1=(k+1)/4-.5,pts=[[center(u0)+width(u0)*f0+1,y0+1],[center(u0)+width(u0)*f1-1,y0+1],[center(u1)+width(u1)*f1-1,y1-2],[center(u1)+width(u1)*f0+1,y1-2]];poly(b,pts,['#757b66','#6b7462','#83846b','#626e5d'][(j*3+k)%4],'#45594b',1.1);b.strokeStyle='rgba(213,205,165,.19)';b.lineWidth=1;b.beginPath();b.moveTo(...pts[0]);b.lineTo(...pts[1]);b.stroke();}
+ }
+ for(let i=0;i<1800;i++){let y=1255+rnd(i,390)*665,x=rnd(i,391)*W;b.fillStyle=i%3?'rgba(202,198,164,.13)':'rgba(24,46,37,.18)';b.fillRect(x,y,1+rnd(i,392)*3,1);}
+ // Soft branch shadows and warm light fall across the stone, rather than floating.
+ for(let i=0;i<7;i++){b.strokeStyle='rgba(13,37,32,.20)';b.lineWidth=11+i*3;b.beginPath();b.moveTo(0,1350+i*85);b.bezierCurveTo(250,1440+i*70,550,1400+i*70,900,1490+i*60);b.stroke();}
+ glow(b,493,1454,185,100,[244,192,109],.15);glow(b,705,1290,135,70,[251,193,109],.14);b.restore();
+ // Irregular moss lips and leaf piles break the geometric path boundary.
+ for(let i=0;i<420;i++){let u=rnd(i,395),side=i%2?-1:1,x=center(u)+side*(width(u)/2+7+rnd(i,396)*34),y=1255+u*665;b.fillStyle=['#52603a','#667048','#3b5538'][i%3];b.beginPath();b.ellipse(x,y,2+u*11,2+u*5,rnd(i,397),0,TAU);b.fill();if(i%2)maple(b,x+side*6,y+5,2+u*6,rnd(i,398)*TAU,reds[2+i%4]);}
+ if(includeHall)shrineHall(b);
+ stoneLantern(b,427,1457,.94);stoneLantern(b,854,1355,.68);
+ // A restrained maple branch breaks the roof line without obscuring it.
+ branch(b,1100,1210,205,-.24,13,2,408);
+ [[1060,770,155,170,411,.62,530],[987,1000,114,88,414,.7,470],[1010,1120,86,90,415,.7,320]].forEach(a=>crown(b,...a));
+}
+const forest=layer(b=>drawApproachForest(b,true));
+const gateForest=layer(b=>drawApproachForest(b,false));
+const shrineForeground=layer(b=>{
+ // Complete gate silhouette, with both lintel ends and both feet inside frame.
+ b.save();
+ for(const x of [243,837]){const gr=b.createLinearGradient(x-20,0,x+20,0);gr.addColorStop(0,'#57392e');gr.addColorStop(.35,'#a66847');gr.addColorStop(.7,'#925335');gr.addColorStop(1,'#49372c');poly(b,[[x-17,739],[x+17,739],[x+24,1456],[x-24,1456]],gr);b.fillStyle='#24382e';b.fillRect(x-25,1420,50,45);}
+ b.beginPath();b.moveTo(151,704);b.quadraticCurveTo(540,749,929,704);b.lineTo(917,737);b.quadraticCurveTo(540,776,163,737);b.closePath();b.fillStyle='#294039';b.fill();
+ b.beginPath();b.moveTo(164,733);b.quadraticCurveTo(540,769,916,733);b.lineTo(907,750);b.quadraticCurveTo(540,788,173,750);b.closePath();b.fillStyle='#a16946';b.fill();
+ b.fillStyle='#875639';b.fillRect(198,829,684,26);b.fillStyle='#bd8960';b.fillRect(198,829,684,4);b.fillStyle='#785034';b.fillRect(529,763,22,66);
+ b.restore();
+ // Large, irregular cedar trunks and roots anchor the near plane.
+ cedarTrunk(b,28,1820,1960,116,445,['#142923','#4a4c36','#20382b']);
+ cedarTrunk(b,1039,1840,1980,144,449,['#142923','#5a5740','#263b2b']);
+ for(let j=0;j<17;j++){let x=j%2?1034:23,y=1380+rnd(j,451)*360;b.fillStyle='#52613c';b.globalAlpha=.4;b.beginPath();b.ellipse(x+(rnd(j,453)-.5)*25,y,8+rnd(j,454)*12,18+rnd(j,455)*25,-.2,0,TAU);b.fill();}b.globalAlpha=1;
+ cedarBough(b,115,540,430,465,'#122e2b');cedarBough(b,1003,565,340,466,'#17362d');
+ branch(b,-45,1180,220,.5,12,2,470);
+ [[-30,970,145,190,471,.67,600],[83,883,105,95,477,.73,450],[-5,1340,160,120,481,.72,630],[1120,1520,146,150,491,.72,580]].forEach(a=>crown(b,...a));
+});
+
+
 // A single frontal courtyard composition; abstracted from Yahiko's broad haiden.
 const shrineBackdrop=layer(b=>{
  grad(b,0,0,W,H,[[0,'#203e4c'],[.38,'#a7b2a0'],[.68,'#6b7a55'],[1,'#364f3c']]);
@@ -38,42 +101,30 @@ function broadHaiden(b){
  stoneLantern(b,110,1510,1.05);stoneLantern(b,970,1510,1.05);
 }
 const shrineArchitecture=layer(b=>broadHaiden(b));
-// Oblique foreground gate: a visual compression of the turning approach,
-// not a claim that the torii and haiden occupy one straight real-world axis.
-const shrineSideTorii=layer(b=>{
- // Contact shadows and stone shoes keep both feet anchored to the courtyard.
- for(const [x,y,rx] of [[112,1718,58],[368,1550,40]]){
-  glow(b,x+20,y+9,rx*1.5,18,[17,31,26],.27);
-  poly(b,[[x-rx*.55,y-22],[x+rx*.55,y-25],[x+rx*.7,y+6],[x-rx*.7,y+9]],'#465047','#273a32',2);
- }
- // Receding posts have different projected heights, with warm edge lighting.
- for(const [x,top,foot,w] of [[112,855,1716,42],[368,948,1549,28]]){
-  const wood=b.createLinearGradient(x-w/2,0,x+w/2,0);
-  wood.addColorStop(0,'#49382d');wood.addColorStop(.28,'#ac7752');
-  wood.addColorStop(.58,'#8b5d40');wood.addColorStop(1,'#493b2f');
-  poly(b,[[x-w*.36,top],[x+w*.36,top+3],[x+w*.52,foot],[x-w*.52,foot]],wood,'#4c3e30',1.5);
-  b.strokeStyle='rgba(222,177,116,.32)';b.lineWidth=2;
-  b.beginPath();b.moveTo(x-w*.24,top+25);b.lineTo(x-w*.35,foot-32);b.stroke();
-  poly(b,[[x-w*.52,foot-35],[x+w*.52,foot-35],[x+w*.56,foot],[x-w*.56,foot]],'#303d33');
- }
- // Curved kasagi and its lit lower beam, seen from beside the path.
- b.beginPath();b.moveTo(35,801);b.bezierCurveTo(153,865,316,928,430,919);
- b.lineTo(420,947);b.bezierCurveTo(308,951,151,894,44,836);b.closePath();
- b.fillStyle='#263e36';b.fill();b.strokeStyle='#627059';b.lineWidth=3;b.stroke();
- b.beginPath();b.moveTo(45,836);b.bezierCurveTo(159,898,310,951,420,947);
- b.lineTo(415,966);b.bezierCurveTo(309,971,157,919,50,858);b.closePath();
- b.fillStyle='#a27650';b.fill();
- poly(b,[[75,986],[398,1059],[397,1080],[75,1015]],'#80583d','#4e3c2c',2);
- poly(b,[[75,986],[398,1059],[398,1064],[75,992]],'#c39969');
- poly(b,[[242,931],[257,936],[257,1027],[242,1023]],'#946a46');
- // Quiet brass joint plates; no floating sign or decorative lettering.
- for(const [x,y] of [[112,999],[368,1065]]){b.fillStyle='#514535';b.fillRect(x-9,y-8,18,18);b.fillStyle='#bca176';b.beginPath();b.arc(x,y,2,0,TAU);b.fill();}
-});
+// A complete frontal gate in its own cedar approach shot.
+// The cut to the courtyard avoids inventing a shared axis with the haiden.
+function gateShot(b,t){
+ const e=ease(clamp((t-4)/4));
+ b.save();camera(b,1+.018*e,540,960-3*e);b.drawImage(gateForest,0,0,W,H);leaves(b,t);b.restore();
+ b.save();camera(b,1+.04*e,540,960-5*e);b.drawImage(shrineForeground,0,0,W,H);b.restore();
+}
 function shrineShot(b,t){
  if(variant==='V6'){shrineShotV6(b,t);return;}
  const u=clamp((t-4)/4),e=ease(u);
  b.save();camera(b,1+.018*e,540+7*e,960);b.drawImage(shrineBackdrop,0,0,W,H);b.restore();
  b.save();camera(b,1.015+.065*e,540+23*e,960-12*e);b.drawImage(shrineArchitecture,0,0,W,H);b.restore();
- // A rightward approach sends the close gate left faster than the distant hall.
- b.save();b.translate(-160*e,18*e);b.translate(112,1718);b.scale(1+.09*e,1+.09*e);b.translate(-112,-1718);b.drawImage(shrineSideTorii,0,0,W,H);b.restore();
+
 }
+
+
+function paintShot(c,id,t){
+ const b=c.getContext('2d');b.setTransform(1,0,0,1,0,0);b.clearRect(0,0,W,H);
+ // Re-time only the lengthened shots. Opening, gate and sea keep real-time speed.
+ if(variant!=='V6'){const s=scenePlan.find(s=>s.id===id);t=s.source+(t-s.start)*s.span/(s.end-s.start);}
+ if(id==='gate')gateShot(b,t);else if(id==='shrine')shrineShot(b,t);else if(id==='ascent')ascentShot(b,t);else if(id==='summit')summitShot(b,t);else valleyShot(b,t,id);
+}
+function shotAt(t){
+ if(variant!=='V6')return scenePlan.find(s=>t>=s.start&&t<s.end)?.id||'reveal';
+ if(t<4)return 'reveal';if(t<8)return 'shrine';if(t<13)return 'ascent';return 'summit';
+}
+const transitions=[]; // Clean cuts between independent shots; no overlapping architecture.
