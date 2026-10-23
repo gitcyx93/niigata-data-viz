@@ -1,0 +1,14 @@
+{
+  "base": "2c6b8f06ab775b89d9367ae9741910bee26e7517",
+  "duration": 23.3,
+  "fps": 30,
+  "frames": 699,
+  "browser": "Chromium 153",
+  "pageErrors": [],
+  "checks": [
+    "full loop playback",
+    "chapter buttons",
+    "seek",
+    "699 browser-rendered frames"
+  ]
+}
