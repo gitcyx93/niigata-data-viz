@@ -1,32 +1,33 @@
 {
-  "base": "870d5667eed07db8bb00e06fb192750b40320215",
-  "reviewedClaude": "f9685da0faaca3b2cb9ad295d2ab21a5c9ca36a5",
+  "base": "528a632cabed1714412b5508fcf61432427d5985",
   "duration": 23.3,
-  "fps": 30,
-  "frames": 699,
   "browser": "Chromium 153",
   "pageErrors": [],
-  "coverage": {
-    "cut": [
-      {
-        "t": 4.483333,
-        "uncovered": 0
-      },
-      {
-        "t": 4.5,
-        "uncovered": 0
-      },
-      {
-        "t": 4.516667,
-        "uncovered": 0
-      }
-    ],
-    "exitPixels": 0
+  "occlusion": {
+    "holes": 0,
+    "first": {
+      "x": 1108.421052631579,
+      "w": 175.26315789473685,
+      "u": 0
+    },
+    "middle": {
+      "x": 540,
+      "w": 370.00000000000006,
+      "u": 0.6666666666666666
+    },
+    "last": {
+      "x": -810.0000000000005,
+      "w": 832.5000000000001,
+      "u": 1
+    },
+    "leafEffectRemoved": true
   },
   "checks": [
     "full loop playback",
-    "chapter buttons",
+    "chapter controls",
     "seek",
-    "699 browser-rendered frames"
+    "241 transition frames at 60 fps",
+    "pixel-identical ascent at 12/14/16 seconds",
+    "unchanged opening at 0/3 seconds and ending at 18/22 seconds"
   ]
 }

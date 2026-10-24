@@ -674,12 +674,33 @@ function addGlow(b,x,y,rx,ry,c,a){b.globalCompositeOperation='lighter';glow(b,x,
 // ---- 神社（插画分层，和其他镜头同一种画法）----
 // 从高处看参道上的朱红鸟居，镜头一直匀速往前走；参道上方挂着的一枝红叶越来越近，盖满画面时（7.72）切到斜侧面的拜殿，
 // 叶子从画面四边退出去，镜头减速后继续很慢地往前。
-const SH0=4.5,CUTT=7.4,SH1=11.3,VP=[540,600];
+const SH0=4.5,CUTT=7.0,SH1=11.3,VP=[540,600];
 function sunBeams(b,x0,n,seed,a){b.save();b.globalCompositeOperation='lighter';
   for(let i=0;i<n;i++){const x=x0+(rnd(i,seed)-.5)*700,w=30+rnd(i,seed+1)*90,q=b.createLinearGradient(x,0,x-560,1700);
     q.addColorStop(0,`rgba(255,226,170,${a*(.5+rnd(i,seed+2))})`);q.addColorStop(1,'rgba(255,226,170,0)');b.fillStyle=q;
     b.beginPath();b.moveTo(x,-50);b.lineTo(x+w,-50);b.lineTo(x+w-560,1700);b.lineTo(x-560-w*.4,1700);b.closePath();b.fill();}b.restore();}
 const LIGHT_TRUNK=['#4a5a48','#7d7a5c','#566550'],FAR_TRUNK=['#7c8c74','#93997e','#80907a'];
+// Connected sprays of autumn foliage: broad colour masses, branching and a few readable leaves.
+function shrineCanopy(b,x,y,rx,ry,seed){
+ const lobes=[];
+ for(let i=0;i<23;i++){
+  const a=rnd(i,seed)*TAU,r=Math.sqrt(rnd(i,seed+1)),xx=x+Math.cos(a)*rx*r*.82,yy=y+Math.sin(a)*ry*r*.75;
+  lobes.push({x:xx,y:yy,h:ry*(.28+rnd(i,seed+2)*.38),w:rx*(.19+rnd(i,seed+3)*.25),i});
+ }
+ b.save();b.lineCap='round';
+ const rootX=x<540?x-rx*.85:x+rx*.85,rootY=y+ry*1.1;
+ for(const l of lobes){b.strokeStyle=l.i%3?'#514132':'#70503a';b.lineWidth=2+rx*.012;b.beginPath();b.moveTo(rootX,rootY);b.quadraticCurveTo(x,y+ry*.3,l.x,l.y-l.h*.3);b.stroke();}
+ const pal=[['#57342c','#8b4030','#b76c44'],['#63302b','#a74631','#ca7947'],['#444535','#705435','#9b7946'],['#59302c','#8c3b30','#b65d3e']];
+ lobes.sort((a,c)=>a.y-c.y).forEach(l=>treeCrown(b,l.x,l.y,l.h,l.w,seed+l.i*29,pal[l.i%4]));
+ // Sparse attached edge leaves, unequal and turned away from the viewer.
+ for(let i=0;i<105;i++){
+  const l=lobes[i%lobes.length],a=rnd(i,seed+7)*TAU,r=.7+rnd(i,seed+8)*.35;
+  const xx=l.x+Math.cos(a)*l.w*r,yy=l.y-l.h*.5+Math.sin(a)*l.h*.44*r,s=3+rx*.018*rnd(i,seed+9);
+  b.save();b.translate(xx,yy);b.rotate(a*.35);b.scale(.5+rnd(i,seed+10)*.6,1);
+  maple(b,0,0,s,a,pal[i%4][i%3]);if(s>5){b.strokeStyle='rgba(227,181,115,.30)';b.lineWidth=.6;b.beginPath();b.moveTo(0,s*.45);b.lineTo(0,-s*.65);b.stroke();}b.restore();
+ }b.restore();
+}
+
 // 地面和参道：从高处往下看，参道往远处收窄
 const approachGround=layer(b=>{
   grad(b,0,0,W,H,[[0,'#2f4a3a'],[.22,'#768a6c'],[.3,'#a6ae8c'],[.36,'#6c7a52'],[1,'#3c4a2e']]);
@@ -694,14 +715,14 @@ const approachGround=layer(b=>{
     for(let j=0;j<4;j++){const f0=j/4-.5,f1=(j+1)/4-.5,v=.88+rnd(k*4+j,811)*.24,gap=1+(y1-y0)*.06;
       poly(b,[[VP[0]+half(y0)*2*f0+gap,y0+gap],[VP[0]+half(y0)*2*f1-gap,y0+gap],[VP[0]+half(y1)*2*f1-gap,y1-gap],[VP[0]+half(y1)*2*f0+gap,y1-gap]],`rgb(${Math.round(158*v)},${Math.round(154*v)},${Math.round(128*v)})`);}}
   for(let i=0;i<500;i++){const y=600+Math.pow(rnd(i,815),.7)*1320,side=i%2?-1:1,x=VP[0]+side*(half(y)+rnd(i,816)*30*(y/900));b.fillStyle=['#52603a','#667048','#3b5538'][i%3];b.beginPath();b.ellipse(x,y,2+y/180,1+y/500,0,0,TAU);b.fill();}
-  for(let i=0;i<260;i++){const y=640+rnd(i,821)*1280,x=VP[0]+(rnd(i,822)-.5)*2*half(y)*1.4;maple(b,x,y,2+y/260,rnd(i,823)*TAU,reds[2+i%5]);}
+  for(let i=0;i<145;i++){const y=640+rnd(i,821)*1280,x=VP[0]+(rnd(i,822)-.5)*2*half(y)*1.4;maple(b,x,y,1.5+y/440,rnd(i,823)*TAU,['#875237','#ad7142','#704b32'][i%3]);}
   for(const [y,s] of [[700,.32],[860,.5],[1130,.78],[1560,1.15]])for(const side of [-1,1])stoneLantern(b,VP[0]+side*(half(y)+30+s*40),y,s);
   sunBeams(b,980,8,830,.08);
 });
 // 中景的杉树（参道两侧）
 const approachMid=layer(b=>{
   for(let i=0;i<16;i++){const side=i%2?-1:1,y=640+rnd(i,841)*560,x=VP[0]+side*(70+(y-600)*.75+rnd(i,842)*140);cedarTrunk(b,x,y+40,y+120,14+(y-600)*.06,850+i,LIGHT_TRUNK);}
-  [[200,880,110,90,861,.95,420],[900,780,95,80,862,.95,380],[120,1180,150,120,863,.9,520]].forEach(a=>crown(b,...a));
+  [[200,880,110,90,861,.95,420],[900,780,95,80,862,.95,380],[120,1180,150,120,863,.9,520]].forEach(a=>shrineCanopy(b,...a));
 });
 // 朱红鸟居，从斜上方看：能看见笠木的顶面
 const toriiTop=layer(b=>{
@@ -716,12 +737,17 @@ const toriiTop=layer(b=>{
   b.beginPath();b.moveTo(L-140,628-up(L-140));for(let x=L-140;x<=R+140;x+=10)b.lineTo(x,628-up(x)-0);for(let x=R+130;x>=L-130;x-=10)b.lineTo(x,604-up(x));b.closePath();b.fillStyle='#4a4440';b.fill();
   b.beginPath();b.moveTo(L-140,628-up(L-140));for(let x=L-140;x<=R+140;x+=10)b.lineTo(x,628-up(x));for(let x=R+140;x>=L-140;x-=10)b.lineTo(x,662-up(x)*.6);b.closePath();b.fillStyle='#1b1512';b.fill();
   b.strokeStyle='rgba(255,230,190,.35)';b.lineWidth=2;b.beginPath();for(let x=L-130;x<=R+130;x+=10)b[x===L-130?'moveTo':'lineTo'](x,605-up(x));b.stroke();
+  // Painted timber joints and restrained surface variation.
+  for(const x of [L,R]){
+    for(let i=0;i<20;i++){const xx=x-14+rnd(i,x)*28,yy=top+65+rnd(i,x+1)*(base-top-145);b.strokeStyle=i%3?'rgba(89,33,20,.13)':'rgba(255,184,122,.13)';b.lineWidth=.6+rnd(i,x+2)*1.3;b.beginPath();b.moveTo(xx,yy);b.lineTo(xx+.8,yy+25+rnd(i,x+3)*90);b.stroke();}
+    b.fillStyle='rgba(63,25,16,.28)';b.fillRect(x-19,nk+20,38,6);b.fillRect(x-17,694,34,7);
+  }
 });
 // 近处的大杉树和红叶，在画面两边，冲的时候最先飞出去
 const approachNear=layer(b=>{
   cedarTrunk(b,-30,1960,2000,150,871,['#24382c','#5c5a40','#2c4234']);cedarTrunk(b,1110,1960,2000,170,872,['#24382c','#6a6447','#30463a']);
   cedarBough(b,110,320,420,873,'#21402f');cedarBough(b,980,260,380,874,'#264636');
-  [[-40,1500,230,190,875,.95,800],[1110,1240,200,200,876,.9,760],[60,560,150,120,877,.9,500]].forEach(a=>crown(b,...a));
+  [[-40,1500,230,190,875,.95,800],[1110,1240,200,200,876,.9,760],[60,560,150,120,877,.9,500]].forEach(a=>shrineCanopy(b,...a));
 });
 // ---- 拜殿：斜侧面（从左前方看），用透视算出各点的位置，再一笔笔画出来 ----
 const HP=(()=>{const C=[-14,2.4,-26],yw=.5,pt=.03,FF=1400,ox=540,oy=1150,cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt);
@@ -733,7 +759,7 @@ const hallBack=layer(b=>{
   grad(b,0,0,W,H,[[0,'#1c3426'],[.35,'#36503a'],[.52,'#4e6448'],[.6,'#62684e'],[1,'#6c7058']]);
   glow(b,800,700,500,400,[240,230,190],.12);
   for(let i=0;i<70;i++){const x=rnd(i,901)*1300-110,base=1080+rnd(i,902)*120,far=rnd(i,903);cedarTrunk(b,x,base,base+300,10+far*26,910+i,far<.5?['#4c5c48','#6a6a50','#526050']:['#2e3e30','#5a5640','#36483a']);}
-  for(let i=0;i<120;i++)cedarBough(b,rnd(i,904)*1300-110,60+rnd(i,905)*1040,140+rnd(i,906)*280,960+i,['#1e3a2a','#2a4a36','#3a5a40'][i%3]);
+  for(let i=0;i<48;i++)cedarBough(b,rnd(i,904)*1300-110,60+rnd(i,905)*1040,140+rnd(i,906)*280,960+i,['#1e3a2a','#2a4a36','#3a5a40'][i%3]);
   grad(b,0,1150,W,770,[[0,'#a8a48a'],[.4,'#bdb69a'],[1,'#8e8a70']]);
   for(let i=0;i<3000;i++){const y=1160+Math.pow(rnd(i,907),.8)*760;b.fillStyle=i%2?'rgba(240,232,205,.25)':'rgba(90,86,66,.22)';b.fillRect(rnd(i,908)*W,y,1+(y-1150)/300,1);}
   glow(b,860,1380,700,400,[245,210,150],.12);
@@ -802,47 +828,39 @@ const hallPaint=layer(b=>{
   for(let i=3;i>=0;i--){const z=P0-.2-i*.55,y=.8-(i+1)*.2;hgrad(b,[[-2.8-i*.3,y,z],[2.8+i*.3,y,z],[2.8+i*.3,y+.2,z],[-2.8-i*.3,y+.2,z]],'#cfcab4','#9e9a86');hp(b,[[-2.8-i*.3,y+.2,z],[2.8+i*.3,y+.2,z],[2.8+i*.3,y+.2,z+.55],[-2.8-i*.3,y+.2,z+.55]],'#bdb8a2');}
   // 广场上的石灯笼和两个参拜的人
   stoneLantern(b,250,1500,1.2);stoneLantern(b,980,1330,.8);
-  for(const [x,y,s] of [[600,1340,1],[648,1352,.95]]){b.fillStyle='#2a221c';b.beginPath();b.ellipse(x,y-92*s,11*s,13*s,0,0,TAU);b.fill();b.beginPath();b.moveTo(x-18*s,y);b.lineTo(x-16*s,y-60*s);b.quadraticCurveTo(x,y-81*s,x+16*s,y-60*s);b.lineTo(x+18*s,y);b.closePath();b.fill();}
+  visitor(b,600,1340,1.5,'#647774');visitor(b,648,1352,1.42,'#a48d68');
 });
-const hallNear=layer(b=>{[[-60,520,220,200,981,.95,800],[1120,420,200,240,982,.95,800],[-80,1700,240,200,983,.9,820]].forEach(a=>crown(b,...a));branch(b,1110,260,320,-1.15,16,3,984);});
-// GPT: a close maple branch passes from right to left as the camera advances.
-// The reveal edge follows the solid stem; gaps in foliage cannot expose a hard cut.
-const WIPE_START=6.2,WIPE_END=8.6;
-function branchAxis(y){return 38*Math.sin(y*.0028)+.22*(y-960);}
-const passingBranch=layer(b=>{
- const cx=750;
- b.strokeStyle='#30261e';b.lineCap='round';b.lineWidth=26;b.beginPath();
- for(let y=-100;y<=2020;y+=20)b[y===-100?'moveTo':'lineTo'](cx+branchAxis(y),y);b.stroke();
- for(let j=0;j<23;j++){
-  const y=-70+j*94,side=j%2?1:-1,x=cx+branchAxis(y),len=130+rnd(j,1801)*190;
-  const ex=x+side*len,ey=y-55-rnd(j,1802)*90;
-  b.strokeStyle='#493323';b.lineWidth=5+rnd(j,1803)*4;b.beginPath();b.moveTo(x,y);b.quadraticCurveTo(x+side*len*.55,y-30,ex,ey);b.stroke();
-  for(let k=0;k<57;k++){
-   const u=.12+rnd(k,j+1810)*.94,xx=x+side*len*u+(rnd(k,j+1840)-.5)*100,yy=y+(ey-y)*u+(rnd(k,j+1870)-.5)*120;
-   const size=13+rnd(k,j+1900)*22,col=['#703325','#98452b','#b75c32','#cf7d3e','#df9e50'][Math.floor(rnd(k,j+1930)*5)];
-   maple(b,xx,yy,size,rnd(k,j+1960)*TAU,col);
-   if(k%5===0){b.strokeStyle='rgba(239,192,114,.4)';b.lineWidth=.8;b.beginPath();b.moveTo(xx,yy+size*.4);b.lineTo(xx,yy-size*.7);b.stroke();}
-  }
+const hallNear=layer(b=>{[[-60,520,220,200,981,.95,800],[1120,420,200,240,982,.95,800],[-80,1700,240,200,983,.9,820]].forEach(a=>shrineCanopy(b,...a));branch(b,1110,260,320,-1.15,16,3,984);});
+// One cedar is already at the right edge of the path. Camera moves right and forward past it.
+// The edit lies behind its opaque trunk, rather than an added leaf curtain.
+const cedarOccluder=layer(b=>{
+ b.beginPath();b.moveTo(64,-50);b.bezierCurveTo(75,470,45,1180,15,2020);b.lineTo(505,2020);b.bezierCurveTo(470,1160,445,430,430,-50);b.closePath();b.clip();
+ const q=b.createLinearGradient(0,0,520,0);q.addColorStop(0,'#202c25');q.addColorStop(.35,'#4e5140');q.addColorStop(.65,'#77705a');q.addColorStop(1,'#343e30');b.fillStyle=q;b.fillRect(0,0,520,2000);
+ for(let i=0;i<165;i++){
+  const x=rnd(i,3101)*520,w=.5+rnd(i,3102)*5;b.strokeStyle=i%3?'rgba(25,31,24,.36)':'rgba(179,165,125,.24)';b.lineWidth=w;b.beginPath();
+  for(let y=-20;y<=2020;y+=35){const xx=x+Math.sin(y*.004+i)*6+Math.sin(y*.017+i*3)*2;b[y===-20?'moveTo':'lineTo'](xx,y);}b.stroke();
  }
-},1500,H,1.5);
-function wipePosition(t){return W+800-(t-WIPE_START)*(W+1600)/(WIPE_END-WIPE_START);}
+ for(let i=0;i<70;i++){const x=rnd(i,3103)*500,y=rnd(i,3104)*2000;b.strokeStyle=i%2?'rgba(37,48,28,.4)':'rgba(104,116,66,.22)';b.lineWidth=3+rnd(i,3105)*13;b.beginPath();b.moveTo(x,y);b.bezierCurveTo(x+8,y+30,x-5,y+75,x+2,y+100);b.stroke();}
+},520,2000,1.5);
+function cedarPass(t){const u=clamp((t-4.5)/3.75),f=900/(3.8-3*u);return{x:540+(2.4-3.6*u)*f,w:.74*f,u};}
 function zoomLayer(b,img,z,cx=VP[0],cy=VP[1]){b.save();b.translate(cx,cy);b.scale(z,z);b.translate(-cx,-cy);b.drawImage(img,0,0,W,H);b.restore();}
-function approachScene(b,t){const s=t-SH0;
- zoomLayer(b,approachGround,1+s*.045);zoomLayer(b,approachMid,1+s*.07);leaves(b,t);
- zoomLayer(b,toriiTop,1+s*.09,560,900);zoomLayer(b,approachNear,1+s*.14,540,960);
+function approachScene(b,t){const s=t-SH0,p=cedarPass(t).u;
+ b.save();b.translate(-34*p,0);zoomLayer(b,approachGround,1+s*.027);zoomLayer(b,approachMid,1+s*.045);b.restore();
+ b.save();b.translate(-75*p,0);zoomLayer(b,toriiTop,1+s*.055,560,900);b.restore();
+ b.save();b.translate(-125*p,0);zoomLayer(b,approachNear,1+s*.07,540,960);b.restore();
 }
-function courtyardScene(b,t){const s=Math.max(0,t-6.5),z=1+.018*s;
- zoomLayer(b,hallBack,1+s*.009,560,1000);zoomLayer(b,hallPaint,z,560,1000);leaves(b,t);zoomLayer(b,hallNear,1.035+s*.027,540,960);
+function courtyardScene(b,t){const s=Math.max(0,t-6.5),z=1.035+.021*s;
+ b.save();b.translate(-20*s,0);zoomLayer(b,hallBack,1.25+s*.009,560,1000);zoomLayer(b,hallPaint,z,560,1000);zoomLayer(b,hallNear,1.035+s*.027,540,960);b.restore();
 }
 function shrineShot2D(b,t){
- if(t<=WIPE_START){approachScene(b,t);return;}
- if(t>=WIPE_END){courtyardScene(b,t);return;}
- approachScene(b,t);const x=wipePosition(t);
- b.save();b.beginPath();b.moveTo(W+100,-100);b.lineTo(x+branchAxis(-100),-100);
- for(let y=-80;y<=H+100;y+=20)b.lineTo(x+branchAxis(y),y);
- b.lineTo(W+100,H+100);b.closePath();b.clip();courtyardScene(b,t);b.restore();
- b.drawImage(passingBranch,x-750,0,1500,H);
+ const {x,w}=cedarPass(t);
+ if(x-w*.5>W){approachScene(b,t);return;}
+ if(x+w*.5<0){courtyardScene(b,t);return;}
+ approachScene(b,t);
+ b.save();b.beginPath();b.rect(x,0,W+100-x,H);b.clip();courtyardScene(b,t);b.restore();
+ b.drawImage(cedarOccluder,x-w*.5,-40,w,H+80);
 }
+
 // Painterly tree groups: coherent crowns, receding scale and patches of warm light.
 function blendTone(a,c,k){const rgb=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const p=rgb(a),q=rgb(c);return '#'+p.map((v,i)=>Math.round(v+(q[i]-v)*k).toString(16).padStart(2,'0')).join('');}
 function treeCrown(b,x,y,h,w,seed,colors,conifer=false){
@@ -1050,7 +1068,7 @@ function sunsetShot(b,t){
 }
 
 function nightShot(b,t){valleyShot(b,t,'reveal');}
-const factsC=[[0,4.5,'弥彦公园 · 红叶谷与观月桥'],[4.5,7.4,'弥彦神社 · 杉林里的参道'],[7.4,11.3,'弥彦神社 · 二礼四拍手一礼'],[11.3,16.1,'弥彦山缆车 · 约五分钟上山'],[16.1,23.3,'弥彦山顶 · 日本海的夕阳']];
+const factsC=[[0,4.5,'弥彦公园 · 红叶谷与观月桥'],[4.5,7.0,'弥彦神社 · 杉林里的参道'],[7.0,11.3,'弥彦神社 · 二礼四拍手一礼'],[11.3,16.1,'弥彦山缆车 · 约五分钟上山'],[16.1,23.3,'弥彦山顶 · 日本海的夕阳']];
 function headlineC(s,sub,a,y=1465){if(a<=0)return;g.save();g.globalAlpha=a;g.shadowColor='rgba(8,16,26,.95)';g.shadowBlur=24;g.shadowOffsetY=2;text(s,540,y,66,'#f6ead4',400,'center',5);if(sub)text(sub,540,y+56,28,'#e2d6c2',400,'center',3);g.restore();}
 function titlesC(t){
   g.save();drawHeader(t,{light:.12,lc:[235,196,144],x:785},{title:'弥彦',place:'新潟县弥彦村',story:[],sheen:[100,650,700,600],reflect:false,accent:'#cba77c',storyColor:'#b6c1c8'});g.restore();
@@ -1267,57 +1285,11 @@ function titlesV6(t){
  if(t>4.2&&t<7.8){g.save();g.globalAlpha=Math.min(clamp((t-4.2)/.3),clamp((7.8-t)/.3));text('沿着杉林 走进彌彦神社',490,1495,39,'#e6d7be',400,'center',3);g.restore();}
 }
 
-// Claude's night-to-day leaf idea, with a continuous approach and exit.
-// The silhouette stays opaque at 4.5 s; the same leaf then clears the daylight shot.
-const NIGHT_CUT=4.5,LEAF_IN=3.55,LEAF_OUT=4.94;
-const closeLeafOutline=[
- [0,-1], [.052,-.77],[.085,-.79],[.11,-.58],[.16,-.64],[.15,-.39],
- [.29,-.55],[.30,-.49],[.49,-.71],[.42,-.45],[.48,-.48],[.37,-.26],[.42,-.28],[.31,-.08],
- [.53,-.20],[.51,-.13],[.76,-.25],[.62,-.04],[.69,-.06],[.51,.12],[.59,.12],[.30,.26],
- [.38,.38],[.33,.38],[.40,.55],[.22,.46],[.21,.50],[.06,.33],[0,.43],
- [-.09,.35],[-.23,.49],[-.24,.43],[-.42,.51],[-.36,.35],[-.42,.36],[-.29,.23],
- [-.55,.13],[-.49,.09],[-.67,-.08],[-.60,-.06],[-.73,-.28],[-.52,-.18],[-.55,-.24],[-.29,-.09],
- [-.40,-.30],[-.35,-.28],[-.46,-.48],[-.40,-.44],[-.48,-.70],[-.29,-.49],[-.30,-.56],[-.14,-.37],
- [-.16,-.64],[-.11,-.57],[-.085,-.80],[-.05,-.75]
-];
-function closeLeaf(b,x,y,s,a){
- b.save();b.translate(x,y);b.rotate(a);b.scale(s,s);
- b.strokeStyle='#76352a';b.lineWidth=.018;b.lineCap='round';b.beginPath();b.moveTo(0,.32);b.quadraticCurveTo(.02,.53,.13,.74);b.stroke();
- b.beginPath();closeLeafOutline.forEach(([xx,yy],i)=>b[i?'lineTo':'moveTo'](xx,yy));b.closePath();b.clip();
- const q=b.createLinearGradient(-.5,-.8,.5,.65);q.addColorStop(0,'#ba6537');q.addColorStop(.38,'#a3452d');q.addColorStop(.7,'#843326');q.addColorStop(1,'#623029');b.fillStyle=q;b.fillRect(-1,-1,2,2);
- // Thin branching veins and uneven patches, rather than a radial star.
- for(let i=0;i<75;i++){
-  const xx=rnd(i,2201)*1.6-.8,yy=rnd(i,2202)*1.7-1,rr=.018+rnd(i,2203)*.075;
-  const g=b.createRadialGradient(xx,yy,0,xx,yy,rr);g.addColorStop(0,i%3?'rgba(222,148,71,.13)':'rgba(70,30,21,.12)');g.addColorStop(1,'rgba(120,55,28,0)');b.fillStyle=g;b.fillRect(xx-rr,yy-rr,rr*2,rr*2);
- }
- for(const [ex,ey] of [[0,-.95],[.46,-.66],[-.45,-.65],[.70,-.22],[-.68,-.25],[.36,.49],[-.36,.46]]){
-  b.strokeStyle='rgba(213,151,82,.28)';b.lineWidth=.0045;b.beginPath();b.moveTo(0,.3);b.quadraticCurveTo(ex*.25,ey*.35,ex,ey);b.stroke();
-  for(let j=2;j<7;j++){const u=j/8,xx=ex*u,yy=.3+(ey-.3)*u,side=j%2?1:-1;b.strokeStyle='rgba(225,167,95,.12)';b.lineWidth=.0015;b.beginPath();b.moveTo(xx,yy);b.quadraticCurveTo(xx+side*.05,yy-.03,xx+side*.09,yy-.11);b.stroke();}
- }
- b.restore();
-}
-function nightLeafState(t){
- if(t<LEAF_IN||t>LEAF_OUT)return null;
- if(t<=NIGHT_CUT){const u=(t-LEAF_IN)/(NIGHT_CUT-LEAF_IN);return {x:250+350*u,y:1320-360*u,s:32+5200*Math.pow(u,5),a:-.28+.36*u};}
- const v=(t-NIGHT_CUT)/(LEAF_OUT-NIGHT_CUT);
- return {x:600+11000*Math.pow(v,1.3),y:960-3200*Math.pow(v,1.2),s:5232+500*(1-Math.exp(-v*3)),a:.08+.18*v};
-}
-function nightLeafTransition(b,t){
- if(t<LEAF_IN||t>LEAF_OUT)return;
- for(let i=0;i<5;i++){
-  const u=(t-LEAF_IN-i*.045)/.90;if(u<0||u>1)continue;
-  const x=-70+i*210+u*(650+i*130),y=1530-i*220-u*(650+i*90),size=11+i*2+55*u*u;
-  flyingLeaf(b,x,y,size,-.7+i*.9+u*1.8,2+i%4,Math.min(1,u*10,(1-u)*12)*.85);
- }
- const l=nightLeafState(t);if(l){b.save();b.globalAlpha=clamp((t-LEAF_IN)/.12);closeLeaf(b,l.x,l.y,l.s,l.a);b.restore();}
-}
-
 function render(t){
  t=fract(t/duration())*duration();g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.fillStyle=ink;g.fillRect(0,0,W,H);
  const tr=transitions.find(([at,,,dur])=>Math.abs(t-at)<dur/2);
  if(tr){const [at,before,after,dur]=tr;let u=ease(clamp((t-at+dur/2)/dur));paintShot(screenA,before,t);paintShot(screenB,after,t);g.drawImage(screenA,0,0);g.globalAlpha=u;g.drawImage(screenB,0,0);g.globalAlpha=1;}
  else{paintShot(screenA,shotAt(t),t);g.drawImage(screenA,0,0);}
- if(variant!=='V6')nightLeafTransition(g,t);
  // Fine vignette, no black subtitle band.
  const v=g.createRadialGradient(540,900,430,540,900,1250);v.addColorStop(0,'rgba(2,7,16,0)');v.addColorStop(1,'rgba(2,7,16,.37)');g.fillStyle=v;g.fillRect(0,0,W,H);
  if(variant==='V6')titlesV6(t);else titlesC(t);
