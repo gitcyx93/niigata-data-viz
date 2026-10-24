@@ -1,10 +1,28 @@
 {
-  "base": "2c6b8f06ab775b89d9367ae9741910bee26e7517",
+  "base": "58e9a48b326c66168e7ec34c797d99616f2e447c",
+  "reviewedClaude": "f9685da0faaca3b2cb9ad295d2ab21a5c9ca36a5",
   "duration": 23.3,
   "fps": 30,
   "frames": 699,
   "browser": "Chromium 153",
   "pageErrors": [],
+  "coverage": {
+    "cut": [
+      {
+        "t": 4.483333,
+        "uncovered": 0
+      },
+      {
+        "t": 4.5,
+        "uncovered": 0
+      },
+      {
+        "t": 4.516667,
+        "uncovered": 0
+      }
+    ],
+    "exitPixels": 0
+  },
   "checks": [
     "full loop playback",
     "chapter buttons",
