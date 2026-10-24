@@ -1,11 +1,11 @@
 {
-  "base": "6af0cfdc61510d1f3a1a49e967f66c1845872c5b",
+  "base": "706afba011258109bb8aa27f57cff0505e31bc96",
   "duration": 23.3,
   "pageErrors": [],
   "checks": [
     "full browser playback",
     "chapter buttons and seeking",
-    "night, ascent and ending pixel-identical at 0/3/12/14/16/18/22 seconds",
+    "shrine, transition, ascent and ending pixel-identical at 4.5/6/7/9.5/12/14/16/18/22 seconds",
     "cedar transition and camera functions unchanged",
     "horizontal overflow absent at tested widths"
   ],

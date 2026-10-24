@@ -373,14 +373,35 @@ const valley = layer(b=>{
   [[-30,875,240,260,61,.62],[200,870,210,190,71,.7],[935,855,210,260,82,.68],[1150,920,280,280,92,.8],[415,970,155,140,106,.7],[640,955,130,135,118,.68]].forEach(a=>crown(b,...a));
   // Distant ground, under the bridge.
   poly(b,[[0,1240],[240,1180],[500,1215],[790,1180],[1080,1230],[1080,1320],[0,1320]],'#172123');
-  // Bridge: warm vermilion, shallow curve, distinct horizontal silhouette.
+  // Keep the illustrated night composition; give the bridge weight and planted ends.
   const deck=x=>1090-Math.sin(clamp((x-70)/950)*Math.PI)*60;
-  b.strokeStyle='#55262b';b.lineWidth=10;
-  [160,330,500,670,840,980].forEach(x=>{b.beginPath();b.moveTo(x,deck(x));b.lineTo(x+8,1283);b.stroke();});
-  poly(b,Array.from({length:49},(_,i)=>[70+i*950/48,deck(70+i*950/48)]).concat(Array.from({length:49},(_,i)=>[1020-i*950/48,deck(1020-i*950/48)+18])),'#aa4939');
-  for(let k=0;k<2;k++){b.strokeStyle=k?'#ae4c3c':'#df7956';b.lineWidth=k?3:5;b.beginPath();for(let x=70;x<=1020;x+=5)b[x===70?'moveTo':'lineTo'](x,deck(x)-48+k*22);b.stroke();}
-  for(let x=70;x<=1020;x+=38){b.fillStyle='#c85e46';b.fillRect(x-2.3,deck(x)-49,4.6,49);}
-  [70,545,1020].forEach(x=>{b.fillStyle='#bf5b42';b.fillRect(x-5,deck(x)-65,10,65);b.fillStyle='#d8a167';b.beginPath();b.arc(x,deck(x)-68,6,0,TAU);b.fill();});
+  // Small wooded shoulders meet each end of the bridge rather than leaving it floating.
+  poly(b,[[-30,1070],[70,1064],[150,1092],[230,1170],[305,1288],[-30,1310]],'#252b29');
+  poly(b,[[1100,1060],[1018,1066],[948,1101],[878,1190],[825,1292],[1100,1310]],'#242b28');
+  for(const side of [-1,1])for(let i=0;i<16;i++){
+    const x=side<0?20+rnd(i,3001)*155:920+rnd(i,3001)*155,y=1100+rnd(i,3002)*168;
+    b.fillStyle=['#3b3433','#42372f','#303530'][i%3];b.beginPath();b.ellipse(x,y,12+rnd(i,3003)*21,5+rnd(i,3004)*10,-side*.18,0,TAU);b.fill();
+  }
+  // Timber supports, with brackets beneath the curved girder.
+  [330,670,840].forEach(x=>{
+    const y=deck(x)+27;
+    poly(b,[[x-7,y],[x+7,y],[x+13,1288],[x-3,1288]],'#562b2d');
+    b.fillStyle='#754038';b.fillRect(x-5,y,3,1288-y);
+    b.strokeStyle='#64322f';b.lineWidth=6;b.beginPath();b.moveTo(x+1,y+55);b.lineTo(x-31,y+1);b.moveTo(x+1,y+55);b.lineTo(x+33,y+1);b.stroke();
+  });
+  const band=(top,bottom,color)=>poly(b,Array.from({length:49},(_,i)=>{const x=70+i*950/48;return[x,deck(x)+top];}).concat(Array.from({length:49},(_,i)=>{const x=1020-i*950/48;return[x,deck(x)+bottom];})),color);
+  band(-3,27,'#a64a39');band(18,30,'#562b2c');band(-3,1,'#df8962');
+  // Three horizontal rails and substantial uprights keep the familiar red silhouette.
+  for(let k=0;k<3;k++){
+    b.strokeStyle=k?'#ad4f3b':'#d77953';b.lineWidth=k?5:8;b.beginPath();
+    for(let x=70;x<=1020;x+=5)b[x===70?'moveTo':'lineTo'](x,deck(x)-51+k*18);b.stroke();
+  }
+  for(let x=70;x<=1020;x+=48){b.fillStyle='#b3513e';b.fillRect(x-3.2,deck(x)-51,6.4,51);b.fillStyle='#df8760';b.fillRect(x-3.2,deck(x)-49,1.4,47);}
+  [70,307,545,783,1020].forEach(x=>{
+    const y=deck(x);b.fillStyle='#8c4033';b.fillRect(x-7,y-66,14,67);b.fillStyle='#ce7450';b.fillRect(x-6,y-64,3,63);
+    b.fillStyle='#333034';b.beginPath();b.moveTo(x-8,y-66);b.quadraticCurveTo(x-12,y-73,x,y-80);b.quadraticCurveTo(x+12,y-73,x+8,y-66);b.closePath();b.fill();
+    b.strokeStyle='#b88d58';b.lineWidth=1.5;b.beginPath();b.moveTo(x-7,y-70);b.quadraticCurveTo(x-7,y-74,x-1,y-77);b.stroke();
+  });
   // Two visitors: stillness and scale, no explanatory gesture.
   [572,596].forEach((x,j)=>{let y=deck(x),h=52-j*6;b.fillStyle='#111725';b.beginPath();b.arc(x,y-h,5.8,0,TAU);b.fill();poly(b,[[x-6,y-h+7],[x+5,y-h+7],[x+8,y-11],[x-8,y-11]],j?'#262532':'#15202c');b.fillRect(x-5,y-13,3,13);b.fillRect(x+2,y-13,3,13);});
   // Near trees around, never an equally bright ring.
