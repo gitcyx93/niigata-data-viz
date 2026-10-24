@@ -8,7 +8,7 @@
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#0a1018;color:#ece4d6;font-family:"Microsoft YaHei",system-ui,sans-serif}body{display:flex;justify-content:center;align-items:center;padding:28px;gap:52px;min-height:100vh;background:radial-gradient(ellipse at 35% 50%,#192533,#0a1018 70%)}
 .film{position:relative;flex:none;width:min(42vw,calc((100vh - 56px)*9/16));aspect-ratio:9/16;box-shadow:0 30px 100px #0008;border:1px solid #c2a67b22;border-radius:3px;overflow:hidden;background:#080f21}canvas{width:100%;height:100%;display:block;cursor:pointer}.panel{width:355px;flex:none}.eyebrow{font-size:10px;letter-spacing:3px;color:#ad9476;margin-bottom:22px}h1{font-size:31px;line-height:1.55;font-weight:400;letter-spacing:2px;margin:0 0 15px}.intro{font-size:13px;color:#9ea8af;line-height:2;margin:0 0 30px}.control{border-top:1px solid #ffffff1a;padding-top:20px}.buttons{display:flex;align-items:center;gap:10px}button{font:inherit;font-size:12px;color:#c9d0d1;background:#ffffff07;border:1px solid #ffffff19;border-radius:4px;padding:9px 15px;cursor:pointer}button:hover{border-color:#c5a474;color:#f7ead4}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #dcac70;outline-offset:4px}#play{background:#c0a177;color:#101822;border:0;min-width:72px}#clock{font:11px ui-monospace,monospace;color:#92a1ae;margin-left:auto}input{width:100%;margin:23px 0 15px;accent-color:#c0a177;height:3px;cursor:pointer}.chapters{display:flex;gap:7px;flex-wrap:wrap}.chapters button{border:0;padding:8px 10px;color:#8b9ba8;background:#ffffff04}.chapters small{display:block;font:10px monospace;color:#bd9c74;margin-bottom:5px}details{margin-top:35px;border-top:1px solid #ffffff10;padding-top:18px;font-size:11px;color:#82929e;line-height:1.9}summary{cursor:pointer;color:#a4afb5}details p{margin:13px 0}a{color:#b6a487;text-decoration:none}.credit{font-size:10px;color:#536574;letter-spacing:1px;margin-top:28px}
 @media(max-width:760px){body{padding:0 0 30px;display:block;background:#0a1018}.film{width:min(100vw,calc(100svh*9/16));margin:0 auto;border:0}.panel{width:min(100%,480px);padding:26px 25px;margin:auto}h1{font-size:24px}.intro{margin-bottom:20px}.eyebrow{margin-bottom:12px}details{margin-top:24px}}@media print{.panel{display:none}}
-.panel{width:370px}.options{display:flex;gap:7px;flex-wrap:wrap}.options button{padding:9px 11px}.options button[aria-pressed="true"]{background:#c0a177;color:#101822;border-color:#c0a177}#option-note{font-size:13px;line-height:1.85;color:#c1c6c4;min-height:49px;margin:13px 0 22px}.intro{margin-bottom:22px}.sources{margin-top:20px;color:#89979d;font-size:11px;line-height:1.7}.sources a{color:#b6a58a}.footer{margin-top:22px}@media(max-width:800px){body{gap:28px}.panel{width:min(100%,480px)}.film{width:min(100%,400px)}}
+.panel{width:370px}.options{display:flex;gap:7px;flex-wrap:wrap}.options button{padding:9px 11px}.options button[aria-pressed="true"]{background:#c0a177;color:#101822;border-color:#c0a177}#option-note{font-size:13px;line-height:1.85;color:#c1c6c4;min-height:49px;margin:13px 0 22px}.intro{margin-bottom:22px}.sources{margin-top:20px;color:#89979d;font-size:11px;line-height:1.7}.sources a{color:#b6a58a}.footer{margin-top:22px}@media(min-width:761px) and (max-width:900px){body{gap:24px;padding:20px}.panel{width:330px}.film{width:min(38vw,calc((100svh - 40px)*9/16))}}@media(max-width:760px){.panel{width:min(100%,480px)}}
 </style>
 </head>
 <body>
@@ -728,8 +728,15 @@ const approachMid=layer(b=>{
 const toriiTop=layer(b=>{
   const L=330,R=750,top=640,base=1180;
   b.fillStyle='rgba(20,28,18,.35)';b.beginPath();b.ellipse(560,base+40,300,30,0,0,TAU);b.fill();
+  // Ryobu torii auxiliary posts, tied to the main pillars; grounded in the official photo.
+  for(const x of [L,R]){
+    const rear=x-15;
+    poly(b,[[rear-11,915],[rear+11,915],[rear+13,base-28],[rear-13,base-28]],'#8e332a');
+    poly(b,[[rear-18,911],[rear,902],[rear+19,913],[rear+17,922],[rear-17,920]],'#49423b');
+    poly(b,[[rear-10,990],[x+9,1011],[x+9,1025],[rear-10,1005]],'#c34c37');
+  }
   for(const x of [L,R]){const gr=b.createLinearGradient(x-22,0,x+22,0);gr.addColorStop(0,'#7a1c0e');gr.addColorStop(.4,'#e6502c');gr.addColorStop(.75,'#c63f22');gr.addColorStop(1,'#5c160a');
-    poly(b,[[x-17,top+40],[x+17,top+40],[x+21,base],[x-21,base]],gr);b.fillStyle='#1c1814';b.fillRect(x-25,base-36,50,40);b.fillStyle='rgba(255,220,170,.25)';b.fillRect(x-8,top+60,4,base-top-100);}
+    poly(b,[[x-17,top+40],[x+17,top+40],[x+21,base],[x-21,base]],gr);b.fillStyle='#9b9988';b.fillRect(x-25,base-5,50,10);b.fillStyle='rgba(255,220,170,.25)';b.fillRect(x-8,top+60,4,base-top-100);}
   const nk=780;poly(b,[[L-70,nk-14],[R+70,nk-14],[R+62,nk],[L-62,nk]],'#e8643c');poly(b,[[L-62,nk],[R+62,nk],[R+62,nk+20],[L-62,nk+20]],'#b8381e');
   poly(b,[[536,690],[584,690],[584,nk-14],[536,nk-14]],'#c43c20');
   poly(b,[[L-80,676],[R+80,676],[R+80,694],[L-80,694]],'#c8401f');
@@ -737,12 +744,28 @@ const toriiTop=layer(b=>{
   b.beginPath();b.moveTo(L-140,628-up(L-140));for(let x=L-140;x<=R+140;x+=10)b.lineTo(x,628-up(x)-0);for(let x=R+130;x>=L-130;x-=10)b.lineTo(x,604-up(x));b.closePath();b.fillStyle='#4a4440';b.fill();
   b.beginPath();b.moveTo(L-140,628-up(L-140));for(let x=L-140;x<=R+140;x+=10)b.lineTo(x,628-up(x));for(let x=R+140;x>=L-140;x-=10)b.lineTo(x,662-up(x)*.6);b.closePath();b.fillStyle='#1b1512';b.fill();
   b.strokeStyle='rgba(255,230,190,.35)';b.lineWidth=2;b.beginPath();for(let x=L-130;x<=R+130;x+=10)b[x===L-130?'moveTo':'lineTo'](x,605-up(x));b.stroke();
+  // Front auxiliary posts have small copper caps and timber ties.
+  for(const x of [L,R]){
+    const xx=x+15;
+    poly(b,[[x-10,1002],[xx+9,1020],[xx+9,1037],[x-10,1018]],'#a73b2b');
+    const q=b.createLinearGradient(xx-12,0,xx+12,0);q.addColorStop(0,'#7e2b23');q.addColorStop(.5,'#d35740');q.addColorStop(1,'#9b3428');
+    poly(b,[[xx-11,947],[xx+11,947],[xx+14,base+20],[xx-14,base+20]],q);
+    poly(b,[[xx-22,946],[xx,932],[xx+23,946],[xx+21,953],[xx,941],[xx-21,953]],'#51463d');
+    b.fillStyle='#b5b09c';b.fillRect(xx-17,base+17,34,8);
+  }
   // Painted timber joints and restrained surface variation.
   for(const x of [L,R]){
     for(let i=0;i<20;i++){const xx=x-14+rnd(i,x)*28,yy=top+65+rnd(i,x+1)*(base-top-145);b.strokeStyle=i%3?'rgba(89,33,20,.13)':'rgba(255,184,122,.13)';b.lineWidth=.6+rnd(i,x+2)*1.3;b.beginPath();b.moveTo(xx,yy);b.lineTo(xx+.8,yy+25+rnd(i,x+3)*90);b.stroke();}
     b.fillStyle='rgba(63,25,16,.28)';b.fillRect(x-19,nk+20,38,6);b.fillRect(x-17,694,34,7);
   }
 });
+function paintToriiPlaque(){const b=toriiTop.getContext('2d');b.save();b.setTransform(Q,0,0,Q,0,0);
+  // Black-and-gold plaque seen on the actual entrance gate.
+  poly(b,[[515,673],[565,673],[566,794],[514,794]],'#b99b60');
+  poly(b,[[519,677],[561,677],[562,790],[518,790]],'#152324');
+  b.save();b.font='600 21px "Source Han Sans SC",sans-serif';b.textAlign='center';b.textBaseline='middle';b.fillStyle='#ddc88e';
+  ['弥','彦','神','社'].forEach((ch,i)=>b.fillText(ch,540,691+i*28));b.restore();
+b.restore();}
 // 近处的大杉树和红叶，在画面两边，冲的时候最先飞出去
 const approachNear=layer(b=>{
   cedarTrunk(b,-30,1960,2000,150,871,['#24382c','#5c5a40','#2c4234']);cedarTrunk(b,1110,1960,2000,170,872,['#24382c','#6a6447','#30463a']);
@@ -785,16 +808,17 @@ const hallPaint=layer(b=>{
   for(let i=0;i<=30;i++){const u=i/30;hline(b,[-7.3,5.1,-3.1+u*7.3],[-8.9,5.15,-4.9+u*10.8],'rgba(200,166,120,.45)',2);}
   // 屋顶（入母屋）：正面的大坡、侧面的坡和上面的山墙
   const E=5.15,R=9.6;
-  hgrad(b,[[-8.9,E,-4.9],[8.9,E,-4.9],[4,R,.5],[-4,R,.5]],'#5f8a7c','#3a6056');
+  hgrad(b,[[-8.9,E,-4.9],[8.9,E,-4.9],[4,R,.5],[-4,R,.5]],'#626963','#3d4541');
   for(let i=1;i<14;i++){const u=i/14;hline(b,[-8.9+u*4.9,E+u*(R-E),-4.9+u*5.4],[8.9-u*4.9,E+u*(R-E),-4.9+u*5.4],'rgba(24,52,46,.35)',1.4);}
   for(let i=0;i<=40;i++){const u=i/40;hline(b,[-8.9+u*17.8,E,-4.9],[-4+u*8,R,.5],'rgba(150,190,170,.18)',1);}
-  hgrad(b,[[-8.9,E,5.9],[-8.9,E,-4.9],[-5.6,8,-1.3],[-5.6,8,2.3]],'#4a7466','#2e5048');
+  hgrad(b,[[-8.9,E,5.9],[-8.9,E,-4.9],[-5.6,8,-1.3],[-5.6,8,2.3]],'#515b54','#333e39');
   hp(b,[[-5.6,8,-1.3],[-5.6,8,2.3],[-4,R,.5]],'#d8c8a4');
   for(let i=1;i<6;i++){const u=i/6;hline(b,[-5.6,8,-1.3+u*3.6],[-5.6+(u<.5?u*2:(1-u)*2)*1.6,8+(u<.5?u*2:(1-u)*2)*1.6,.5+(u-.5)*0],'rgba(120,96,64,.5)',1.5);}
   hline(b,[-5.6,8,-1.3],[-4,R,.5],'#e8dcc0',4);hline(b,[-4,R,.5],[-5.6,8,2.3],'#e8dcc0',4);
   hline(b,[-8.9,E,-4.9],[8.9,E,-4.9],'#e2c896',4);hline(b,[-8.9,E,-4.9],[-8.9,E,5.9],'#d0b888',3);
-  hp(b,[[-4.1,R-.1,.2],[4.1,R-.1,.2],[4.1,R+.35,.2],[-4.1,R+.35,.2]],'#2e4a42');
-  for(const x of [-4,4]){hline(b,[x,R+.2,.5],[x-.6,R+1.4,.5],'#2a2420',6);hline(b,[x,R+.2,.5],[x+.6,R+1.4,.5],'#2a2420',6);}
+  hp(b,[[-4.1,R-.1,.2],[4.1,R-.1,.2],[4.1,R+.35,.2],[-4.1,R+.35,.2]],'#343d37');
+  // The photographed haiden has a capped ridge, without crossed chigi.
+  hline(b,[-4.15,R+.35,.2],[4.15,R+.35,.2],'#95846b',2.5);
   // 唐破风：正中向前伸出、弯成弓形的屋顶
   const P0=-8.2,P1=-2.0,PL=-3.2,PR=3.2,PE=5.5,PT=7.3;
   const ar=u=>{const k=Math.abs(u-.5)*2;return 5.3+1.65*Math.exp(-k*k*3.2)+.32*Math.pow(k,5);};
@@ -808,7 +832,7 @@ const hallPaint=layer(b=>{
   for(let i=0;i<=40;i++){const u=i/40,x=lerp(PL-.4,PR+.4,u);front.push([x,ar(u),P0]);back.push([x*.88,ar(u)+.75,P1]);}
   // Roof surfaces continue backwards into the main roof, with both slopes visible.
   for(let i=0;i<40;i++){
-    hgrad(b,[front[i],front[i+1],back[i+1],back[i]],i<20?'#547969':'#3c6052',i<20?'#35574d':'#294a41');
+    hgrad(b,[front[i],front[i+1],back[i+1],back[i]],i<20?'#5d665b':'#444f45',i<20?'#3b453d':'#2e3b33');
     if(i%3===0)hline(b,front[i],back[i],'rgba(181,197,163,.22)',1.4);
   }
   // Deep narrow fascia follows the curve; no large flat wooden badge.
@@ -1312,7 +1336,7 @@ document.querySelectorAll('[data-option]').forEach(el=>el.onclick=()=>{const pre
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='BUTTON'){e.preventDefault();play.click();}});
 document.addEventListener('visibilitychange',()=>{lastTime=0;});
 if(matchMedia('(prefers-reduced-motion: reduce)').matches&&!params.has('record'))playing=false;
-loadFonts().catch(()=>{}).then(()=>{update(playTime);window.READY=true;function tick(now){if(playing&&!document.hidden){if(lastTime)playTime=(playTime+(now-lastTime)/1000)%duration();render(playTime);status();}lastTime=now;requestAnimationFrame(tick);}requestAnimationFrame(tick);});
+loadFonts().catch(()=>{}).then(()=>{paintToriiPlaque();update(playTime);window.READY=true;function tick(now){if(playing&&!document.hidden){if(lastTime)playTime=(playTime+(now-lastTime)/1000)%duration();render(playTime);status();}lastTime=now;requestAnimationFrame(tick);}requestAnimationFrame(tick);});
 
 </script>
 </body>

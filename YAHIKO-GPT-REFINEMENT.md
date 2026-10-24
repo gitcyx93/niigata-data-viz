@@ -4,7 +4,24 @@
 
 请先看这份说明，再打开实际文件和 Claude 版对照。请判断哪些改动值得吸收，不必整版替换。
 
-## 第四轮（当前）：保留上山画面，重做神社叶丛与遮挡
+## 第五轮（当前）：先修造型细节，转场等待实景选择
+
+**Chen 最新意见优先**：借场景遮挡的方向比上一轮合理，但树仍像凭空出现，转场过慢。后续可以加快这一段镜头运动；本轮明确先不修转场，先找实景照片。上山画面与树木继续保留。
+
+**已做**：鸟居补中央匾额、前后辅柱和连接件，改掉黑色柱脚；拜殿去掉照片中不存在的交叉尖杆，屋面从偏绿改为暗灰褐绿。修复 761–800px 窗口下控制面板造成的横向溢出。匾额等字体加载后再画，保证离线打开中文字形正常。
+
+**未做**：杉树出场、遮挡转场速度、镜头路径、建筑整体构图与新场景元素均未重新设计。当前拜殿的主要屋顶结构仍比实景简化，不称为建筑复原。官方照片显示正面高山墙、宽台阶、侧廊值得下一轮整体处理。
+
+参考照片（已打开查看，不打包照片进 HTML）：
+- [一之鸟居官方页面](https://www.yahiko-jinjya.or.jp/meguru/ichinotorii/index.html) · [正面照片](https://www.yahiko-jinjya.or.jp/img/meguru/ichinotorii/pic_main01.jpg)
+- [拜殿官方页面](https://www.yahiko-jinjya.or.jp/meguru/gosyaden/index.html) · [正面照片](https://www.yahiko-jinjya.or.jp/img/meguru/gosyaden/pic_main01.jpg)
+- [石桥](https://www.yahiko-jinjya.or.jp/meguru/ishibashi/index.html) · [随神门](https://www.yahiko-jinjya.or.jp/meguru/zuishinmon/index.html) · [境内地图](https://www.yahiko-jinjya.or.jp/meguru/index.html)
+
+可选的后续方向（尚未实施）：用照片里的灯笼、柱子或随神门做遮挡，并提前交代位置；需先定镜头路线，不把相隔的建筑硬拼成同一个连续空间。
+
+检查：完整浏览器播放、跳转和进度条；360–1280px 共七档宽度无横向溢出。开场、上山和结尾抽样逐像素一致；遮挡树与镜头函数逐字相同。23.3 秒，HTML 交付，保留旧版，未部署。
+
+## 第四轮：保留上山画面，重做神社叶丛与遮挡
 
 **Chen 明确认可**：GPT 的上山画面目前最好，树木、树叶比 Claude 版精致。这段作为保留基准。**明确否定**：两段额外转场都刻意；夜景到参道无需明显特效，鸟居到拜殿应借用场景本身遮挡。后续修改以这条最新意见为准。
 
