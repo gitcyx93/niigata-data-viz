@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>弥彦｜GPT 枫枝与秋林修订</title>
+<title>弥彦｜GPT 山海黄昏</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#0a1018;color:#ece4d6;font-family:"Microsoft YaHei",system-ui,sans-serif}body{display:flex;justify-content:center;align-items:center;padding:28px;gap:52px;min-height:100vh;background:radial-gradient(ellipse at 35% 50%,#192533,#0a1018 70%)}
 .film{position:relative;flex:none;width:min(42vw,calc((100vh - 56px)*9/16));aspect-ratio:9/16;box-shadow:0 30px 100px #0008;border:1px solid #c2a67b22;border-radius:3px;overflow:hidden;background:#080f21}canvas{width:100%;height:100%;display:block;cursor:pointer}.panel{width:355px;flex:none}.eyebrow{font-size:10px;letter-spacing:3px;color:#ad9476;margin-bottom:22px}h1{font-size:31px;line-height:1.55;font-weight:400;letter-spacing:2px;margin:0 0 15px}.intro{font-size:13px;color:#9ea8af;line-height:2;margin:0 0 30px}.control{border-top:1px solid #ffffff1a;padding-top:20px}.buttons{display:flex;align-items:center;gap:10px}button{font:inherit;font-size:12px;color:#c9d0d1;background:#ffffff07;border:1px solid #ffffff19;border-radius:4px;padding:9px 15px;cursor:pointer}button:hover{border-color:#c5a474;color:#f7ead4}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #dcac70;outline-offset:4px}#play{background:#c0a177;color:#101822;border:0;min-width:72px}#clock{font:11px ui-monospace,monospace;color:#92a1ae;margin-left:auto}input{width:100%;margin:23px 0 15px;accent-color:#c0a177;height:3px;cursor:pointer}.chapters{display:flex;gap:7px;flex-wrap:wrap}.chapters button{border:0;padding:8px 10px;color:#8b9ba8;background:#ffffff04}.chapters small{display:block;font:10px monospace;color:#bd9c74;margin-bottom:5px}details{margin-top:35px;border-top:1px solid #ffffff10;padding-top:18px;font-size:11px;color:#82929e;line-height:1.9}summary{cursor:pointer;color:#a4afb5}details p{margin:13px 0}a{color:#b6a487;text-decoration:none}.credit{font-size:10px;color:#536574;letter-spacing:1px;margin-top:28px}
@@ -934,56 +934,121 @@ function rimRidge(b,p,seed,colors,rim){
  b.save();smoothRidge(b,p);b.clip();const top=Math.min(...p.map(q=>q[1]));
  const q=b.createLinearGradient(0,top,0,top+350);q.addColorStop(0,'rgba(239,166,117,.14)');q.addColorStop(1,'rgba(239,166,117,0)');b.fillStyle=q;b.fillRect(-100,top-50,1300,500);b.restore();
 }
-const capeFar=layer(b=>{rimRidge(b,[[700,1190],[780,1160],[880,1105],[980,1062],[1080,1030],[1160,1012]],711,['#6d4f66','#7c5a6c','#8a6570'],'rgba(255,180,130,.35)');
-  b.save();b.globalCompositeOperation='lighter';grad(b,0,980,W,260,[[0,'rgba(255,170,120,.18)'],[1,'rgba(255,170,120,0)']]);b.restore();
-  b.save();b.globalCompositeOperation='destination-out';b.beginPath();b.moveTo(-200,1196);b.lineTo(640,1194);b.quadraticCurveTo(900,1186,1200,1178);b.lineTo(1200,H+100);b.lineTo(-200,H+100);b.closePath();b.fill();b.restore();});   // 岬角只到水边，下面是海
-const coastFar=layer(b=>{rimRidge(b,[[-90,1335],[160,1322],[380,1342],[560,1305],[720,1258],[880,1206],[1170,1140]],721,['#3c3a54','#524a62','#6c5a68','#8a6c66','#a8805e'],'rgba(255,170,110,.45)');
-  });
-const slopeMid=layer(b=>{rimRidge(b,[[-90,1565],[170,1505],[380,1472],[520,1500],[700,1432],[880,1384],[1170,1330]],731,['#252834','#34363c','#4a4640','#665a44','#86704a'],'rgba(255,170,100,.55)');});
-const summitTop=layer(b=>{
-  const p=[[-90,1730],[140,1688],[320,1652],[470,1634],[640,1630],[820,1606],[1000,1572],[1170,1548]];
-  rimRidge(b,p,741,['#1a1c1c','#262826','#36362c','#4e4630','#6a5a34'],'rgba(255,175,105,.7)');
-  // 御神庙：石墙围起来的小庙，前面一座小石鸟居
-  const X=720,Y=1622;
-  poly(b,[[X-150,Y+6],[X+150,Y-4],[X+150,Y-46],[X-150,Y-36]],'#3a3632');b.fillStyle='#57514a';b.fillRect(X-150,Y-40,300,5);
-  for(let i=0;i<16;i++){b.fillStyle='#2c2926';b.fillRect(X-148+i*19.5,Y-36-i*.6,2,40);}
-  b.fillStyle='#2e2622';b.fillRect(X-52,Y-120,104,82);
-  b.fillStyle='#4a3a2c';b.fillRect(X-44,Y-110,88,70);
-  poly(b,[[X-80,Y-112],[X+80,Y-112],[X+56,Y-158],[X-56,Y-158]],'#3d5a52');b.strokeStyle='rgba(255,185,120,.75)';b.lineWidth=3;b.beginPath();b.moveTo(X-80,Y-112);b.lineTo(X-56,Y-158);b.lineTo(X+56,Y-158);b.stroke();
-  b.strokeStyle='#2b2724';b.lineWidth=5;b.beginPath();b.moveTo(X-62,Y-150);b.lineTo(X-40,Y-184);b.moveTo(X-40,Y-150);b.lineTo(X-62,Y-184);b.moveTo(X+62,Y-150);b.lineTo(X+40,Y-184);b.moveTo(X+40,Y-150);b.lineTo(X+62,Y-184);b.stroke();
-  const tx=X-210,ty=Y+20;b.fillStyle='#4c4844';b.fillRect(tx-40,ty-120,9,120);b.fillRect(tx+31,ty-120,9,120);b.fillRect(tx-48,ty-128,96,9);b.fillRect(tx-40,ty-106,80,6);
-  b.strokeStyle='rgba(255,185,120,.7)';b.lineWidth=2;b.beginPath();b.moveTo(tx-48,ty-128);b.lineTo(tx+48,ty-128);b.moveTo(tx-40,ty-120);b.lineTo(tx-40,ty);b.stroke();
-  // 两个看夕阳的人
-  for(const [x,y,s] of [[380,1650,1],[412,1654,.92]]){b.fillStyle='#141414';b.beginPath();b.ellipse(x,y-58*s,7*s,8*s,0,0,TAU);b.fill();b.beginPath();b.moveTo(x-10*s,y);b.lineTo(x-10*s,y-38*s);b.quadraticCurveTo(x,y-52*s,x+10*s,y-38*s);b.lineTo(x+10*s,y);b.closePath();b.fill();
-    b.strokeStyle='rgba(255,180,110,.8)';b.lineWidth=1.5;b.beginPath();b.arc(x,y-58*s,7*s,Math.PI*.6,Math.PI*1.4);b.stroke();}
+// A contemporary visit to the mountain: the sea opens beyond a modest lookout.
+// A stylised composition, not an architectural reconstruction of a named deck.
+function overlookHill(b,p,seed,pal){
+ const top=Math.min(...p.map(v=>v[1]));
+ b.save();smoothRidge(b,p);b.clip();grad(b,0,top-30,W,H-top+60,[[0,pal[2]],[.38,pal[1]],[1,pal[0]]]);
+ for(let i=0;i<42;i++){
+  const x=rnd(i,seed)*W,y=top+rnd(i,seed+1)*(H-top),w=90+rnd(i,seed+2)*170;
+  glow(b,x,y,w,w*.65,i%3?[24,35,43]:[166,115,81],i%3?.11:.05);
+ }
+ for(let i=0;i<2300;i++){
+  const x=rnd(i,seed+3)*W,y=top+rnd(i,seed+4)*(H-top),r=1.5+rnd(i,seed+5)*7;
+  b.fillStyle=i%3?'rgba(191,153,121,.055)':'rgba(18,29,36,.07)';b.beginPath();b.ellipse(x,y,r*1.5,r,.1,0,TAU);b.fill();
+ }
+ b.restore();
+ // Small irregular breaks along the distant canopy, without a repeated tree row.
+ for(let i=0;i<160;i++){
+  const x=rnd(i,seed+9)*W,y=contourY(p,x)+4,r=2+rnd(i,seed+10)*5;
+  b.fillStyle=pal[2];b.globalAlpha=.3;b.beginPath();b.ellipse(x,y,r*1.4,r,0,0,TAU);b.fill();
+ }b.globalAlpha=1;
+}
+const overlookMid=layer(b=>overlookHill(b,[[-80,1290],[120,1230],[270,1250],[470,1350],[640,1380],[800,1320],[990,1245],[1160,1190]],2401,['#253643','#3c4852','#6a6067']));
+const overlookNear=layer(b=>overlookHill(b,[[-80,1510],[110,1430],[280,1475],[490,1550],[680,1510],[900,1390],[1160,1340]],2501,['#172e32','#2b4141','#50594c']));
+function headland(b,hy,u){
+ b.save();b.translate(0,hy-950+u*48);
+ b.beginPath();b.moveTo(1160,1015);b.bezierCurveTo(1080,1018,1028,1050,990,1080);b.bezierCurveTo(954,1102,960,1120,916,1134);b.bezierCurveTo(892,1154,852,1163,828,1174);b.bezierCurveTo(910,1195,1007,1198,1160,1222);b.closePath();
+ const q=b.createLinearGradient(850,1040,1150,1260);q.addColorStop(0,'#ad8b8e');q.addColorStop(1,'#766d80');b.fillStyle=q;b.fill();b.clip();
+ glow(b,1000,1125,230,120,[244,182,139],.18);b.restore();
+}
+function overlookVisitor(b,x,y,s,pose,raising=1){
+ b.save();b.translate(x,y);b.scale(s,s);b.lineCap='round';b.lineJoin='round';
+ b.fillStyle='rgba(17,28,35,.18)';b.beginPath();b.ellipse(1,3,30,6,0,0,TAU);b.fill();
+ // Separate trouser legs, light soles and short jackets establish present-day dress.
+ b.strokeStyle=pose?'#324957':'#59605a';b.lineWidth=14;
+ b.beginPath();b.moveTo(-10,-73);b.lineTo(-13,-39);b.lineTo(-15,-5);b.moveTo(10,-73);b.lineTo(13,-38);b.lineTo(20,-5);b.stroke();
+ b.strokeStyle='#dad6c8';b.lineWidth=7;b.beginPath();b.moveTo(-19,-1);b.lineTo(-7,-1);b.moveTo(15,-1);b.lineTo(29,-1);b.stroke();
+ const jacket=pose?'#c9bca0':'#536d76',shade=pose?'#9a947e':'#3d555f';
+ b.fillStyle=jacket;b.beginPath();b.moveTo(-19,-136);b.quadraticCurveTo(0,-148,20,-135);b.lineTo(25,-78);b.quadraticCurveTo(2,-67,-23,-78);b.closePath();b.fill();
+ b.strokeStyle=shade;b.lineWidth=3;b.beginPath();b.moveTo(-18,-128);b.lineTo(-18,-82);b.moveTo(19,-125);b.lineTo(21,-82);b.stroke();
+ b.strokeStyle=jacket;b.lineWidth=13;
+ if(pose){
+  const arm=50*(1-raising);
+  b.beginPath();b.moveTo(19,-130);b.lineTo(35,-105-12*raising);b.lineTo(48,-149+arm);b.moveTo(-18,-131);b.lineTo(-10,-102-9*raising);b.lineTo(38,-141+arm);b.stroke();
+  b.strokeStyle='#bf9473';b.lineWidth=7;b.beginPath();b.moveTo(48,-149+arm);b.lineTo(47,-156+arm);b.moveTo(38,-141+arm);b.lineTo(43,-152+arm);b.stroke();
+  b.save();b.translate(47,-162+arm);b.rotate(.13);b.fillStyle='#253740';b.fillRect(-6,-11,12,21);b.fillStyle='#68838b';b.fillRect(-4,-9,8,16);b.fillStyle='#e4c394';b.fillRect(-5,-11,1.5,20);b.restore();
+ }else{
+  b.beginPath();b.moveTo(-19,-131);b.lineTo(-28,-108);b.lineTo(-24,-87);b.moveTo(19,-130);b.lineTo(29,-108);b.lineTo(31,-86);b.stroke();
+  b.strokeStyle='#b5967c';b.lineWidth=7;b.beginPath();b.moveTo(-24,-87);b.lineTo(-22,-82);b.moveTo(31,-86);b.lineTo(32,-81);b.stroke();
+  b.strokeStyle='#313f40';b.lineWidth=5;b.beginPath();b.moveTo(-12,-135);b.quadraticCurveTo(-23,-119,-18,-93);b.moveTo(12,-135);b.quadraticCurveTo(20,-117,17,-94);b.stroke();
+  b.fillStyle='#9b7953';b.beginPath();b.roundRect(-17,-131,34,44,10);b.fill();b.fillStyle='#806744';b.beginPath();b.roundRect(-13,-105,26,15,4);b.fill();b.strokeStyle='#c5a67b';b.lineWidth=2;b.beginPath();b.moveTo(-12,-127);b.quadraticCurveTo(2,-133,13,-126);b.stroke();
+ }
+ b.fillStyle='#b9997f';b.fillRect(-6,-148,12,10);b.beginPath();b.ellipse(0,-157,12,15,0,0,TAU);b.fill();
+ b.fillStyle=pose?'#9e5c40':'#263439';b.beginPath();b.ellipse(-1,-163,13,11,0,Math.PI,TAU);b.lineTo(12,-155);b.quadraticCurveTo(1,-160,-13,-153);b.closePath();b.fill();
+ if(pose){b.strokeStyle='#c98655';b.lineWidth=4;b.beginPath();b.moveTo(-12,-157);b.quadraticCurveTo(1,-160,12,-156);b.stroke();}
+ b.strokeStyle='rgba(255,207,145,.65)';b.lineWidth=2;b.beginPath();b.moveTo(9,-169);b.quadraticCurveTo(15,-162,12,-150);b.moveTo(20,-132);b.lineTo(25,-113);b.stroke();
+ b.restore();
+}
+function lookoutDeck(b,u,hy){
+ const camY=4+6*u,camZ=-6+1.3*u,F=1250;
+ const P=(x,y,z)=>[540+(x-.12*u)*F/(z-camZ),hy-(y-camY)*F/(z-camZ)];
+ const edge=x=>8+.045*x;
+ b.save();
+ const back=[P(-16,0,edge(-16)),P(1.7,0,edge(1.7))];
+ const floor=[...back,P(3.4,0,-3),P(-16,0,-3)];
+ poly(b,floor,'#8b8c84');b.save();poly(b,floor,'#8b8c84');b.clip();
+ const q=b.createLinearGradient(0,back[0][1],0,H);q.addColorStop(0,'#b6aa94');q.addColorStop(.5,'#92958b');q.addColorStop(1,'#6d7a78');b.fillStyle=q;b.fillRect(0,800,W,H);
+ // Perspective paving and warm shadows give the foreground a usable human scale.
+ b.lineWidth=1.2;b.strokeStyle='rgba(46,65,66,.20)';
+ for(let x=-18;x<=18;x+=2){b.beginPath();b.moveTo(...P(x,.001,-3));b.lineTo(...P(x,.001,edge(x)));b.stroke();}
+ for(let z=-3;z<=8;z+=1.4){b.beginPath();b.moveTo(...P(-18,.001,z));b.lineTo(...P(18,.001,z));b.stroke();}
+ for(const [x,z] of [[-2.7,4.5],[-1.25,5.1]])poly(b,[P(x-.16,.002,z),P(x+.18,.002,z),P(x-1.6,.002,z-4),P(x-2,.002,z-4)],'rgba(40,56,63,.20)');
+ b.restore();
+ // Thin galvanized handrail; no ornamental stone wall or fantasy architecture.
+ for(let x=-16;x<=1.7;x+=1.25){const z=edge(x),a=P(x,0,z),c=P(x,1.1,z);b.strokeStyle='#4d636a';b.lineWidth=Math.max(2,F/(z-camZ)*.035);b.beginPath();b.moveTo(...a);b.lineTo(...c);b.stroke();b.strokeStyle='rgba(255,219,161,.65)';b.lineWidth=1.3;b.beginPath();b.moveTo(a[0]+1,a[1]);b.lineTo(c[0]+1,c[1]);b.stroke();}
+ for(const [h,w,col] of [[1.1,.05,'#bcc3b6'],[1.06,.023,'#596e72'],[.5,.014,'#748689'],[.25,.012,'#748689']]){
+  b.strokeStyle=col;b.lineWidth=Math.max(1.4,F/(8-camZ)*w);b.beginPath();b.moveTo(...P(-16,h,edge(-16)));b.lineTo(...P(1.7,h,edge(1.7)));b.stroke();
+ }
+ // The railing turns down the side of a small lookout, opening the right-hand forest.
+ for(let z=-2.8;z<=8.08;z+=1.2){const x=1.7+(8.08-z)*1.7/11.08,a=P(x,0,z),c=P(x,1.1,z);b.strokeStyle='#53686d';b.lineWidth=F/(z-camZ)*.035;b.beginPath();b.moveTo(...a);b.lineTo(...c);b.stroke();b.strokeStyle='rgba(255,220,168,.55)';b.lineWidth=1.5;b.beginPath();b.moveTo(a[0]+1,a[1]);b.lineTo(c[0]+1,c[1]);b.stroke();}
+ for(const [h,col,w] of [[1.1,'#c6c7b4',.05],[.5,'#7b8a89',.014],[.25,'#7b8a89',.012]]){b.strokeStyle=col;b.lineWidth=3;b.beginPath();b.moveTo(...P(1.7,h,8.08));b.lineTo(...P(3.4,h,-3));b.stroke();}
+ for(const [x,z,pose] of [[-2.7,4.5,0],[-1.25,5.1,1]]){const [xx,yy]=P(x,0,z);overlookVisitor(b,xx,yy,F/(z-camZ)/100,pose,ease(clamp(u/.25)));}
+ b.restore();
+}
+const lookoutAutumn=layer(b=>{
+ const p=[[530,2050],[670,1870],[820,1700],[980,1540],[1160,1490]];
+ overlookHill(b,p,2701,['#203b38','#3f5245','#6c694b']);
+ const trees=[];for(let i=0;i<220;i++){const x=650+rnd(i,2702)*530,y=1540+rnd(i,2703)*470;if(y<contourY(p,x)+24)continue;trees.push({x,y,i});}
+ trees.sort((a,c)=>a.y-c.y).forEach(({x,y,i})=>{const h=28+rnd(i,2704)*65;treeCrown(b,x,y,h,h*(.45+rnd(i,2705)*.25),2800+i*7,i%4===0?['#314b3c','#526042','#7a7950']:i%3===0?['#71513c','#987044','#b4965e']:['#5d4a38','#82623d','#a58247'],i%11===0);});
 });
 function sunsetShot(b,t){
-  const u=clamp((t-16.1)/7.2),h=u*(.3+.7*u*(3-2*u))/(1),HY=1000-435*h;
-  const sunY=HY-250+255*u,p=u;
-  const mix=(a,c,k)=>`rgb(${a.map((v,i)=>Math.round(v+(c[i]-v)*k)).join(',')})`;
-  const q=b.createLinearGradient(0,0,0,HY);q.addColorStop(0,mix([46,72,122],[34,38,86],p));q.addColorStop(.55,mix([226,150,128],[196,98,118],p));q.addColorStop(.85,mix([255,196,128],[244,132,88],p));q.addColorStop(1,mix([255,222,160],[255,170,100],p));
-  b.fillStyle=q;b.fillRect(0,0,W,HY+2);
-  b.drawImage(duskClouds,0,HY-1000,W,H);
-  glow(b,SUN.x,sunY,700,420,[255,190,120],.38);glow(b,SUN.x,sunY,220,200,[255,226,170],.55);
-  b.save();b.beginPath();b.rect(0,0,W,HY);b.clip();b.fillStyle=mix([255,246,214],[255,184,110],p);b.beginPath();b.arc(SUN.x,sunY,SUN.r,0,TAU);b.fill();b.restore();
-  // 佐渡：海平线右边很淡的一条岛影
-  b.fillStyle='rgba(120,80,100,.42)';b.beginPath();b.moveTo(905,HY);b.quadraticCurveTo(960,HY-13,1030,HY-15);b.quadraticCurveTo(1080,HY-19,1120,HY-12);b.lineTo(1120,HY);b.fill();
-  const s=b.createLinearGradient(0,HY,0,H);s.addColorStop(0,mix([250,188,130],[236,140,100],p));s.addColorStop(.25,mix([170,120,130],[140,86,110],p));s.addColorStop(1,mix([40,62,100],[28,40,78],p));b.fillStyle=s;b.fillRect(0,HY,W,H-HY);
-  b.save();b.globalCompositeOperation='lighter';                  // 夕阳在海面拉出的金光
-  for(let i=0;i<420;i++){const v=Math.pow(rnd(i,771),1.5),y=HY+3+v*(H-HY),spread=14+v*420,x=SUN.x+(rnd(i,772)-.5)*spread*(.6+.4*Math.sin(t*1.7+i));
-    const fl=.5+.5*Math.sin(t*(2+rnd(i,773)*3)+i);b.fillStyle=`rgba(255,${Math.round(205-v*70)},130,${(1-v*.7)*.8*fl})`;b.fillRect(x,y,8+v*60,1.5+v*4);}
-  b.restore();
-  b.drawImage(capeFar,0,HY-1000-60*h,W,H);
-  b.drawImage(coastFar,-10*h,HY-1000+600*h,W,H);
-  b.drawImage(slopeMid,-25*h,HY-1000+1000*h,W,H);
-  // 山顶：一开始离御神庙很近，无人机一边升高一边后退，庙越来越小、沉到画面下面去
-  const sc=1.75-.75*h,gy=HY-1000+1400*h;
-  b.save();b.translate(720-45*h,1622+gy);b.scale(sc,sc);b.translate(-720,-1622);b.drawImage(summitTop,0,0,W,H);
-  for(let i=0;i<46;i++){const x=rnd(i,781)*1300-110,base=contourY([[-90,1730],[140,1688],[320,1652],[470,1634],[640,1630],[820,1606],[1000,1572],[1170,1548]],x)+6+rnd(i,782)*60;
-    const L=70+rnd(i,783)*90,sw=Math.sin(t*1.3+i*.7)*14;b.strokeStyle=i%3?'#2a2622':'#3a3228';b.lineWidth=2;b.beginPath();b.moveTo(x,base);b.quadraticCurveTo(x+sw*.4,base-L*.6,x+sw,base-L);b.stroke();
-    b.strokeStyle='rgba(255,196,130,.75)';b.lineWidth=3;b.beginPath();b.moveTo(x+sw*.8,base-L*.82);b.quadraticCurveTo(x+sw*.95,base-L*.95,x+sw+4,base-L-10);b.stroke();}
-  b.restore();
+ const u=clamp((t-16.1)/7.2),lift=u*.85+.15*u*u,hy=950-170*lift,sunX=760-10*u,sunY=hy-145+145*u;
+ const q=b.createLinearGradient(0,0,0,hy);q.addColorStop(0,blendTone('#2c4268','#30335b',u));q.addColorStop(.42,blendTone('#96758e','#a27688',u));q.addColorStop(.76,blendTone('#e99b80','#ef9876',u));q.addColorStop(1,blendTone('#ffc785','#ffba72',u));b.fillStyle=q;b.fillRect(0,0,W,hy+2);
+ b.save();b.globalAlpha=.52;b.drawImage(duskClouds,-14*u,hy-1030,W,H);b.restore();
+ glow(b,sunX,sunY,560,350,[255,201,143],.30);glow(b,sunX,sunY,160,150,[255,233,190],.40);
+ b.save();b.beginPath();b.rect(0,0,W,hy);b.clip();b.fillStyle='#fff0ca';b.beginPath();b.arc(sunX,sunY,34,0,TAU);b.fill();b.restore();
+ b.fillStyle='rgba(109,110,133,.32)';b.beginPath();b.moveTo(888,hy);b.quadraticCurveTo(950,hy-10,1017,hy-13);b.quadraticCurveTo(1090,hy-20,1140,hy-4);b.lineTo(1140,hy+2);b.fill();
+ const sea=b.createLinearGradient(0,hy,0,H);sea.addColorStop(0,blendTone('#e7ac87','#d79b87',u));sea.addColorStop(.22,blendTone('#b17c8a','#ad7288',u));sea.addColorStop(.6,'#79728e');sea.addColorStop(1,blendTone('#47677e','#40536f',u));b.fillStyle=sea;b.fillRect(0,hy,W,H-hy);
+ b.save();b.beginPath();b.rect(0,hy,W,H-hy);b.clip();
+ glow(b,sunX,hy+250,180,570,[248,191,128],.23);
+ // A soft reflection broken into water-sized ripples, not white confetti.
+ for(let i=0;i<700;i++){
+  const v=rnd(i,2601),yy=hy+3+v*(H-hy),ww=3+v*28,xx=rnd(i,2602)*W+Math.sin(t*.28+i)*2;
+  b.fillStyle=i%3?'rgba(231,197,172,.10)':'rgba(62,90,118,.08)';b.fillRect(xx,yy,ww,.5+v*1.2);
+ }
+ for(let i=0;i<220;i++){
+  const v=i/220,yy=hy+4+v*(H-hy),spread=10+v*v*180,phase=Math.sin(i*2.31+t*.55),xx=sunX+phase*spread*.5;
+  b.fillStyle=`rgba(255,224,172,${(.35+.42*rnd(i,2612))*(1-v*.62)})`;b.fillRect(xx-(7+v*40)/2,yy,7+v*40,1+v*1.5);
+ }
+ b.restore();
+ headland(b,hy,lift);
+ b.drawImage(overlookMid,-8*u,hy-950+440*lift,W,H);
+ b.drawImage(overlookNear,-20*u,hy-950+620*lift,W,H);
+ lookoutDeck(b,lift,hy);
+ b.drawImage(lookoutAutumn,-12*u,hy-950+650*lift,W,H);
 }
+
 function nightShot(b,t){valleyShot(b,t,'reveal');}
 const factsC=[[0,4.5,'弥彦公园 · 红叶谷与观月桥'],[4.5,7.4,'弥彦神社 · 杉林里的参道'],[7.4,11.3,'弥彦神社 · 二礼四拍手一礼'],[11.3,16.1,'弥彦山缆车 · 约五分钟上山'],[16.1,23.3,'弥彦山顶 · 日本海的夕阳']];
 function headlineC(s,sub,a,y=1465){if(a<=0)return;g.save();g.globalAlpha=a;g.shadowColor='rgba(8,16,26,.95)';g.shadowBlur=24;g.shadowOffsetY=2;text(s,540,y,66,'#f6ead4',400,'center',5);if(sub)text(sub,540,y+56,28,'#e2d6c2',400,'center',3);g.restore();}
