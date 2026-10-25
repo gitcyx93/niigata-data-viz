@@ -1,5 +1,5 @@
 {
-  "base": "21d51eb326097223edd07e404f77eae91cc8fe53",
+  "base": "bb3839c01ce30911941014f2fb0abfaf49aeabea",
   "duration": 23.3,
   "pageErrors": [],
   "externalRequests": [],
@@ -17,21 +17,21 @@
     "full browser playback and loop; all five shot ranges visited",
     "chapter navigation, seeking and restart",
     "gate and ground share transform",
-    "night, torii, haiden and ending sampled frames pixel-identical to R9",
-    "ascent midground and foreground canvases pixel-identical to R9",
+    "torii, haiden and ending sampled frames pixel-identical to R10",
+    "ascent midground and foreground canvases pixel-identical to R10",
     "occluding trunk and transition timing unchanged",
-    "ascent start, middle and end key frames visually reviewed"
+    "night and ascent key frames visually reviewed"
   ],
   "keyFrameHashes": {
     "7": "90e81c3bb8674622c76ed1ffd51cd92a21bfd1fdc3b47855935db98f9c0c8569",
-    "13": "1f902b4a51c12c2d3289fff9702fe29d530bea5623d82fb0c7ce4b61bbff08cc",
+    "13": "1cafd67fd897c8dec81e940ce0f69b6a913358497cd7eac0af542aedd355b290",
     "18": "1d3e8383d01ffeeed83b9cd28e12eeb832d50a29e14ca9ffdce3f211d1ca310c",
     "20": "0f1960cc7bcd26fcab2245403b9035499bf76bf6c79b831ab36985b1270cfd1b",
     "4.5": "bdf7b815eaacb035b77236a1902905705e424227b7016bd97cfde32bbf8127ef",
     "5.3": "bd40ff4382c612102e8ee7cd420b8e18d06d06d1bfd630c7ac39e2abb3d46bca",
     "6.1": "965c84264567004b2d7450a851cd16e8ec517d3340f14771884454370db5a0e3",
-    "11.3": "0682ed6ad9667332b135fcb0c6ae2d5092d99f64dee84bcd071c6c95bea318ab",
-    "15.8": "12f85de05ae81d8d9a16126ef51ab40ca1349f1aaa61883c22770a312b33dacc",
+    "11.3": "8f9beb8752fbe2ecaa9159574a12bfe3d1758b35ccce7b8c2c86a67b830006bd",
+    "15.8": "dd2444becc2368f129a5b500a84528df9180f04a6250c7dfac74794e5c155988",
     "16.1": "c2efaca08a8f82e7f1ca1fe7d414bad4568a6a342e3788d5abe62973846f924d",
     "22.2": "fc5f2147aae700d7dc4168bcaf1d00fc7784be52bb8063c79c829ad4dad96fd3",
     "23.29": "b30d25aac4d23e34b6a0b1fa279f52180d56682b7a6bd0f29ed3b2d0461042b1"
