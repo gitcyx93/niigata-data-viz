@@ -1004,54 +1004,45 @@ function woodlandRidge(b,p,seed,pal,scale=1){
   treeCrown(b,v.x,v.y,v.h,v.w,seed+v.i*7,colors,evergreen);
  });
 }
-// ---- 缆车（重画）：缆车沿索道往右上方爬，镜头跟着往上；脚下是红叶的陡坡，远处是一层层雾里的越后平原 ----
+// ---- 缆车（重画）：缆车沿索道往右上方爬，镜头跟着往上；脚下是红叶的陡坡，远处是晴空下渐淡的越后平原 ----
 const AS0=11.3,AS1=16.1;
 const asFar=layer(b=>{
-  // Inland view: harvested fields, roads and settlements on the Echigo Plain.
-  grad(b,0,0,W,H,[[0,'#416e88'],[.26,'#8eb3c3'],[.40,'#d3dad1'],[1,'#a6ad88']]);
-  softCloud(b,840,350,620,65,401,.11);softCloud(b,200,490,480,38,405,.08);
-  b.fillStyle='#a0afb0';smoothRidge(b,[[-80,786],[50,765],[170,724],[240,745],[360,697],[450,736],[550,716],[680,755],[780,716],[900,738],[1000,695],[1160,753]]);b.fill();
-  b.fillStyle='#8d9f9b';smoothRidge(b,[[-80,817],[100,792],[220,788],[340,756],[460,782],[590,772],[720,802],[860,764],[1010,784],[1160,771]]);b.fill();
-  grad(b,0,817,W,H-817,[[0,'#b9bea1'],[.45,'#a4ac85'],[1,'#8b9870']]);
-  const P=(x,z)=>[510+(x+z*.22)*1300/(z+16),760+11800/(z+16)];
-  const tones=['#b6ad80','#a7ab7d','#c0b38a','#939c73','#c1b695','#9eaa83','#b5b18b'];
-  // Perspective parcels have different lengths and muted autumn stubble, not horizontal bands.
-  for(let row=65;row>=0;row--){
-    const z=-6+row*2.8;
-    for(let col=-26;col<26;col++){
-      const x=col*3.8+(row%3)*.4,idx=row*61+col+26,gap=.07;
-      const corners=[P(x+gap,z+gap),P(x+3.68,z+gap),P(x+3.68,z+2.66),P(x+gap,z+2.66)];
+  // Clear autumn air: small distant fields, foothills, then the close forest.
+  grad(b,0,0,W,H,[[0,'#397fa8'],[.28,'#8fc6db'],[.43,'#d8e8da'],[1,'#92a573']]);
+  softCloud(b,825,360,580,38,401,.16);softCloud(b,210,500,410,24,405,.11);
+  b.fillStyle='#95b6c6';smoothRidge(b,[[-80,786],[50,765],[170,724],[240,745],[360,697],[450,736],[550,716],[680,755],[780,716],[900,738],[1000,695],[1160,753]]);b.fill();
+  b.fillStyle='#7fa3b0';smoothRidge(b,[[-80,817],[100,792],[220,788],[340,756],[460,782],[590,772],[720,802],[860,764],[1010,784],[1160,771]]);b.fill();
+  grad(b,0,817,W,H-817,[[0,'#c0cba3'],[.30,'#b8bd7f'],[1,'#7f9860']]);
+  const P=(x,z)=>[510+(x+z*.10)*1100/(z+36),790+10000/(z+36)];
+  const tones=['#bdb783','#b4b681','#c5bb89','#aeb27e','#c2b98b','#b9bd8b','#bab380'];
+  for(let row=110;row>=0;row--){
+    const z=row*2.8;
+    for(let col=-100;col<100;col++){
+      const x=col*1.25+(Math.floor(row/4)%3)*.11,idx=row*211+col+100,gap=.035;
+      const corners=[P(x+gap,z+gap),P(x+1.20,z+gap),P(x+1.20,z+2.66),P(x+gap,z+2.66)];
       if(corners.every(v=>v[0]<-60)||corners.every(v=>v[0]>1140))continue;
-      const distance=clamp(row/65),color=blendTone(tones[Math.floor(rnd(idx,4501)*tones.length)],'#bdc3ae',distance*.55);
+      // Atmospheric perspective comes from the colors, not a veil over the image.
+      const distance=clamp(row/110),color=blendTone(tones[Math.floor(rnd(idx,4501)*tones.length)],'#c6d5bc',distance*.70);
       poly(b,corners,color);
-      if(row<32&&rnd(idx,4502)>.48){b.strokeStyle='rgba(102,108,77,.15)';b.lineWidth=.8;
-        for(let j=1;j<5;j++){b.beginPath();b.moveTo(...P(x+j*.68,z+.12));b.lineTo(...P(x+j*.68,z+2.5));b.stroke();}}
     }
   }
-  // Minor roads and irrigation align with the field grid and converge into the distance.
-  for(const x of [-15,-1,15,34]){
-    b.strokeStyle='#b9b8a0';b.lineWidth=2.4;b.beginPath();for(let j=0;j<45;j++){const z=-6+j*4;b[j?'lineTo':'moveTo'](...P(x,z));}b.stroke();
+  for(const x of [-20,-3,18,37]){
+    b.strokeStyle='#d4cba5';b.lineWidth=1.3;b.beginPath();for(let j=0;j<72;j++){const z=j*4;b[j?'lineTo':'moveTo'](...P(x,z));}b.stroke();
   }
-  for(const z of [8,26,49,82]){b.strokeStyle='rgba(217,210,181,.65)';b.lineWidth=1.8;b.beginPath();b.moveTo(...P(-90,z));b.lineTo(...P(90,z));b.stroke();}
-  // A narrow river, bordered by land on both sides, cannot be mistaken for an ocean horizon.
-  const river=[];for(let i=0;i<65;i++){const z=165-i*2.6;river.push(P(35+Math.sin(z*.045)*3.7,z));}
-  b.strokeStyle='#8d9e91';b.lineWidth=9;b.lineJoin='round';b.beginPath();river.forEach((v,i)=>b[i?'lineTo':'moveTo'](...v));b.stroke();
-  b.strokeStyle='#c0cac0';b.lineWidth=4;b.stroke();
-  // Small town clusters: dark roofs over light walls, kept subordinate to the cable car.
-  for(const [cx,cz,seed] of [[3,13,4601],[-1,34,4701],[-8,65,4801],[20,103,4901],[0,120,5001]]){
-    for(let i=0;i<55;i++){
-      const x=cx+(rnd(i,seed)-.5)*12,z=cz+(rnd(i,seed+1)-.5)*8,[xx,yy]=P(x,z),scale=1300/(z+16),w=scale*(.14+rnd(i,seed+2)*.17),h=w*.55;
-      b.fillStyle=i%4?'#b8b8a6':'#d2cbb5';b.fillRect(xx-w/2,yy-h,w,h);
-      poly(b,[[xx-w*.6,yy-h],[xx-w*.15,yy-h*1.6],[xx+w*.55,yy-h*1.2],[xx+w*.5,yy-h*.6]],i%3?'#73817d':'#8d8980');
+  for(const z of [8,28,61,105]){b.strokeStyle='rgba(228,215,170,.7)';b.lineWidth=1;b.beginPath();b.moveTo(...P(-150,z));b.lineTo(...P(150,z));b.stroke();}
+  const river=[];for(let i=0;i<100;i++){const z=300-i*3;river.push(P(32+Math.sin(z*.035)*4,z));}
+  b.strokeStyle='#7daba7';b.lineWidth=4;b.lineJoin='round';b.beginPath();river.forEach((v,i)=>b[i?'lineTo':'moveTo'](...v));b.stroke();
+  b.strokeStyle='#c4d8bf';b.lineWidth=1.2;b.stroke();
+  for(const [cx,cz,seed] of [[5,7,4601],[-10,27,4701],[13,52,4801],[35,95,4901],[-25,140,5001]]){
+    for(let i=0;i<65;i++){
+      const x=cx+(rnd(i,seed)-.5)*9,z=cz+(rnd(i,seed+1)-.5)*7,[xx,yy]=P(x,z),scale=1100/(z+36),w=scale*(.12+rnd(i,seed+2)*.12),h=w*.5;
+      b.fillStyle=i%4?'#d3d0b5':'#e0d9bc';b.fillRect(xx-w/2,yy-h,w,h);
+      poly(b,[[xx-w*.6,yy-h],[xx-w*.15,yy-h*1.6],[xx+w*.55,yy-h*1.2],[xx+w*.5,yy-h*.6]],i%3?'#7c9186':'#9c9981');
     }
   }
-  grad(b,0,780,W,400,[[0,'rgba(213,221,212,.48)'],[.4,'rgba(213,221,212,.18)'],[1,'rgba(213,221,212,0)']]);
-});
-const asHazed=layer(b=>{
- b.drawImage(asFar,0,0,W,H);b.save();b.beginPath();b.rect(0,800,W,H-800);b.clip();
- b.filter='blur(3px)';b.drawImage(asFar,0,0,W,H);b.filter='none';
- grad(b,0,800,W,H-800,[[0,'rgba(211,222,216,.66)'],[.28,'rgba(208,219,211,.52)'],[.65,'rgba(204,215,201,.38)'],[1,'rgba(199,210,191,.27)']]);
- glow(b,730,1060,740,240,[221,228,215],.18);glow(b,260,1300,650,210,[211,222,208],.11);b.restore();
+  // Low wooded folds bridge the scale between the distant plain and the close slope.
+  woodlandRidge(b,[[-80,1250],[100,1210],[280,1230],[440,1170],[570,1140],[700,1080],[820,1100],[960,1045],[1160,1020]],453,['#638878','#7f9872','#a7b186','#c8c592'],.70);
+  woodlandRidge(b,[[-80,1560],[100,1510],[300,1540],[490,1460],[660,1420],[800,1300],[960,1200],[1160,1170]],457,['#476d59','#66835a','#91a366','#bab87e'],.85);
 });
 const asSlope=[[-80,640],[90,720],[210,820],[330,940],[450,1070],[560,1200],[680,1360],[800,1520],[960,1720],[1160,1900]];
 const asCable=x=>1180-x*.57;
@@ -1069,7 +1060,7 @@ const asNear=layer(b=>{
 });
 function ascentNew(b,t){
   const u=clamp((t-AS0)/(AS1-AS0)),pan=u*260;                // 镜头跟着缆车一直往上
-  b.fillStyle='#3f6f8c';b.fillRect(0,0,W,H);b.drawImage(asHazed,0,pan*.25-70,W,H);
+  b.fillStyle='#3f6f8c';b.fillRect(0,0,W,H);b.drawImage(asFar,0,pan*.25-70,W,H);
   b.drawImage(asMid,0,pan*.6,W,H);
   b.save();b.translate(0,pan*.6);
   for(const [off,col,w] of [[-6,'#d6dccf',1.4],[0,'#3a4a48',3],[8,'#d6dccf',1.2]]){b.strokeStyle=col;b.lineWidth=w;b.beginPath();b.moveTo(-100,asCable(-100)+off);b.lineTo(1180,asCable(1180)+off);b.stroke();}
