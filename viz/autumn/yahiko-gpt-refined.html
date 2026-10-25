@@ -854,70 +854,80 @@ const hallBack=layer(b=>{
   sunBeams(b,1050,7,940,.06);
 });
 const hallPaint=layer(b=>{
-  const WD0='#c79a64',WD1='#8a6440',DK='#2a2018';
-  // 石基
-  hgrad(b,[[-9,0,-5],[9,0,-5],[9,.8,-5],[-9,.8,-5]],'#bdb8a4','#8e8a78');hgrad(b,[[-9,0,6],[-9,0,-5],[-9,.8,-5],[-9,.8,6]],'#a29e8a','#78746a');
-  for(let i=1;i<9;i++)hline(b,[-9+i*2,0,-5],[-9+i*2,.8,-5],'rgba(70,66,56,.5)',1.5);
-  // 墙和柱：侧面
-  hgrad(b,[[-7,.8,4],[-7,.8,-3],[-7,5,-3],[-7,5,4]],'#7a5a3a','#5a4028');
-  for(let i=0;i<=5;i++)hline(b,[-7.02,.8,-3+i*1.4],[-7.02,5,-3+i*1.4],'#a07a50',5);
-  // 正面：深色屋里 + 木格子 + 柱子
-  hp(b,[[-7,.8,-3],[7,.8,-3],[7,5,-3],[-7,5,-3]],DK);
-  for(let k=0;k<70;k++){const x=-7+k*.2;hline(b,[x,1,-3.01],[x,4.6,-3.01],'rgba(196,160,110,.55)',1.4);}
-  for(let k=0;k<7;k++){const y=1+k*.6;hline(b,[-7,y,-3.01],[7,y,-3.01],'rgba(196,160,110,.45)',1.2);}
-  for(let i=0;i<=6;i++){const x=-7+i*14/6,a=HP(x,.8,-3.05),c=HP(x,5,-3.05),w=Math.max(10,(a[1]-c[1])*.06);const q=b.createLinearGradient(a[0]-w/2,0,a[0]+w/2,0);q.addColorStop(0,WD1);q.addColorStop(.45,'#e0b880');q.addColorStop(1,WD1);poly(b,[[a[0]-w/2,a[1]],[a[0]+w/2,a[1]],[c[0]+w/2,c[1]],[c[0]-w/2,c[1]]],q);}
-  hgrad(b,[[-7.3,4.5,-3.1],[7.3,4.5,-3.1],[7.3,5.1,-3.1],[-7.3,5.1,-3.1]],'#e2bc84','#a87c50');
-  // 檐下：很深的阴影和一根根椽子
-  hp(b,[[-8.9,5.15,-4.9],[8.9,5.15,-4.9],[7.3,5.1,-3.1],[-7.3,5.1,-3.1]],'#2e241c');hp(b,[[-8.9,5.15,5.9],[-8.9,5.15,-4.9],[-7.3,5.1,-3.1],[-7.3,5.1,4.2]],'#2a2018');
-  for(let i=0;i<=60;i++){const u=i/60;hline(b,[-7.3+u*14.6,5.1,-3.1],[-8.9+u*17.8,5.15,-4.9],'rgba(214,180,130,.55)',2);}
-  for(let i=0;i<=30;i++){const u=i/30;hline(b,[-7.3,5.1,-3.1+u*7.3],[-8.9,5.15,-4.9+u*10.8],'rgba(200,166,120,.45)',2);}
-  // 屋顶（入母屋）：正面的大坡、侧面的坡和上面的山墙
-  const E=5.15,R=9.6;
-  hgrad(b,[[-8.9,E,-4.9],[8.9,E,-4.9],[4,R,.5],[-4,R,.5]],'#626963','#3d4541');
-  for(let i=1;i<14;i++){const u=i/14;hline(b,[-8.9+u*4.9,E+u*(R-E),-4.9+u*5.4],[8.9-u*4.9,E+u*(R-E),-4.9+u*5.4],'rgba(24,52,46,.35)',1.4);}
-  for(let i=0;i<=40;i++){const u=i/40;hline(b,[-8.9+u*17.8,E,-4.9],[-4+u*8,R,.5],'rgba(150,190,170,.18)',1);}
-  hgrad(b,[[-8.9,E,5.9],[-8.9,E,-4.9],[-5.6,8,-1.3],[-5.6,8,2.3]],'#515b54','#333e39');
-  hp(b,[[-5.6,8,-1.3],[-5.6,8,2.3],[-4,R,.5]],'#d8c8a4');
-  for(let i=1;i<6;i++){const u=i/6;hline(b,[-5.6,8,-1.3+u*3.6],[-5.6+(u<.5?u*2:(1-u)*2)*1.6,8+(u<.5?u*2:(1-u)*2)*1.6,.5+(u-.5)*0],'rgba(120,96,64,.5)',1.5);}
-  hline(b,[-5.6,8,-1.3],[-4,R,.5],'#e8dcc0',4);hline(b,[-4,R,.5],[-5.6,8,2.3],'#e8dcc0',4);
-  hline(b,[-8.9,E,-4.9],[8.9,E,-4.9],'#e2c896',4);hline(b,[-8.9,E,-4.9],[-8.9,E,5.9],'#d0b888',3);
-  hp(b,[[-4.1,R-.1,.2],[4.1,R-.1,.2],[4.1,R+.35,.2],[-4.1,R+.35,.2]],'#343d37');
-  // The photographed haiden has a capped ridge, without crossed chigi.
-  hline(b,[-4.15,R+.35,.2],[4.15,R+.35,.2],'#95846b',2.5);
-  // 唐破风：正中向前伸出、弯成弓形的屋顶
-  const P0=-8.2,P1=-2.0,PL=-3.2,PR=3.2,PE=5.5,PT=7.3;
-  const ar=u=>{const k=Math.abs(u-.5)*2;return 5.3+1.65*Math.exp(-k*k*3.2)+.32*Math.pow(k,5);};
-  // Shadowed underside and two substantial forward columns.
-  hp(b,[[PL,5.15,P0],[PR,5.15,P0],[PR,5.35,P1],[PL,5.35,P1]],'#25332b');
-  for(const x of [PL+.3,PR-.3]){
-    hgrad(b,[[x-.16,.8,P0+.3],[x+.16,.8,P0+.3],[x+.16,PE,P0+.3],[x-.16,PE,P0+.3]],'#d2ae79','#806042');
-    hp(b,[[x-.25,.8,P0+.15],[x+.25,.8,P0+.15],[x+.25,1.02,P0+.15],[x-.25,1.02,P0+.15]],'#c3b594');
-  }
-  const front=[],back=[];
-  for(let i=0;i<=40;i++){const u=i/40,x=lerp(PL-.4,PR+.4,u);front.push([x,ar(u),P0]);back.push([x*.88,ar(u)+.75,P1]);}
-  // Roof surfaces continue backwards into the main roof, with both slopes visible.
-  for(let i=0;i<40;i++){
-    hgrad(b,[front[i],front[i+1],back[i+1],back[i]],i<20?'#5d665b':'#444f45',i<20?'#3b453d':'#2e3b33');
-    if(i%3===0)hline(b,front[i],back[i],'rgba(181,197,163,.22)',1.4);
-  }
-  // Deep narrow fascia follows the curve; no large flat wooden badge.
-  for(let i=0;i<40;i++){
-    hp(b,[front[i],front[i+1],[front[i+1][0],front[i+1][1]-.26,P0],[front[i][0],front[i][1]-.26,P0]],'#a58a5e');
-    hline(b,front[i],front[i+1],'#d9c496',3);
-    hline(b,[front[i][0],front[i][1]-.28,P0],[front[i+1][0],front[i+1][1]-.28,P0],'#29372d',3);
-  }
-  hline(b,[PL+.15,5.12,P0+.25],[PR-.15,5.12,P0+.25],'#ab8c5d',9);
-  for(let i=1;i<20;i++){const u=i/20,x=lerp(PL,PR,u);hline(b,[x,ar(u)-.3,P0+.12],[x,ar(u)-.48,P0+.52],'#b49b70',2);}
-  const crest=HP(0,6.35,P0-.03);b.fillStyle='#d3b46f';b.beginPath();b.ellipse(crest[0],crest[1],9,10,0,0,TAU);b.fill();
-  // 注连绳和纸垂
-  const rope=[];for(let i=0;i<=12;i++){const u=i/12;rope.push(HP(lerp(PL+.4,PR-.4,u),PE-.55-Math.sin(u*Math.PI)*.25,P0-.05));}
-  b.strokeStyle='#c8b070';b.lineWidth=9;b.beginPath();rope.forEach((p,i)=>b[i?'lineTo':'moveTo'](...p));b.stroke();
-  for(let i=1;i<5;i++){const p=rope[i*12/5|0];poly(b,[[p[0],p[1]],[p[0]+8,p[1]+12],[p[0]+2,p[1]+22],[p[0]+9,p[1]+34],[p[0]+1,p[1]+48],[p[0]-6,p[1]+36],[p[0]-1,p[1]+24],[p[0]-8,p[1]+12]],'#f6f2e2');}
-  // 台阶
-  for(let i=3;i>=0;i--){const z=P0-.2-i*.55,y=.8-(i+1)*.2;hgrad(b,[[-2.8-i*.3,y,z],[2.8+i*.3,y,z],[2.8+i*.3,y+.2,z],[-2.8-i*.3,y+.2,z]],'#cfcab4','#9e9a86');hp(b,[[-2.8-i*.3,y+.2,z],[2.8+i*.3,y+.2,z],[2.8+i*.3,y+.2,z+.55],[-2.8-i*.3,y+.2,z+.55]],'#bdb8a2');}
-  // 广场上的石灯笼和两个参拜的人
-  stoneLantern(b,250,1500,1.2);stoneLantern(b,980,1330,.8);
-  visitor(b,600,1340,1.5,'#647774');visitor(b,648,1352,1.42,'#a48d68');
+ // Frontal haiden: a tall central gable, low side wings, deep porch and broad stairs.
+ // The architecture is the subject; the courtyard is deliberately unoccupied.
+ const path=(draw,fill,stroke,w=1)=>{b.beginPath();draw();if(fill){b.fillStyle=fill;b.fill();}if(stroke){b.strokeStyle=stroke;b.lineWidth=w;b.stroke();}};
+ const line=(x,y,xx,yy,c,w)=>{b.strokeStyle=c;b.lineWidth=w;b.beginPath();b.moveTo(x,y);b.lineTo(xx,yy);b.stroke();};
+ const timber=(x,y,w,h)=>{const q=b.createLinearGradient(x,0,x+w,0);q.addColorStop(0,'#49372b');q.addColorStop(.35,'#a9865d');q.addColorStop(.65,'#806347');q.addColorStop(1,'#44362b');b.fillStyle=q;b.fillRect(x,y,w,h);};
+ // Contact shadow, rear corridors, and a stone plinth shared with the stair geometry.
+ b.fillStyle='rgba(31,41,30,.24)';b.beginPath();b.ellipse(540,1455,470,46,0,0,TAU);b.fill();
+ grad(b,52,1110,976,270,[[0,'#554739'],[1,'#28291f']]);
+ for(let x=65;x<=1015;x+=48){timber(x,1120,10,252);for(let j=1;j<4;j++)line(x+j*10,1160,x+j*10,1344,'#6b5840',1.2);}
+ // The long, low wings make the central roof read as the principal building.
+ for(const side of [-1,1]){b.save();b.translate(540,0);b.scale(side,1);
+   path(()=>{b.moveTo(120,1104);b.lineTo(465,1104);b.quadraticCurveTo(488,1090,505,1066);b.quadraticCurveTo(328,1075,176,1047);b.closePath();},'#444a43','#9a8b6d',3);
+   poly(b,[[125,1104],[465,1104],[449,1122],[132,1122]],'#282d25');
+   for(let x=145;x<460;x+=15)line(x,1105,x-3,1119,'#b49668',2);
+   b.restore();}
+ // Raised veranda and doors beneath the eaves.
+ grad(b,194,1070,692,310,[[0,'#191e1a'],[.65,'#24241c'],[1,'#3e3628']]);
+ for(const x of [224,330,414,646,730,836]){
+   b.fillStyle='#302a20';b.fillRect(x,1120,68,210);
+   for(let i=0;i<8;i++)line(x+i*9,1120,x+i*9,1330,'rgba(156,127,83,.52)',1.5);
+   for(const y of [1175,1240,1290])line(x,y,x+68,y,'#68553a',2);
+ }
+ for(const x of [205,319,415,643,747,861])timber(x,1085,17,300);
+ grad(b,194,1352,692,28,[[0,'#b1a080'],[1,'#6c6553']]);
+ // Continuous main roof behind the gable: no sky gap between the two roof levels.
+ const mainRoof=b.createLinearGradient(0,930,0,1090);mainRoof.addColorStop(0,'#596057');mainRoof.addColorStop(1,'#303d35');
+ path(()=>{b.moveTo(164,1056);b.quadraticCurveTo(240,1040,324,945);b.lineTo(756,945);b.quadraticCurveTo(840,1040,916,1056);b.lineTo(884,1098);b.lineTo(196,1098);b.closePath();},mainRoof);
+ for(let x=200;x<890;x+=15)line(x,1034,x+Math.sign(x-540)*10,1080,'rgba(168,175,148,.15)',1);
+ // Central gable back plane, visible above the porch's curved eave.
+ path(()=>{b.moveTo(305,1015);b.quadraticCurveTo(435,923,540,740);b.quadraticCurveTo(645,923,775,1015);b.closePath();},'#6b4d34');
+ path(()=>{b.moveTo(361,985);b.quadraticCurveTo(468,895,540,787);b.quadraticCurveTo(612,895,719,985);b.closePath();},'#252922');
+ for(let i=0;i<11;i++){const x=410+i*26,top=795+Math.abs(x-540)*.92;line(x,top,x,991,'rgba(162,127,76,.65)',3);}
+ line(383,973,697,973,'#a18356',9);line(444,904,636,904,'#a18356',6);
+ // Sweeping roof edges, with copper-grey slopes and a warm carved bargeboard.
+ for(const side of [-1,1]){b.save();b.translate(540,0);b.scale(side,1);
+   path(()=>{b.moveTo(0,711);b.bezierCurveTo(62,809,161,918,318,978);b.quadraticCurveTo(282,1002,217,1002);b.bezierCurveTo(118,936,48,850,0,768);b.closePath();},'#515851','#a99b7e',3);
+   path(()=>{b.moveTo(0,733);b.bezierCurveTo(63,835,146,921,278,985);},null,'#252f2c',10);
+   path(()=>{b.moveTo(0,754);b.bezierCurveTo(55,846,140,936,251,989);},null,'#d0b380',7);
+   path(()=>{b.moveTo(0,772);b.bezierCurveTo(58,861,131,943,235,992);},null,'#806341',3);
+   for(let i=1;i<11;i++){const u=i/11,x=318*u,y=711+267*Math.pow(u,.78);line(x-5,y+8,x+8,y+18,'rgba(195,196,170,.25)',1.5);}
+   b.restore();}
+ // Small restrained crest and carved timber details under the gable.
+ b.fillStyle='#b89961';b.beginPath();b.ellipse(540,722,9,14,0,0,TAU);b.fill();
+ for(const [x,y,r]of [[540,847,15],[490,923,12],[590,923,12]]){b.strokeStyle='#b99c66';b.lineWidth=3;b.beginPath();b.arc(x,y,r,.2,5.6);b.stroke();line(x-r*.7,y+8,x+r*.7,y+8,'#7d6646',3);}
+ // Lower broad roof spans the facade; its curved centre remains separate from the high gable.
+ const eave=(x)=>{const k=Math.abs((x-540)/367);return 1094-76*Math.exp(-Math.pow(k/.29,2))+13*Math.pow(k,6);};
+ const upper=(x)=>eave(x)-60-20*(1-Math.abs((x-540)/367));
+ const q=b.createLinearGradient(0,945,0,1120);q.addColorStop(0,'#5c6158');q.addColorStop(.5,'#414b44');q.addColorStop(1,'#29352f');
+ path(()=>{b.moveTo(164,upper(164));for(let x=164;x<=916;x+=4)b.lineTo(x,upper(x));for(let x=916;x>=164;x-=4)b.lineTo(x,eave(x));b.closePath();},q);
+ for(let x=175;x<910;x+=13)line(x,upper(x)+3,x,eave(x)-4,'rgba(145,155,133,.23)',1);
+ for(const d of [0,9,18])path(()=>{b.moveTo(164,eave(164)+d);for(let x=164;x<=916;x+=4)b.lineTo(x,eave(x)+d);},null,d===0?'#b8a17a':d===9?'#51432e':'#272d24',d===0?5:8);
+ for(let x=190;x<900;x+=18)line(x,eave(x)+17,x+2,eave(x)+31,'#8d7653',3);
+ // Projecting central porch: front posts, capitals and a deep shadow behind the lintel.
+ grad(b,426,1117,228,246,[[0,'#151d19'],[1,'#302b20']]);
+ for(const x of [412,648]){timber(x,1103,20,278);b.fillStyle='#ac9061';b.fillRect(x-6,1105,32,14);b.fillRect(x-2,1350,24,10);b.fillStyle='#a9a58e';b.fillRect(x-4,1370,28,12);}
+ path(()=>{b.moveTo(423,1130);b.quadraticCurveTo(453,1140,467,1121);b.quadraticCurveTo(540,1094,613,1121);b.quadraticCurveTo(627,1140,657,1130);b.lineTo(657,1150);b.lineTo(423,1150);b.closePath();},'#9c7c50');
+ line(430,1162,650,1162,'#b59d65',5);
+ for(const x of [466,514,566,614])poly(b,[[x,1161],[x+5,1170],[x-2,1178],[x+4,1185],[x-4,1196],[x-10,1188],[x-5,1180],[x-10,1172]],'#e8dfc4');
+ // Veranda rails, altar and wide layered stone steps keep the building grounded.
+ for(const [l,r]of [[200,402],[678,880]]){
+   for(let x=l;x<=r;x+=37)timber(x,1313,7,65);
+   line(l,1318,r,1318,'#ac9b7d',6);line(l,1342,r,1342,'#7d7259',4);
+ }
+ grad(b,496,1333,88,49,[[0,'#8b7656'],[1,'#4d4839']]);poly(b,[[486,1333],[594,1333],[585,1324],[495,1324]],'#b2a284');
+ for(let i=0;i<6;i++){
+   const x=177-i*15,y=1380+i*23,w=726+i*30;
+   poly(b,[[x,y],[x+w,y],[x+w+13,y+13],[x-13,y+13]],i%2?'#b7b5a1':'#c0bdab');
+   grad(b,x-13,y+13,w+26,10,[[0,'#9d9e8b'],[1,'#777e70']]);
+   line(x-13,y+13,x+w+13,y+13,'#d5cdb4',1.4);
+ }
+ // A central paved approach is quiet and converges toward the stair centre.
+ poly(b,[[425,1520],[655,1520],[815,1920],[265,1920]],'#b4b09a');
+ for(let k=1;k<8;k++){const u=k/8,y=1520+400*Math.pow(u,1.35),half=115+(y-1520)*.4;line(540-half,y,540+half,y,'#8d907e',1.2);}
+ for(const dx of [-75,0,75])line(540+dx,1520,540+dx*2.4,1920,'#8b8e7c',1.2);
 });
 const hallNear=layer(b=>{[[-60,520,220,200,981,.95,800],[1120,420,200,240,982,.95,800],[-80,1700,240,200,983,.9,820]].forEach(a=>shrineCanopy(b,...a));branch(b,1110,260,320,-1.15,16,3,984);});
 // One cedar is already at the right edge of the path. Camera moves right and forward past it.
@@ -938,8 +948,9 @@ function approachScene(b,t){const s=t-SH0,p=cedarPass(t).u;
  b.save();b.translate(-34*p,0);zoomLayer(b,approachGround,1+s*.027);zoomLayer(b,approachMid,1+s*.045);zoomLayer(b,toriiTop,1+s*.027);b.restore();
  b.save();b.translate(-125*p,0);zoomLayer(b,approachNear,1+s*.07,540,960);b.restore();
 }
-function courtyardScene(b,t){const s=Math.max(0,t-6.5),z=1.035+.021*s;
- b.save();b.translate(-20*s,0);zoomLayer(b,hallBack,1.25+s*.009,560,1000);zoomLayer(b,hallPaint,z,560,1000);zoomLayer(b,hallNear,1.035+s*.027,540,960);b.restore();
+function courtyardScene(b,t){const s=Math.max(0,t-6.5),z=1+s*.013;
+ // A straight, slow approach keeps the facade centred and its roof silhouette readable.
+ zoomLayer(b,hallBack,1.25+s*.006,540,1100);zoomLayer(b,hallPaint,z,540,1180);zoomLayer(b,hallNear,1.02+s*.015,540,1100);
 }
 function shrineShot2D(b,t){
  const {x,w}=cedarPass(t);
@@ -1036,6 +1047,12 @@ const asFar=layer(b=>{
   }
   grad(b,0,780,W,400,[[0,'rgba(213,221,212,.48)'],[.4,'rgba(213,221,212,.18)'],[1,'rgba(213,221,212,0)']]);
 });
+const asHazed=layer(b=>{
+ b.drawImage(asFar,0,0,W,H);b.save();b.beginPath();b.rect(0,800,W,H-800);b.clip();
+ b.filter='blur(3px)';b.drawImage(asFar,0,0,W,H);b.filter='none';
+ grad(b,0,800,W,H-800,[[0,'rgba(211,222,216,.66)'],[.28,'rgba(208,219,211,.52)'],[.65,'rgba(204,215,201,.38)'],[1,'rgba(199,210,191,.27)']]);
+ glow(b,730,1060,740,240,[221,228,215],.18);glow(b,260,1300,650,210,[211,222,208],.11);b.restore();
+});
 const asSlope=[[-80,640],[90,720],[210,820],[330,940],[450,1070],[560,1200],[680,1360],[800,1520],[960,1720],[1160,1900]];
 const asCable=x=>1180-x*.57;
 const towerX=410,towerCableY=asCable(towerX);
@@ -1052,7 +1069,7 @@ const asNear=layer(b=>{
 });
 function ascentNew(b,t){
   const u=clamp((t-AS0)/(AS1-AS0)),pan=u*260;                // 镜头跟着缆车一直往上
-  b.fillStyle='#3f6f8c';b.fillRect(0,0,W,H);b.drawImage(asFar,0,pan*.25-70,W,H);
+  b.fillStyle='#3f6f8c';b.fillRect(0,0,W,H);b.drawImage(asHazed,0,pan*.25-70,W,H);
   b.drawImage(asMid,0,pan*.6,W,H);
   b.save();b.translate(0,pan*.6);
   for(const [off,col,w] of [[-6,'#d6dccf',1.4],[0,'#3a4a48',3],[8,'#d6dccf',1.2]]){b.strokeStyle=col;b.lineWidth=w;b.beginPath();b.moveTo(-100,asCable(-100)+off);b.lineTo(1180,asCable(1180)+off);b.stroke();}
@@ -1183,10 +1200,33 @@ const lookoutAutumn=layer(b=>{
  const trees=[];for(let i=0;i<220;i++){const x=650+rnd(i,2702)*530,y=1540+rnd(i,2703)*470;if(y<contourY(p,x)+24)continue;trees.push({x,y,i});}
  trees.sort((a,c)=>a.y-c.y).forEach(({x,y,i})=>{const h=28+rnd(i,2704)*65;treeCrown(b,x,y,h,h*(.45+rnd(i,2705)*.25),2800+i*7,i%4===0?['#314b3c','#526042','#7a7950']:i%3===0?['#71513c','#987044','#b4965e']:['#5d4a38','#82623d','#a58247'],i%11===0);});
 });
+const sunsetScenicRidge=layer(b=>{
+ const p=[[-100,1540],[55,1480],[165,1495],[290,1550],[420,1660],[555,1700],[690,1665],[825,1585],[960,1515],[1160,1550]];
+ overlookHill(b,p,6101,['#24323a','#39464b','#635e60']);
+ // Just a small suggestion of the summit lookout, embedded in the ridge rather than a foreground plaza.
+ poly(b,[[105,1531],[250,1531],[268,1543],[92,1543]],'#7e8070');
+ poly(b,[[92,1543],[268,1543],[265,1550],[99,1550]],'#4f5e55');
+ for(const [x,y]of [[124,1526],[228,1526],[112,1540],[243,1540]]){b.fillStyle='#53615a';b.fillRect(x,y-61,3.5,62);b.fillStyle='#c3b18a';b.fillRect(x+2,y-61,1,61);}
+ poly(b,[[105,1478],[246,1478],[231,1455],[119,1455]],'#707a6a');
+ for(let x=119;x<232;x+=12){lineRidge(x,1456,105+(x-119)*141/112,1478,'#b5a686',2);}
+ lineRidge(105,1478,246,1478,'#a89b7c',3);
+ lineRidge(119,1455,231,1455,'#c6af83',2);
+ poly(b,[[140,1521],[213,1521],[207,1517],[144,1517]],'#a19372');
+ for(const x of [148,201])lineRidge(x,1521,x,1531,'#4e5b50',2);
+ function lineRidge(x,y,xx,yy,c,w){b.strokeStyle=c;b.lineWidth=w;b.beginPath();b.moveTo(x,y);b.lineTo(xx,yy);b.stroke();}
+ // An irregular foreground rim frames the wide sea without competing with it.
+ const trees=[];for(let i=0;i<180;i++){const x=rnd(i,6201)*W,y=1550+rnd(i,6202)*430;if(y<contourY(p,x)+36)continue;trees.push({x,y,i});}
+ trees.sort((a,c)=>a.y-c.y).forEach(({x,y,i})=>{const h=18+rnd(i,6203)*42;treeCrown(b,x,y,h,h*.65,6301+i,['#28383b','#3c4943','#5b584b'],i%7===0);});
+});
+const sunsetHorizonClouds=layer(b=>{
+ b.save();b.filter='blur(9px)';
+ for(let i=0;i<16;i++){const xx=-70+i*84,yy=80-7-rnd(i,6701)*18;b.fillStyle=`rgba(109,105,129,${.08+rnd(i,6702)*.10})`;b.beginPath();b.ellipse(xx,yy,74+rnd(i,6703)*70,9+rnd(i,6704)*12,0,0,TAU);b.fill();}b.restore();
+},W,160,1);
 function sunsetShot(b,t){
- const u=clamp((t-16.1)/7.2),lift=u*.85+.15*u*u,hy=950-170*lift,sunX=760-10*u,sunY=hy-145+145*u;
+ const u=clamp((t-16.1)/7.2),lift=u*.85+.15*u*u,hy=930-100*lift,sunX=760-10*u,sunY=hy-145+145*u;
  const q=b.createLinearGradient(0,0,0,hy);q.addColorStop(0,blendTone('#2c4268','#30335b',u));q.addColorStop(.42,blendTone('#96758e','#a27688',u));q.addColorStop(.76,blendTone('#e99b80','#ef9876',u));q.addColorStop(1,blendTone('#ffc785','#ffba72',u));b.fillStyle=q;b.fillRect(0,0,W,hy+2);
  b.save();b.globalAlpha=.52;b.drawImage(duskClouds,-14*u,hy-1030,W,H);b.restore();
+ b.drawImage(sunsetHorizonClouds,0,hy-80,W,160);
  glow(b,sunX,sunY,560,350,[255,201,143],.30);glow(b,sunX,sunY,160,150,[255,233,190],.40);
  b.save();b.beginPath();b.rect(0,0,W,hy);b.clip();b.fillStyle='#fff0ca';b.beginPath();b.arc(sunX,sunY,34,0,TAU);b.fill();b.restore();
  b.fillStyle='rgba(109,110,133,.32)';b.beginPath();b.moveTo(888,hy);b.quadraticCurveTo(950,hy-10,1017,hy-13);b.quadraticCurveTo(1090,hy-20,1140,hy-4);b.lineTo(1140,hy+2);b.fill();
@@ -1203,11 +1243,9 @@ function sunsetShot(b,t){
   b.fillStyle=`rgba(255,224,172,${(.35+.42*rnd(i,2612))*(1-v*.62)})`;b.fillRect(xx-(7+v*40)/2,yy,7+v*40,1+v*1.5);
  }
  b.restore();
- headland(b,hy,lift);
- b.drawImage(overlookMid,-8*u,hy-950+440*lift,W,H);
- b.drawImage(overlookNear,-20*u,hy-950+620*lift,W,H);
- lookoutDeck(b,lift,hy);
- b.drawImage(lookoutAutumn,-12*u,hy-950+650*lift,W,H);
+ // Low mountain silhouettes, open sea and a continuous rise following the scenic reference.
+ b.drawImage(sunsetScenicRidge,-10*u,95*lift,W,H);
+ b.drawImage(lookoutAutumn,-18*u,190+140*lift,W,H);
 }
 
 function nightShot(b,t){valleyShot(b,t,'reveal');}

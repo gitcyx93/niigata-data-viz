@@ -1,5 +1,5 @@
 {
-  "base": "13c5d4af8557a0f60264d4510aadef2a3645cc5e",
+  "base": "aedcb1adb00a04d4839d3643a32b7c4bac96673e",
   "duration": 23.3,
   "pageErrors": [],
   "externalRequests": [],
@@ -17,23 +17,23 @@
     "full browser playback and loop; all five shot ranges visited",
     "chapter navigation, seeking and restart",
     "gate and ground share transform",
-    "night and courtyard sampled frames pixel-identical to R7",
-    "ascent midground and foreground canvases pixel-identical to R7",
+    "night and torii before courtyard reveal pixel-identical to R8",
+    "ascent midground and foreground canvases pixel-identical to R8",
     "occluding trunk and transition timing unchanged",
     "key frames and actual-playback sequence visually reviewed"
   ],
   "keyFrameHashes": {
-    "7": "fe45b31ca90d0b4adf1df3363f4336144917972c9126fc685edb37d7d2833f62",
-    "13": "c8863169a1972b0f9ba76dea70004fd4576d69c8a71b7a9b0deb5c23b9abbf5c",
-    "18": "80f63eed1b86e0e3f874c0fff29cc37569c13608f57d932bb1238ca374d2deb6",
-    "20": "0ce4304ff5d5916edb45faaef52ba93d98d9c3caece2a6726863f0de817cf1b5",
+    "7": "90e81c3bb8674622c76ed1ffd51cd92a21bfd1fdc3b47855935db98f9c0c8569",
+    "13": "656768eb312f08118cfd3e812162361ca4788b8af2e5cd8c19d7157fe39cdd1f",
+    "18": "1d3e8383d01ffeeed83b9cd28e12eeb832d50a29e14ca9ffdce3f211d1ca310c",
+    "20": "0f1960cc7bcd26fcab2245403b9035499bf76bf6c79b831ab36985b1270cfd1b",
     "4.5": "bdf7b815eaacb035b77236a1902905705e424227b7016bd97cfde32bbf8127ef",
-    "5.3": "cb4aed287022ad1be63ea72edd528d31d936df99ccfd8fa8c31c6feafc83417d",
-    "6.1": "28cdbbb3be8703a1d3f8e337badfc7afa400296b855a5b2cc649dbc45281eff0",
-    "11.3": "943c4a559d92f038e17b650e5eb2c48d7134a3518d8577aac8ce3cc5125c7dac",
-    "15.8": "9a48fda8b89ffaae6d2497cd2735708514502a3bac24c100e98f90eb0fe6de48",
-    "16.1": "b9fc96e81bb8da0fecd4277108bcca98846768b48799b70d2af8b3b32d2f969c",
-    "22.2": "732d10a161698052626ca04f14440428e049f2fddb1dbe2d185501b84f1c39f9",
-    "23.29": "6871a37f88731f2d1c267d60b450f25bf5931d69ba97037e332f94cedfb41348"
+    "5.3": "bd40ff4382c612102e8ee7cd420b8e18d06d06d1bfd630c7ac39e2abb3d46bca",
+    "6.1": "965c84264567004b2d7450a851cd16e8ec517d3340f14771884454370db5a0e3",
+    "11.3": "71bd588f092eab4ec087a3f6657dc647bcf2bb975ae0addb87b275522813f494",
+    "15.8": "3351d5aae796be2451fe445785704536c5d6296d56b0fba5a128f09f47bf25b6",
+    "16.1": "c2efaca08a8f82e7f1ca1fe7d414bad4568a6a342e3788d5abe62973846f924d",
+    "22.2": "fc5f2147aae700d7dc4168bcaf1d00fc7784be52bb8063c79c829ad4dad96fd3",
+    "23.29": "b30d25aac4d23e34b6a0b1fa279f52180d56682b7a6bd0f29ed3b2d0461042b1"
   }
 }
