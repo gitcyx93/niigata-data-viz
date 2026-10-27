@@ -1,0 +1,88 @@
+{
+  "errors": [],
+  "externalRequests": [],
+  "readyMs": 4484,
+  "boundaries": [
+    {
+      "t": 0,
+      "shot": "reveal",
+      "caption": "弥彦公园 · 红叶谷与观月桥"
+    },
+    {
+      "t": 3.99,
+      "shot": "reveal",
+      "caption": "弥彦公园 · 红叶谷与观月桥"
+    },
+    {
+      "t": 4,
+      "shot": "shrine",
+      "caption": "彌彦神社 · 二礼四拍手一礼"
+    },
+    {
+      "t": 7.99,
+      "shot": "shrine",
+      "caption": "彌彦神社 · 二礼四拍手一礼"
+    },
+    {
+      "t": 8,
+      "shot": "ascent",
+      "caption": "弥彦山缆车 · 约五分钟上山"
+    },
+    {
+      "t": 12.99,
+      "shot": "ascent",
+      "caption": "弥彦山缆车 · 约五分钟上山"
+    },
+    {
+      "t": 13,
+      "shot": "summit",
+      "caption": "弥彦山 Skyline · 山路望向日本海"
+    },
+    {
+      "t": 19.99,
+      "shot": "summit",
+      "caption": "弥彦山 Skyline · 秋色与日本海"
+    }
+  ],
+  "motion": [
+    {
+      "id": "reveal",
+      "reversals": 0
+    },
+    {
+      "id": "shrine",
+      "reversals": 0
+    },
+    {
+      "id": "ascent",
+      "reversals": 0
+    },
+    {
+      "id": "summit",
+      "reversals": 0
+    }
+  ],
+  "deterministic": true,
+  "realtime": {
+    "frames": 543,
+    "shots": [
+      "reveal",
+      "shrine",
+      "ascent",
+      "summit",
+      "reveal"
+    ],
+    "wraps": 1,
+    "last": 2.6657999999999586
+  },
+  "pauseStable": true,
+  "chapterSeek": "16",
+  "sliderSeek": "8",
+  "layout": {
+    "viewport": 390,
+    "documentWidth": 390,
+    "canvas": 390
+  },
+  "fonts": "loaded",
+  "continuousPlaybackSeconds": 22
+}
