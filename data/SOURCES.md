@@ -31,6 +31,7 @@
 ## 长冈花火（viz/summer/nagaoka-hanabi-a.html）
 
 - 两晚约 2 万发、每年 100 万人以上、「凤凰」2005 年起为中越地震复兴祈愿、横向约 2 km、正三尺玉直径约 650 m：LIVE JAPAN https://livejapan.com/ja/in-tohoku/in-pref-niigata/in-joetsu_uonuma_yuzawa/spot-lj0012210 ；観光庁 多言語解説文DB https://www.mlit.go.jp/tagengo-db/en/R2-01246.html
+- 每年 8 月 2 日、3 日在长冈市信浓川河川敷举办；观览会场全部是收费席位（所以画面提醒提前预订）。LIVE JAPAN（同上）；Walkerplus 花火大会情报 https://hanabi.walkerplus.com/detail/ar0415e00665/ （2026-10-29 查）
 - 日本三大花火大会：新潟长冈、秋田大曲、茨城土浦；凤凰起因是 2004 年新潟县中越大地震：同上 LIVE JAPAN。
 - 「约 6 个足球场首尾相接」：650 m ÷ 105 m（标准足球场长度）≈ 6.2，自行换算。
 - 中越地震为 2004 年，PHOENIX 2005 年（第二年）起燃放：同上 LIVE JAPAN。
@@ -56,6 +57,9 @@
 - 弥彦山缆车：山顶约 5 分钟；彌彦神社后面有免费接驳巴士到山麓站（约 3 分钟）；4–11 月 9:00–16:40。https://niigata-kankou.or.jp/spot/detail_7484.html （2026-10-27 查）
 - 弥彦山晴天可望见越后平野、日本海、佐渡岛；山顶有日本海的夕阳。https://niigata-kankou.or.jp/spot/detail_7462.html
 - 新潟方向坐弥彦线，在吉田站和越后线换乘（部分时段要在吉田换车）。新潟县观光协会博客 https://niigata-kankou.or.jp/blog/detail_971.html
+
+- 彌彦神社是「越後一宮」，当地人亲切地称为「おやひこさま」。新潟县观光协会 https://niigata-kankou.or.jp/spot/detail_7476.html （越後一宮 彌彦神社）、https://niigata-kankou.or.jp/spot/detail_7484.html （「おやひこさま」と親しまれる彌彦神社）
+- 「从 JR 弥彦站出发一天走得完」：弥彦公园离站 1 分钟、缆车山麓站离站步行约 20 分钟（神社后面另有免费接驳巴士），按这几条距离判断，不是官方原话。
 
 ## 高田（春）
 
