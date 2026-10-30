@@ -37,6 +37,20 @@
 - 中越地震为 2004 年，PHOENIX 2005 年（第二年）起燃放：同上 LIVE JAPAN。
 - 观览席抢手、建议提前预约或找旅行社：Chen 提供的经验信息。
 
+## 三集新稿【待查】核实（2026-10-30）
+
+仅核实本轮用户标注的待查项；未标注部分按用户原稿保留，不将其全部标作本轮已核实。
+
+- **弥彦红叶谷点灯**：观光协会2026年10月22日实况明确写「ライトアップ期間：10/31～11/30」「17:00～21:00」。支持片中11月每晚点灯和下山看夜红叶的安排；不保证任意日期看完日落都能赶上缆车。https://www.e-yahiko.com/20261022momiji/
+- **缆车时刻**：运营方首页时刻表列16:40，县观光页写通常9:00–16:40、冬期12月至3月上旬9:00–16:00。片尾保留用户指定的先查末班提醒。https://yahikoyama-ropeway.jp/ 、https://niigata-kankou.or.jp/spot/detail_7484.html
+- **昵称**：神社官网和县观光资料使用「おやひこさま」。画面「弥彦大人」为该尊称的中文意译，不宣称它是官方中文译名。https://www.yahiko-jinjya.or.jp/ 、https://niigata-kankou.or.jp/spot/detail_7462.html
+- **拍手四下**：神社官方参拝作法明确「二礼四拍手一礼」，并说明一般二礼二拍手一礼也可。画面按特色作法表述。https://www.yahiko-jinjya.or.jp/visit/gosanpai/index.html
+- **634米、佐渡岛**：县观光资料写弥彦山标高634m、可眺望佐渡；运营方也写晴日可望佐渡。晴空塔官网说明最高高度634m。两者分别是山的标高与塔的高度，不是同一种测量基准。https://niigata-kankou.or.jp/spot/detail_7462.html 、https://yahikoyama-ropeway.jp/ropeway/ 、https://www.tokyo-skytree.jp/about/
+- **燕三条→弥彦约40分**：沿用已核实的观光协会交通图：JR弥彦线参考33–42分，是电车，不是巴士；并不包含任意换乘等待。https://www.e-yahiko.com/access/ 、https://www.e-yahiko.com/hp2/assets/image/access/access-train.svg
+- **GALA站不是“只在雪季”**：GALA官方2026夏季交通页列出7/18–20、8/8–16、9/19–23也开行直达新干线。因此待查句更正为「这一站主要在雪季开。」https://gala.co.jp/summer/access/
+- **汤泽雪场数量**：当前观光机构目录有12个条目，其中神乐的田代、三俣是同一雪场的两个入口；按独立目的地去重计11个，片中用「约11座」。目录包括苗场、神乐、中里Snow Wood、汤泽中里、汤泽Park、岩原、神立、NASPA、一本杉Snow Park、汤泽高原、GALA；不是声称这11处当日全部营业。不要把页面HTML注释中的旧目录或关闭设施继续累计。https://www.e-yuzawa.gr.jp/ski/
+- **驹子之汤命名**：外汤官网及观光机构均说明得名于《雪国》女主人公驹子。https://sp.yuzawaonsen.com/?page_id=160 、https://www.e-yuzawa.gr.jp/hotspring/
+
 ## 越后汤泽 雪国（viz/winter/yuzawa-yukiguni.html）
 
 调研细节见 `stories/research-seasons.md`。以下数字都来自搜索摘录，未打开原网页核对。
@@ -45,7 +59,7 @@
 - 汤泽 一个冬天降雪合计约 10 米（1,054 cm）、最深积雪约 2 米（208 cm），1991–2020 平年值：气象厅 https://www.data.jma.go.jp/stats/etrn/view/nml_amd_ym.php?prec_no=54&block_no=0544 。「降雪合计」是每天新下的雪累加，不是地上的厚度。待打开页面确认。
 - 汤泽是川端康成《雪国》的舞台：新潟县观光协会 https://niigata-kankou.or.jp/blog/625 。现在新干线走的大清水隧道不是小说里的清水隧道，画面上没说「同一条隧道」。「穿出隧道，眼前就是雪国」是自己的说法，不是引用译文。
 - 「从东京出发，当天就能来回滑雪」：常识性说法（单程最快约 66 分钟，见上），不另列出处。
-- 「雪季的新干线开到 GALA 汤泽站，出站就是雪场」「不用转车，也不用坐大巴」：JR 东日本 https://www.jreast.co.jp/multi/destinations/gala.html ；GALA 汤泽站只在雪季营业，直达车只在雪季开。
+- 「雪季的新干线开到 GALA 汤泽站，出站就是雪场」「不用转车，也不用坐大巴」：旧参考为JR东日本 https://www.jreast.co.jp/multi/destinations/gala.html 。**2026-10-30更正**：不能再说车站/直达车“只在雪季”开放；GALA官方2026夏季交通页公布了限定日期直达新干线，见本轮核实记录。
 - 「想人少，3 月去 / 雪还很厚，人比 1、2 月少」：3 月外国人住宿 96,940 人泊，约为 1 月（195,170）的一半，观光厅 2025 年宿泊旅行统计（经 Chen 版转录，月度数字待核原表）；「雪还很厚」依据是平年最深积雪约 2 米、雪场大多营业到 3 月下旬。
 
 ## 弥彦（秋）

@@ -1,5 +1,13 @@
 # niigata-data-viz
 
+## 当前文字版：高田 / 弥彦 / 汤泽
+
+分支 `gpt/three-films-copy`。三个简体页面已应用用户新稿并补字体，台湾繁体版为对应的 `-tw.html`。不改现有画面：高田20秒、弥彦21.4秒、汤泽20秒，汤泽保留SNS快速运镜。
+
+核实后将GALA站“只在雪季”更正为“主要在雪季”，汤泽雪场按官方目录去重计约11座。详情见 [新稿与繁体版说明](stories/three-films-copy.md) 和 [事实来源](data/SOURCES.md)。
+
+仅做无截图脚本/字体检查：[结果](reference/three-films-copy/script-check.json)。重新检查：`node viz/tools/check-copy-pages.cjs`，通过 `BROWSER_EXE` 指定Chrome。
+
 ## 当前试作：汤泽滑雪 SNS 快节奏运镜
 
 分支 `gpt/yuzawa-ski-sns`。保留已认可三维版 `5c575b3`，仅把3.3–8.7秒滑雪改为三段取景：0.42秒快速推进、4.8秒切侧向跟拍、6.5秒切近横刹与举手收尾。人物动作速度、文字、其他镜头和20秒循环不改。
