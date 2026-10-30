@@ -1,5 +1,16 @@
 # niigata-data-viz
 
+## 汤泽画面精修（当前分支）
+
+分支 `gpt/yuzawa-visual-refine`，从 `a4c0381` 新建。只修改 `viz/winter/yuzawa-yukiguni.html` 的画面：滑雪环境提亮、雪痕与飞雪细化、温泉近景背景和持杯关系改善。
+
+**文字全部不改，20秒循环、镜头时间、滑雪轨迹和回隧道运镜保留。** 其他三季未修改。
+
+- [画面精修记录](stories/yuzawa-visual-refine.md)
+- [修改前后对照](reference/yuzawa-visual-refine/comparison.png) · [关键帧](reference/yuzawa-visual-refine/keyframes.png)
+- [验证结果](reference/yuzawa-visual-refine/validation.json)
+- 后台检查：`node viz/tools/check-yuzawa-visual.cjs`，通过 `BROWSER_EXE` 指定Chrome。
+
 ## 高田夜樱：仅去掉重复全景
 
 `viz/spring/takada-yozakura-v2.html` **恢复并保留原 13–20 秒的全景花吹雪/花筏高潮**；仅将 0–5 秒换成樱花框住三重橹的建筑近景，把完整护城河全景留到后半段。极乐桥、仰看樱花、文案、花瓣算法和 20 秒总长保留；19.9 秒不提前重现封面大字。之前的水面近景替换方案已撤回。

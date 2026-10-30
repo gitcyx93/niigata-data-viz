@@ -848,26 +848,68 @@ function mug(x, y, s, tilt) {
 function drawCheers(t) {                                // 干杯：两人都用离对方远的那只手，手臂从身前绕过去、被自己的身体挡住，只露出拳头和杯子，在两人肩膀之间碰一下
   const up = ease(clamp((t - CHEERS.up) / .6)) * (1 - ease(clamp((t - CHEERS.down) / .6)));
   if (up <= 0) return;
+  g.save();
   const bump = t > CHEERS.clink ? Math.exp(-(t - CHEERS.clink) * 9) * Math.sin((t - CHEERS.clink) * 40) : 0;
   [[624, 1], [722, -1]].forEach(([x, sd], k) => {
     const y = POOL + 76 + Math.sin(TAU * 2 * t / T + k * 2) * 1.5;
-    const mx = lerp(x + sd * 16, 673 - sd * (13 - bump * 3), up), my = lerp(y + 26, y + 6, up);   // 杯子从肩膀后面升起来
-    g.fillStyle = '#7a5646'; g.beginPath(); g.ellipse(mx - sd * 12, my + 4, 7, 8, 0, 0, TAU); g.fill();   // 握着杯把的拳头（在杯子靠身体的一侧）
+    const mx = lerp(x + sd * 16, 673 - sd * (8 - bump * 1.2), up), my = lerp(y + 26, y + 9, up);
+    // A short visible forearm connects the grip to the shoulder; the torso
+    // still hides the elbow. Keep the original lift/clink/lower timing.
+    g.strokeStyle = '#89634f'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath();
+    g.moveTo(x + sd * 23, y + 24); g.quadraticCurveTo(x + sd * 33, y + 16, mx - sd * 9, my + 4); g.stroke();
+    g.fillStyle = '#a27c62'; g.beginPath(); g.ellipse(mx - sd * 9, my + 4, 4.5, 5.5, -.2 * sd, 0, TAU); g.fill();   // 握着杯把的拳头（在杯子靠身体的一侧）
     g.save(); g.translate(mx, my); if (sd > 0) g.scale(-1, 1);   // 杯把朝着握杯的拳头
-    mug(0, 0, 1.7, 0);
+    mug(0, 0, 1.15, -.06 * up);
     g.restore();
   });
   if (t > CHEERS.clink && t < CHEERS.clink + 1.2) {                                     // 碰杯：泡沫溅起、闪一下光
     const a = t - CHEERS.clink;
     g.globalCompositeOperation = 'lighter';
-    glowAt([255, 230, 170], .8 * Math.exp(-a * 5), 673, POOL + 66, 40, 40, 1.4);
+    glowAt([255, 221, 164], .18 * Math.exp(-a * 5), 673, POOL + 72, 24, 22, 1.4);
     g.globalCompositeOperation = 'source-over';
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 8; i++) {
       const ang = -Math.PI / 2 + (rnd(i, 231) - .5) * 2.2, sp = 40 + rnd(i, 232) * 70;
       const x = 673 + Math.cos(ang) * sp * a, y = POOL + 64 + Math.sin(ang) * sp * a + 160 * a * a;
-      g.fillStyle = `rgba(255,250,236,${.9 * (1 - a / 1.2)})`; g.beginPath(); g.arc(x, y, 1.6 + rnd(i, 233) * 1.6, 0, TAU); g.fill();
+      g.fillStyle = `rgba(255,250,236,${.9 * (1 - a / 1.2)})`; g.beginPath(); g.arc(x, y, .6 + rnd(i, 233) * .8, 0, TAU); g.fill();
     }
   }
+  g.restore();
+}
+
+// Visual-only close-shot backdrop. Keep the existing wide-world layout and
+// return to it during the original pull-back, before the loop approach.
+function bathVisualMix(t) { return t >= 8.7 && t < 16.2 ? 1 - ease(clamp((t - 13) / 3.2)) : 0; }
+let bathBackdrop = null;
+function getBathBackdrop() {
+  if (bathBackdrop) return bathBackdrop;
+  const c = document.createElement('canvas'); c.width = W * 1.5; c.height = 570 * 1.5;
+  const b = c.getContext('2d'); b.scale(1.5, 1.5); b.translate(0, -1100);
+  const sky = b.createLinearGradient(0, 1100, 0, 1550); sky.addColorStop(0, '#213752'); sky.addColorStop(.65, '#617f99'); sky.addColorStop(1, '#91a7b7'); b.fillStyle = sky; b.fillRect(0, 1100, W, 570);
+  // Layered snowy ridges replace the looming wall/road in the close shot.
+  for (const [base,amp,col,seed] of [[1430,115,'#667f98',801],[1490,80,'#839bad',803],[1560,60,'#a9bac6',805]]) {
+    b.beginPath(); b.moveTo(-30, 1680);
+    for(let x=-30;x<=W+30;x+=8){const y=base-amp*Math.exp(-Math.pow((x-700)/260,2))+Math.sin(x*.008+seed)*18+Math.sin(x*.018+seed)*8;b.lineTo(x,y);}
+    b.lineTo(W+30,1680);b.closePath();b.fillStyle=col;b.fill();
+  }
+  // A small snow garden screens the bathing area; taller trees frame the
+  // sides instead of repeating a straight, opaque wall behind the bathers.
+  const trees=Array.from({length:55},(_,i)=>({i,x:100+rnd(i,810)*950,y:1510+rnd(i,811)*115})).sort((a,b)=>a.y-b.y);
+  for(const {i,x,y}of trees){
+    const h=35+rnd(i,812)*80,w=h*(.18+rnd(i,813)*.07),lean=(rnd(i,814)-.5)*h*.1;
+    b.strokeStyle='#344e59';b.lineWidth=2;b.beginPath();b.moveTo(x,y);b.lineTo(x+lean,y-h);b.stroke();
+    for(let k=0;k<7;k++){
+      const u=k/7,yy=y-h+u*h*.87,ww=w*(.2+u*.8),drop=h*.17;
+      b.fillStyle=i%3?'#405e70':'#526e7d';b.beginPath();b.moveTo(x+lean*(1-u),yy);b.quadraticCurveTo(x+ww*.4,yy+drop*.6,x+ww,yy+drop);b.quadraticCurveTo(x,yy+drop*.8,x-ww,yy+drop);b.quadraticCurveTo(x-ww*.4,yy+drop*.5,x+lean*(1-u),yy);b.fill();
+      b.strokeStyle=i%3?'#c7d8e3':'#dae4eb';b.lineWidth=2.5;b.beginPath();b.moveTo(x-ww*.7,yy+drop*.7);b.quadraticCurveTo(x,yy+drop*.24,x+ww*.68,yy+drop*.68);b.stroke();
+    }
+  }
+  const snow=b.createLinearGradient(0,1580,0,1670);snow.addColorStop(0,'#8fa6b8');snow.addColorStop(1,'#cad9e2');
+  b.fillStyle=snow;b.beginPath();b.moveTo(0,1618);b.bezierCurveTo(220,1578,310,1635,520,1612);b.bezierCurveTo(720,1580,920,1610,1080,1595);b.lineTo(W,1680);b.lineTo(0,1680);b.closePath();b.fill();
+  // Feather the upper edge; the garden is a foreground reveal, never an
+  // opaque rectangular plate or a double-exposed street during pull-back.
+  b.setTransform(1.5, 0, 0, 1.5, 0, 0); b.globalCompositeOperation = 'destination-in';
+  const edge=b.createLinearGradient(0,0,0,190);edge.addColorStop(0,'rgba(0,0,0,0)');edge.addColorStop(.5,'rgba(0,0,0,.3)');edge.addColorStop(1,'#000');b.fillStyle=edge;b.fillRect(0,0,W,570);
+  return bathBackdrop=c;
 }
 
 // ---- 温泉：水面、倒影、雪落进水里的涟漪、泡汤的人、白汽 ----
@@ -893,10 +935,10 @@ function drawPool(t, lamp) {
   drawCheers(t);                                                          // 先画杯子，人的身体挡在前面
   [[624, 0], [722, 1]].forEach(([x, k]) => {                              // 泡汤的两个人：背对镜头看着雪山，只露出肩膀以上，头上顶着叠好的毛巾
     const y = POOL + 76 + Math.sin(TAU * 2 * t / T + k * 2) * 1.5, tilt = (k - .5) * .16;
-    g.fillStyle = '#4a3530';                                              // 肩膀和脖子（被温泉泡得暖暖的）
+    g.fillStyle = mixc('#4a3530', '#785746', bathVisualMix(t));              // 肩膀和脖子（被温泉泡得暖暖的）
     g.beginPath(); g.ellipse(x, y + 30, 36, 15, 0, Math.PI, 0); g.fill();
     g.fillRect(x - 6, y + 8, 12, 16);
-    g.fillStyle = '#0c0b10'; g.beginPath(); g.ellipse(x, y, 16, 18, tilt, 0, TAU); g.fill();       // 后脑勺（头发）
+    g.fillStyle = mixc('#0c0b10', '#29212a', bathVisualMix(t)); g.beginPath(); g.ellipse(x, y, 16, 18, tilt, 0, TAU); g.fill();       // 后脑勺（头发）
     if (k) { g.beginPath(); g.ellipse(x + 2, y - 14, 8, 6, 0, 0, TAU); g.fill(); }               // 一个人盘着头发
     g.save(); g.translate(x, y - 17); g.rotate(tilt);                                             // 叠好的毛巾
     g.fillStyle = '#d4dcea'; roundRect(-14, -5, 28, 9, 2); g.fill();
@@ -1059,20 +1101,27 @@ const SKI3D = (() => {
   // 积雪的杉树（预先画好的小图）
   const TREES = [0, 1, 2].map(v => {
     const c = document.createElement('canvas'); c.width = 160; c.height = 400; const b = c.getContext('2d');
-    b.fillStyle = '#05080f'; b.fillRect(74, 330, 12, 70);
+    b.fillStyle = '#34465a'; b.fillRect(74, 330, 12, 70);
     const tiers = 6 + v;
     for (let k = 0; k < tiers; k++) {
       const u = k / tiers, y0 = 20 + u * 300, y1 = y0 + 300 / tiers + 40, w = 20 + u * 60 + v * 4;
-      b.fillStyle = '#08101f'; b.beginPath(); b.moveTo(80, y0); b.lineTo(80 + w, y1); b.lineTo(80 - w, y1); b.fill();
-      b.fillStyle = '#e6edf9'; b.beginPath(); b.moveTo(80, y0 + 2); b.lineTo(80 + w * .7, y0 + (y1 - y0) * .62); b.quadraticCurveTo(80, y0 + (y1 - y0) * .5, 80 - w * .75, y0 + (y1 - y0) * .66); b.fill();
+      b.fillStyle = '#405975'; b.beginPath(); b.moveTo(80, y0); b.quadraticCurveTo(80 + w * .32, y1 - 22, 80 + w, y1); b.quadraticCurveTo(80, y1 - 8, 80 - w, y1); b.quadraticCurveTo(80 - w * .4, y1 - 21, 80, y0); b.fill();
+      b.fillStyle = '#eaf3fc'; b.beginPath(); b.moveTo(80, y0 + 2); b.lineTo(80 + w * .7, y0 + (y1 - y0) * .62); b.quadraticCurveTo(80, y0 + (y1 - y0) * .5, 80 - w * .75, y0 + (y1 - y0) * .66); b.fill();
     }
     return c;
   });
+  // Cached atmospheric variants: far trees become blue-grey, not black walls.
+  const TREE_DEPTH = TREES.map(src => [0, .22, .42, .62].map(fog => {
+    const c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
+    const b = c.getContext('2d'); b.drawImage(src, 0, 0); b.globalCompositeOperation = 'source-atop';
+    b.fillStyle = `rgba(151,180,204,${fog})`; b.fillRect(0, 0, c.width, c.height); return c;
+  }));
   function tree(x, z, h, v) {
     if (!vis(z)) return;
     const [X, Y, s] = P(x, slopeY(z), z), hh = h * s;
     if (Y - hh > H || Y < -10 || X < -hh || X > W + hh) return;
-    g.drawImage(TREES[v], X - hh * .2, Y - hh, hh * .4, hh);
+    const depth = Math.min(3, Math.floor(Math.max(0, z - cam.z) / 75));
+    g.drawImage(TREE_DEPTH[v][depth], X - hh * .2, Y - hh, hh * .4, hh);
   }
   const TR = [];
   for (let i = 0; i < 2200; i++) {
@@ -1125,7 +1174,20 @@ const SKI3D = (() => {
     const flex = Math.max((.3 + .4 * Math.pow(Math.cos(p.ph), 2)) * carveK, tuck * 1.2, p.skid * .8 * clamp(p.v / 8) + .15);
     const cheer = ease(clamp((t - SK.tuck - .75) / .55));                               // 滑行中举起一只手
     const [X, Y, s] = P(p.x, p.y, p.z);
-    [-.22, .22].forEach(o => { g.beginPath(); for (let k = 0; k <= 80; k++) { const r = at(lerp(SK.t0, t, k / 80)); if (!vis(r.z)) continue; const [x2, y2] = P(r.x + o, r.y, r.z); k ? g.lineTo(x2, y2) : g.moveTo(x2, y2); } g.strokeStyle = 'rgba(10,18,40,.35)'; g.lineWidth = Math.max(1, .06 * s); g.stroke(); });
+    // Shallow edge marks, scaled per segment and fading into the distance.
+    [-.22, .22].forEach(o => {
+      let prev = null;
+      for (let k = 0; k <= 100; k++) {
+        const r = at(lerp(SK.t0, t, k / 100)); if (!vis(r.z)) { prev = null; continue; }
+        const point = P(r.x + o, r.y, r.z);
+        if (prev) {
+          const depth = clamp((r.z - cam.z) / 140), alpha = (.18 + .06 * r.skid) * (1 - depth * .8);
+          g.strokeStyle = `rgba(70,100,132,${alpha})`; g.lineWidth = Math.max(.6, .018 * point[2]);
+          g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(point[0], point[1]); g.stroke();
+        }
+        prev = point;
+      }
+    });
     // 雪板：顺着前进方向；横刹时转成横着（和前进方向成一个角，刻在雪里）
     const hv = Math.hypot(p.vx, p.vz) || 1, skiAng = Math.atan2(p.vx, p.vz) + p.skid * .55;
     const [Xa, Ya] = P(p.x + Math.sin(skiAng), p.y, p.z - Math.cos(skiAng));
@@ -1160,8 +1222,8 @@ const SKI3D = (() => {
       else { const out = Math.sin(r.ph) > 0 ? 1 : -1; vx = out * (1.2 + rnd(i, 315) * 2.4); vy = -(.8 + rnd(i, 317) * 1.6); vz = -.8; }
       const x = r.x + vx * age, y = r.y + vy * age + 4.9 * age * age, z = r.z + vz * age, k = age / life;
       if (y > slopeY(z) + .05 || !vis(z)) continue;
-      const [X, Y, sc] = P(x, y, z), rr = Math.max(.8, (.025 + rnd(i, 319) * .05) * sc);
-      g.fillStyle = `rgba(236,242,252,${.85 * (1 - k)})`; g.beginPath(); g.arc(X, Y, rr, 0, TAU); g.fill();
+      const [X, Y, sc] = P(x, y, z), rr = Math.max(.55, Math.min(3.2, (.007 + rnd(i, 319) * .016) * sc));
+      g.fillStyle = `rgba(248,252,255,${.72 * (1 - k)})`; g.beginPath(); g.ellipse(X, Y, rr * 1.5, rr * .55, Math.atan2(vy, vx), 0, TAU); g.fill();
     }
     for (let i = 0; i < 12; i++) {                          // 横刹扬起的粉雪雾，慢慢散开
       const te = SK.tuck + .2 + rnd(i, 331) * 1.2, age = t - te; if (age < 0 || age > 2.2) continue;
@@ -1175,18 +1237,21 @@ const SKI3D = (() => {
     cam.z = p.z - back; cam.x = p.base; cam.y = slopeY(p.z) - 1.1;                  // 镜头和人的腰差不多高，人在画面中间   // 镜头只跟人的大方向，不跟着 S 弯左右晃
     const main = g; g = cv3.getContext('2d');
     g.setTransform(1, 0, 0, 1, 0, 0);
-    g.drawImage(verticalSprite('sky3', [[0, hex('#03050d')], [.5, hex('#0a1330')], [1, hex('#1d2b55')]]), 0, 0, W, H);
-    [[3200, 900, '#1f2b52', 0], [2200, 650, '#172241', 2]].forEach(([z, a, c, kk]) => {
+    g.drawImage(verticalSprite('sky3-bluehour', [[0, hex('#2c466a')], [.5, hex('#7295b6')], [1, hex('#b6ccdf')]]), 0, 0, W, H);
+    [[3200, 900, '#91aec8', 0], [2200, 650, '#6b8ba8', 2]].forEach(([z, a, c, kk]) => {
       g.beginPath(); g.moveTo(-10, H + 10);
       for (let x = -5000; x <= 5000; x += 160) { const [X, Y] = P(x, -a * (.6 + .4 * Math.sin(x / 900 + kk)) - Math.sin(x / 300) * a * .12, z); g.lineTo(X, Y); }
       g.lineTo(W + 10, H + 10); g.fillStyle = c; g.fill();
     });
     const zNear = cam.z + 1.5;                             // 雪坡一直铺到镜头脚下（镜头还在远处时下面不会空）
-    for (let z = 520, dz; z > zNear; z -= dz) { dz = Math.max(.6, (z - cam.z) * .06); const z1 = Math.max(zNear, z - dz);   // 近处切得细，颜色过渡平滑
-      poly([[-400, slopeY(z), z], [400, slopeY(z), z], [400, slopeY(z1), z1], [-400, slopeY(z1), z1]], mixc('#a9b7d6', '#4a5a86', clamp((z - cam.z) / 300))); }
+    // One continuous snow field avoids the horizontal anti-alias seams of
+    // hundreds of adjacent depth strips once the scene is brightened.
+    const fieldShade = g.createLinearGradient(0, P(0, slopeY(520), 520)[1], 0, H);
+    fieldShade.addColorStop(0, '#91acc5'); fieldShade.addColorStop(.4, '#c4d7e8'); fieldShade.addColorStop(1, '#d8e5f2');
+    poly([[-400, slopeY(520), 520], [400, slopeY(520), 520], [400, slopeY(zNear), zNear], [-400, slopeY(zNear), zNear]], fieldShade);
     const Lp = [], Rp = []; for (let z = 520, dz; z > zNear; z -= dz) { dz = Math.max(.5, (z - cam.z) * .05); Lp.push([runX(z) - RW, slopeY(z), z]); Rp.push([runX(z) + RW, slopeY(z), z]); }
     Lp.push([runX(zNear) - RW, slopeY(zNear), zNear]); Rp.push([runX(zNear) + RW, slopeY(zNear), zNear]);   // 一直铺到镜头脚下
-    poly(Lp.concat(Rp.reverse()), 'rgb(200,210,234)');
+    poly(Lp.concat(Rp.reverse()), 'rgb(225,236,246)');
     // 路灯在雪道上照出一段段暖色的光斑（光斑之间是冷蓝的暗处，远近靠这个出来）
     g.globalCompositeOperation = 'lighter';
     for (let z = 12; z < 500; z += 28) [-1, 1].forEach(sd => glow3([255, 204, 150], .1, runX(z) + sd * RW * .55, slopeY(z), z, 8, 3.2, 1.3));
@@ -1200,7 +1265,7 @@ const SKI3D = (() => {
     // 雪道两边堆起来的雪堤，厚厚软软的
     for (let z = 300; z >= zNear + .5; z -= Math.max(.8, (z - cam.z) * .08)) [-1, 1].forEach(sd => {
       const x = runX(z) + sd * (RW + .6);
-      glow3([24, 34, 66], .3, x + sd * .5, slopeY(z) + .05, z, 1.7, .55, 1.3);
+      glow3([70, 99, 133], .18, x + sd * .5, slopeY(z) + .05, z, 1.7, .55, 1.3);
       glow3([240, 245, 255], .55, x, slopeY(z) - .4, z, 1.7, .7, 1.4);
     });
     // 树林里的雪：树下一团团鼓起来的雪
@@ -1209,7 +1274,7 @@ const SKI3D = (() => {
       glow3([235, 241, 252], .16, x, slopeY(z) - .2, z, r, r * .4, 1.3);
     }
     // 树投在雪上的影子
-    TR.forEach(o => { if (o.lamp || o.z > 260 || Math.abs(o.x - runX(o.z)) > RW + 14) return; glow3([6, 10, 26], .28, o.x + Math.sign(runX(o.z) - o.x) * 1.4, slopeY(o.z) + .1, o.z - .5, 2.6, .7, 1.2); });
+    TR.forEach(o => { if (o.lamp || o.z > 260 || Math.abs(o.x - runX(o.z)) > RW + 14) return; glow3([45, 69, 103], .16, o.x + Math.sign(runX(o.z) - o.x) * 1.4, slopeY(o.z) + .1, o.z - .5, 2.6, .7, 1.2); });
     g.globalCompositeOperation = 'lighter';
     for (let i = 0; i < 90; i++) {                         // 雪晶一闪一闪
       const z = zNear + 2 + rnd(i, 321) * 120, x = runX(z) + (rnd(i, 322) - .5) * RW * 1.8, tw = Math.pow(Math.max(0, Math.sin(TAU * (3 + i % 4) * t / T + i * 1.7)), 12);
@@ -1275,9 +1340,16 @@ function render(t) {
   // 近处：雪地、雪墙小路和撑伞的人、温泉
   g.drawImage(near, 0, 0, W, near.h);
   drawWalkers(t);
+  const bathMix = bathVisualMix(t), gardenShift = 750 * (1 - bathMix);
+  const wallScreen = bathMix > 0 ? ease(clamp((LANE - 1180 - gardenShift) / 100)) : 0;
+  if (bathMix > 0) { g.save(); g.beginPath(); g.rect(0, 0, W, POOL + 10); g.clip(); g.drawImage(getBathBackdrop(), 0, 1100 + gardenShift, W, 570); g.restore(); }
   const lamp = .85 + .15 * Math.sin(TAU * 2 * t / T);            // 灯笼轻轻呼吸
   drawPool(t, lamp);
-  g.drawImage(front, 0, 0, W, front.h);
+  if (bathMix > 0) {
+    // Keep the original pool rocks and warm lantern; only screen the road wall.
+    g.save(); g.globalAlpha = 1 - wallScreen; g.drawImage(front, 0, 0, W, front.h); g.restore();
+    g.save(); g.globalAlpha = wallScreen; g.beginPath(); g.rect(0, POOL - 210, W, H + EXT); g.clip(); g.drawImage(front, 0, 0, W, front.h); g.restore();
+  } else g.drawImage(front, 0, 0, W, front.h);
   drawTray(t);
   drawSteam(t, lamp);
   g.setTransform(1, 0, 0, 1, 0, 0);
@@ -1311,7 +1383,7 @@ function render(t) {
   // 文字层（不跟镜头动，保证清晰）
   // 上面的压暗托住标题，一直在；中下方的大字底下不压暗，只靠字本身的柔和字影
   g.drawImage(verticalSprite('topscrim204', [[0, [1, 3, 12, 204]], [1, [1, 3, 12, 0]]]), 0, 0, W, 600);
-  if (ski) g.drawImage(verticalSprite('skitop', [[0, [4, 8, 22, 150]], [.72, [4, 8, 22, 150]], [1, [4, 8, 22, 0]]]), 0, 0, W, 700);   // 滑雪时背后是发亮的雪树：上方的渐暗加深一点，托住标题和旁白（只是从顶上往下的渐变，不是一条带子）
+  if (ski) g.drawImage(verticalSprite('skitop-soft', [[0, [12, 26, 46, 54]], [.45, [12, 26, 46, 36]], [1, [12, 26, 46, 0]]]), 0, 0, W, 560);   // 滑雪时背后是发亮的雪树：上方的渐暗加深一点，托住标题和旁白（只是从顶上往下的渐变，不是一条带子）
   drawHeader(t, {light: 0, lc: [255, 236, 210], x: W / 2}, HEADER);
   drawTitleSnow();
   typoFront(t);
