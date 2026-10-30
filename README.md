@@ -7,6 +7,20 @@
 - [修改前后对照](reference/takada-dedup/comparison.png) · [检查记录](reference/takada-dedup/validation.json) · [制作记录](stories/takada.md)
 - 后台验证：`node viz/tools/check-takada-dedup.cjs`（用 `BROWSER_EXE` 指定 Chrome）。
 
+## 弥彦 V11 环境声版
+
+- **有声 HTML**：[yahiko-v11-ambient.html](viz/autumn/yahiko-v11-ambient.html) — 下载后打开，点「有声播放」；默认静音，无配乐。
+- **独立音轨**：[yahiko-v11-ambience.mp3](output/autumn/audio/yahiko-v11-ambience.mp3)
+- **声音设计与验证**：[yahiko-v11-ambient.md](stories/yahiko-v11-ambient.md)
+- **录音来源与 CC0 许可**：[sources.json](data/audio/yahiko-v11/sources.json)
+
+四份真实录音剪辑而成的林风、干叶、开阔处风声与轻微机械底声，不是弥彦现场录音。HTML 内嵌声音，可离线播放；暂停、拖动、重播与声音同步。画面与下方无声精修版一致，原版本保留。
+
+```sh
+python3 viz/tools/ambient-yahiko.py      # numpy/scipy + ffmpeg，重新混音并内嵌
+node viz/tools/check-yahiko-ambient.cjs # Node 22+ / Chrome，自动检查声音同步
+```
+
 ## 弥彦 V11 精修
 
 本分支 `gpt/yahiko-v11-refine` 从原 V11 `d2d2c18` 分出，原版保留。

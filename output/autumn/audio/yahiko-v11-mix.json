@@ -1,0 +1,96 @@
+{
+  "duration": 25.2,
+  "sample_rate": 48000,
+  "channels": 2,
+  "music": false,
+  "speech": false,
+  "source_manifest": "data/audio/yahiko-v11/sources.json",
+  "source_segments": {
+    "forest": [
+      66,
+      91.2
+    ],
+    "open_wind": [
+      45,
+      70.2
+    ],
+    "continuous_leaves": [
+      8.3,
+      14.75
+    ],
+    "cable_terminal": [
+      110,
+      115.2
+    ]
+  },
+  "visual_source_sha256": "fce9329dad9ad1068e07b0a4b6ee39eb51e3889108ce6149255fd91945c721cb",
+  "timeline_leaf_cues": [
+    {
+      "start": 1.65,
+      "source": 8.3,
+      "length": 6.45,
+      "env": [
+        [
+          1.65,
+          0
+        ],
+        [
+          2.2,
+          0.07
+        ],
+        [
+          3.2,
+          0.25
+        ],
+        [
+          4.2,
+          0.55
+        ],
+        [
+          5.2,
+          1
+        ],
+        [
+          5.6,
+          1.12
+        ],
+        [
+          6.2,
+          0.75
+        ],
+        [
+          7.2,
+          0.2
+        ],
+        [
+          8.1,
+          0
+        ]
+      ]
+    }
+  ],
+  "master_gain_db": 5.059999999999999,
+  "encoded_loudness": {
+    "input_i": "-23.27",
+    "input_tp": "-8.27",
+    "input_lra": "8.60",
+    "input_thresh": "-33.57",
+    "output_i": "-23.17",
+    "output_tp": "-10.72",
+    "output_lra": "7.90",
+    "output_thresh": "-33.22",
+    "normalization_type": "dynamic",
+    "target_offset": "0.17"
+  },
+  "peak_sample_dbfs": -8.112071267739346,
+  "rms_dbfs": -27.041780603652516,
+  "mono_rms_dbfs": -27.044801277424177,
+  "source_sha256": {
+    "forest": "94d8015169027ae21efdb88c7ed54b410cd516f9d59a9b6ac9cba0d073ae6def",
+    "leaf": "498a027a191fad53780262f057e3a3d6d02a7942f52c089999ebad0bf1a1c353",
+    "wind": "b1c739a7536d286508d092e96229284e5424f0f64277522b5349b24bc051ccaa",
+    "cable": "92470ba677f0c9ff195cf0dd9645768c98676783707f2e54d0b9d3713ef4faf0"
+  },
+  "mp3_sha256": "c8a40b44d15005524d21f5ffa047725991e8c3107672e60602f782881afe6fa8",
+  "notes": "Objective signal checks only; no claim of phone-speaker listening or Yahiko location fidelity."
+}

@@ -77,6 +77,15 @@
 - 日落：国立天文台历计算室，2026年11月新潟市（37.9167°N、139.0333°E、海拔0m、UTC+9）表：11月1日日落16:46，11月30日16:25。画面使用向外取整的「约16:25—16:50」，并在同一片尾卡注明「新潟市日落参考 · 山顶略有差异」。**不是弥彦山顶的精确日落预报**；位置、海拔与遮挡会影响所见时刻，出行应查当天。https://eco.mtk.nao.ac.jp/koyomi/dni/2026/s1611.html.en
 - 末班提醒延续已核实的「缆车傍晚停运」，不把日落范围当作能坐缆车等到日落后的保证；出发前查当日运营安排。
 
+## 弥彦 V11 环境声素材（2026-10-30）
+
+声音设计，不是弥彦实地录音。直接读取并核对以下 Freesound 原站声音页，四份均链接 CC0 1.0（https://creativecommons.org/publicdomain/zero/1.0/）。下载的是原站公开 HQ MP3 预览；文件、作者说明、许可证据与 SHA-256 见 [audio/yahiko-v11/sources.json](audio/yahiko-v11/sources.json)。
+
+- 林间风与叶声：Borgory，Soft Wind in the Trees - Leaves rustle，https://freesound.org/people/Borgory/sounds/751473/ 。作者描述使用 Zoom H5 / Sennheiser ME66 实录。
+- 干叶拟音：FunWithSound，Rustling Leaves.mp3，https://freesound.org/people/FunWithSound/sounds/406100/ 。作者用鞋拨动落叶、移动相机麦克风；本片裁切并高通去除低频冲击，只表达飞叶，不加入脚步事件。
+- 开阔处风声：Globofonia，wind open field，https://freesound.org/people/Globofonia/sounds/553733/ 。原录音为墨西哥北部空旷地带，不是日本山顶实录。
+- 机械底声：schafferdavid，Ski resort-Inside the cable car terminal .wav，https://freesound.org/people/schafferdavid/sounds/419316/ 。原录音为法国阿尔卑斯山滑雪场索道站内，作者说明录音时无说话声。本片只抽取低频机械持续音并降低音量，不把站内录音说成弥彦运行中车厢实录。
+
 ## 高田（春）
 
 - 高田城址公园观樱会：日本三大夜樱之一；内堀、外堀周边约 4,000 棵樱花；2026 年第 101 届 4/3–4/19，亮灯 18:00–21:00（盛开期到 22:00）；JR 高田站步行约 15 分钟。新潟县观光协会 https://niigata-kankou.or.jp/event/2332 （2026-10-23 查）

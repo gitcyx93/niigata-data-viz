@@ -1,0 +1,61 @@
+{
+  "note": "Public HQ MP3 previews provided by Freesound, not original lossless downloads. All four official sound pages identify CC0 1.0. These are design materials, not Yahiko on-location recordings.",
+  "sources": [
+    {
+      "key": "forest",
+      "file": "sources/751473-forest.mp3",
+      "title": "Soft Wind in the Trees - Leaves rustle",
+      "creator": "Borgory",
+      "page": "https://freesound.org/people/Borgory/sounds/751473/",
+      "download": "https://cdn.freesound.org/previews/751/751473_801011-hq.mp3",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_evidence": "Official sound page: Go to the full license text — Creative Commons 0",
+      "description": "Leaves rustle in the Wind.\n\n Recorded with Zoom H5 and Sennheiser ME66 48kHz 24bit 2 Channel Mono",
+      "downloaded_at": "2026-10-30",
+      "sha256": "94d8015169027ae21efdb88c7ed54b410cd516f9d59a9b6ac9cba0d073ae6def"
+    },
+    {
+      "key": "leaf",
+      "file": "sources/406100-leaves.mp3",
+      "title": "Rustling Leaves.mp3",
+      "creator": "FunWithSound",
+      "page": "https://freesound.org/people/FunWithSound/sounds/406100/",
+      "download": "https://cdn.freesound.org/previews/406/406100_6456158-hq.mp3",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_evidence": "Official sound page: Go to the full license text — Creative Commons 0",
+      "description": "An MP3 version of the raw audio recording of swishing and rustling a pile of dead leaves fallen from the trees in a playground with my shoes, and then moving the microphone through the pile.  Recorded with the microphone of a Nikon Coolpix camera.",
+      "downloaded_at": "2026-10-30",
+      "sha256": "498a027a191fad53780262f057e3a3d6d02a7942f52c089999ebad0bf1a1c353"
+    },
+    {
+      "key": "wind",
+      "file": "sources/553733-open-wind.mp3",
+      "title": "wind open field",
+      "creator": "Globofonia",
+      "page": "https://freesound.org/people/Globofonia/sounds/553733/",
+      "download": "https://cdn.freesound.org/previews/553/553733_4905159-hq.mp3",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_evidence": "Official sound page: Go to the full license text — Creative Commons 0",
+      "description": "open field wind at the northern Mexico",
+      "downloaded_at": "2026-10-30",
+      "sha256": "b1c739a7536d286508d092e96229284e5424f0f64277522b5349b24bc051ccaa"
+    },
+    {
+      "key": "cable",
+      "file": "sources/419316-cable-terminal.mp3",
+      "title": "Ski resort-Inside the cable car terminal .wav",
+      "creator": "schafferdavid",
+      "page": "https://freesound.org/people/schafferdavid/sounds/419316/",
+      "download": "https://cdn.freesound.org/previews/419/419316_98337-hq.mp3",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_evidence": "Official sound page: Go to the full license text — Creative Commons 0",
+      "description": "Field recording of a cable car terminal in a ski resort in the french Alps. The recording was made at the arrival terminal on a quiet moment. No voices here, just plain industrial noises: doors opening/closing cars moving, mechanical/electrical background drone.Recorded with a zoom H2 in X/Y stereo mode.",
+      "downloaded_at": "2026-10-30",
+      "sha256": "92470ba677f0c9ff195cf0dd9645768c98676783707f2e54d0b9d3713ef4faf0"
+    }
+  ]
+}

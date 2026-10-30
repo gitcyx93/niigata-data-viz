@@ -1,0 +1,16 @@
+{
+  "samples_per_channel": 1209600,
+  "duration": 25.2,
+  "peak_dbfs": -8.270525336265564,
+  "rms_dbfs": -27.306201457977295,
+  "mono_loss_db": -0.0030390266329050064,
+  "endpoint_peak": 2.6937257189274533e-06,
+  "leaves_single_build": true,
+  "leaves_build_rms": [
+    0.005575961587096234,
+    0.015743303841588105,
+    0.02811534799336571,
+    0.054689410573662556
+  ],
+  "cable_window": true
+}
