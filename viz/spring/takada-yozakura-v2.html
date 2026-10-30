@@ -334,7 +334,7 @@ function boot(render) {
 //   0–5      全景：隔着护城河看绿色灯光下的三重橹、一整片樱花墙和倒影（第 0 秒当封面）
 //   5–9      极乐桥：朱红的长桥横过护城河，桥灯在水里拉出金光，天上一轮满月
 //   9–13     站在樱花底下抬头看：发光的粉色花铺满头顶，下面是人群和纸灯笼
-//   13–20    回到全景：花吹雪落进护城河，铺成花筏（高潮，不放字），接回第 0 秒
+//   13–20    护城河近景：落花与倒影，向水面缓推看花筏；不再回到封面全景
 // 樱花不用团块：每棵树按染井吉野的树形长出枝干，在枝梢上开出一朵朵五瓣的花。
 const T = 20;
 const WH = 2900;
@@ -904,17 +904,20 @@ const CANOPY = (() => {
 })();
 
 // ======== 全景的镜头 ========
-// [时间, 中心 y, 放大倍数]；5–13 是两个直切进来的近景（极乐桥、樱花底下），这时全景不显示
-const KEYS = [
-  [0, 1240, 1.0], [5, 1205, 1.1],          // ① 三重橹、樱花墙、倒影：一直慢慢往前推
-  [13, 1200, 1.25],                         // ④ 直切回来：比封面近，三重橹和樱花墙
-  [20, 1240, 1.0],                          // 风吹过，镜头一路往后拉，露出整条铺满花瓣的护城河
-];
+// [时间, 中心 y, 放大倍数]；5–13 是极乐桥与仰看樱花，13 秒后单独取景水面。
+// 保留首段原曲线；末段不再拉回三重橹封面，不为循环重复构图。
+const KEYS = [[0, 1240, 1.0], [5, 1205, 1.1], [13, 1200, 1.25]];
 function camAt(t) {
+  if (t >= 13) {
+    const u = clamp((t - 13) / 7), k = .2 * u + .8 * ease(u);
+    // Stay on the left-hand water: exclude both the tower and its reflected
+    // silhouette, rather than merely enlarging the same landmark again.
+    return {x: lerp(225, 240, k), y: lerp(1840, 1870, k), z: lerp(2.65, 2.85, k)};
+  }
   let i = 0; while (i < KEYS.length - 2 && t >= KEYS[i + 1][0]) i++;
   if (t >= 5 && t < 13) i = 1;
   const [t0, y0, z0] = KEYS[i], [t1, y1, z1] = KEYS[i + 1];
-  const u = clamp((t - t0) / (t1 - t0)), k = i === 0 ? u : .2 * u + .8 * ease(u);   // 封面匀速推；高潮一切进来就在动，风起后加快往后拉，最后缓缓停住
+  const u = clamp((t - t0) / (t1 - t0)), k = i === 0 ? u : .2 * u + .8 * ease(u);   // 封面匀速推，保留原样
   const z = Math.exp(lerp(Math.log(z0), Math.log(z1), k)), hh = H / 2 / z;
   return {x: W / 2, y: clamp(lerp(y0, y1, k), hh, WH - hh), z};
 }
@@ -979,7 +982,12 @@ function render(t) {
   g.drawImage(verticalSprite('topscrim120', [[0, [4, 6, 20, 120]], [1, [4, 6, 20, 0]]]), 0, 0, W, 560);
   drawHeader(t, {light: .35, lc: [255, 214, 225], x: W * .6}, HEADER);
   onBright = (t >= CANOPY.t0 && t < CANOPY.t1) || t >= 16.5;   // 樱花底下、花筏铺开以后，字背后都是亮粉色
-  TEXT_WINDOWS.forEach(([a, b], i) => headline(scene(t, a, b), ...HEADLINES[i]));
+  TEXT_WINDOWS.forEach(([a, b], i) => {
+    // Keep the cover text visible immediately at 0s, but do not pre-roll it
+    // over the final water shot at 19.9s merely to prepare a seamless loop.
+    if (i === 0 && t >= 4.6) return;
+    headline(scene(t, a, b), ...HEADLINES[i]);
+  });
 }
 boot(render);
 </script>

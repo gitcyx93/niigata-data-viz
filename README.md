@@ -1,5 +1,12 @@
 # niigata-data-viz
 
+## 高田夜樱：仅去掉重复全景
+
+`viz/spring/takada-yozakura-v2.html` 的 13–20 秒改为护城河左侧落花/花筏近景，不再回放三重橹封面；前 13 秒、文案、花瓣算法和 20 秒总长保留。仅取消 19.9 秒提前重现封面大字。
+
+- [修改前后对照](reference/takada-dedup/comparison.png) · [检查记录](reference/takada-dedup/validation.json) · [制作记录](stories/takada.md)
+- 后台验证：`node viz/tools/check-takada-dedup.cjs`（用 `BROWSER_EXE` 指定 Chrome）。
+
 ## 弥彦 V11 精修
 
 本分支 `gpt/yahiko-v11-refine` 从原 V11 `d2d2c18` 分出，原版保留。
