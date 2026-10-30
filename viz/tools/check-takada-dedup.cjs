@@ -45,25 +45,25 @@ const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
   };
   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
   await navigate(before);
-  const unchangedTimes=[0,.5,2.5,4.99,5,6.5,8.99,9,11,12.99],baseline={},original=[];
+  const unchangedTimes=[5,6.5,8.99,9,11,12.99,13,14,15,16,17,18,19,19.8],baseline={},original=[];
   for(const t of unchangedTimes)baseline[t]=hash(await image(t,540));
   for(const t of [0,13,15,17,19.8,19.95])original.push({t,label:'BEFORE / '+t+'s',image:await image(t)});
   const metadata=await evaluate('({story:STORY,headlines:HEADLINES,duration:T})');
   await navigate(path.join(root,'viz/spring/takada-yozakura-v2.html'));
   const checks=await evaluate(`(()=>{
-   const cameras=[13,14,15,16,17,18,19,19.99].map(t=>{const c=camAt(t);return{t,...c,top:c.y-H/(2*c.z),bottom:c.y+H/(2*c.z),left:c.x-W/(2*c.z),right:c.x+W/(2*c.z)}});
+   const cameras=[0,2.5,4.99].map(t=>{const c=camAt(t);return{t,...c,top:c.y-H/(2*c.z),bottom:c.y+H/(2*c.z),left:c.x-W/(2*c.z),right:c.x+W/(2*c.z)}});
    render(18);const first=cv.toDataURL();render(14);render(18);
    return{story:STORY,headlines:HEADLINES,duration:T,fonts:document.fonts.status,cameras,deterministic:first===cv.toDataURL(),water:WATER,castleBase:CASTLE.base,castleX:CASTLE.x};
   })()`);
   assert.deepEqual({story:checks.story,headlines:checks.headlines,duration:checks.duration},metadata);
   assert.equal(checks.fonts,'loaded');assert(checks.deterministic);
-  assert(checks.cameras.every((c,i)=>c.top>checks.castleBase&&c.left>=0&&c.right<checks.castleX-200&&c.bottom<=2900&&(!i||(c.z>checks.cameras[i-1].z&&c.y>checks.cameras[i-1].y))), 'Ending must stay off the castle and move toward the water');
+  assert(checks.cameras.every((c,i)=>c.left>=0&&c.right<=1080&&c.bottom<1560&&c.top<checks.castleBase-350&&c.z>=1.75&&(!i||c.z>checks.cameras[i-1].z)), 'Opening must frame the whole tower, not repeat the wide moat');
   checks.unchangedFrames=[];
-  for(const t of unchangedTimes){const same=baseline[t]===hash(await image(t,540));assert(same,'Unintended change before 13s at '+t);checks.unchangedFrames.push({t,same})}
+  for(const t of unchangedTimes){const same=baseline[t]===hash(await image(t,540));assert(same,'Changed a preserved bridge/canopy/climax frame at '+t);checks.unchangedFrames.push({t,same})}
   const pairs=[];for(const f of original)pairs.push(f,{label:'AFTER / '+f.t+'s',image:await image(f.t)});await sheet('comparison.png',pairs,2);
   const frames=[];for(const t of [0,4,6,10,12.99,13,14.5,16,17.5,18.5,19.5,19.95])frames.push({label:t+'s',image:await image(t)});await sheet('keyframes.png',frames);
   for(const t of [13,17,19.8])save('frame-'+t+'.png',await image(t,1080));
-  // No cover caption should reappear over the ending just before loop reset.
+  // Keep the previous caption fix: no cover pre-roll before the natural reset.
   checks.noCoverPreroll=await evaluate(`(()=>{const fn=headline,called=[];headline=(s,segs,sub)=>{if(s)called.push(sub)};try{render(19.95)}finally{headline=fn}return !called.includes('高田城址公园 三重橹')})()`);assert(checks.noCoverPreroll);
   let playback=null;
   if(!process.argv.includes('--quick')){

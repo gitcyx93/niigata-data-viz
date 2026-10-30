@@ -331,10 +331,10 @@ function boot(render) {
 /*SERIES-END*/
 </script>
 <script>// 高田夜樱（春）：上越市高田城址公园。三个场景，段落之间直切（构图按观光协会的照片选）：
-//   0–5      全景：隔着护城河看绿色灯光下的三重橹、一整片樱花墙和倒影（第 0 秒当封面）
+//   0–5      三重橹近景：樱花框住建筑，缓慢推近；不在开头先展示完整护城河全景
 //   5–9      极乐桥：朱红的长桥横过护城河，桥灯在水里拉出金光，天上一轮满月
 //   9–13     站在樱花底下抬头看：发光的粉色花铺满头顶，下面是人群和纸灯笼
-//   13–20    护城河近景：落花与倒影，向水面缓推看花筏；不再回到封面全景
+//   13–20    保留原全景高潮：花吹雪落进护城河，拉远展开花筏；不再用水面裁切替代
 // 樱花不用团块：每棵树按染井吉野的树形长出枝干，在枝梢上开出一朵朵五瓣的花。
 const T = 20;
 const WH = 2900;
@@ -904,15 +904,13 @@ const CANOPY = (() => {
 })();
 
 // ======== 全景的镜头 ========
-// [时间, 中心 y, 放大倍数]；5–13 是极乐桥与仰看樱花，13 秒后单独取景水面。
-// 保留首段原曲线；末段不再拉回三重橹封面，不为循环重复构图。
-const KEYS = [[0, 1240, 1.0], [5, 1205, 1.1], [13, 1200, 1.25]];
+// Keep the original 13–20s panorama and petal-raft climax. Only the opening
+// changes to an architectural close-up, reserving the full moat for the end.
+const KEYS = [[0, 1240, 1.0], [5, 1205, 1.1], [13, 1200, 1.25], [20, 1240, 1.0]];
 function camAt(t) {
-  if (t >= 13) {
-    const u = clamp((t - 13) / 7), k = .2 * u + .8 * ease(u);
-    // Stay on the left-hand water: exclude both the tower and its reflected
-    // silhouette, rather than merely enlarging the same landmark again.
-    return {x: lerp(225, 240, k), y: lerp(1840, 1870, k), z: lerp(2.65, 2.85, k)};
+  if (t < 5) {
+    const u = clamp(t / 5);
+    return {x: lerp(600, 625, u), y: lerp(1000, 1005, u), z: lerp(1.75, 1.95, u)};
   }
   let i = 0; while (i < KEYS.length - 2 && t >= KEYS[i + 1][0]) i++;
   if (t >= 5 && t < 13) i = 1;
@@ -981,7 +979,7 @@ function render(t) {
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.drawImage(verticalSprite('topscrim120', [[0, [4, 6, 20, 120]], [1, [4, 6, 20, 0]]]), 0, 0, W, 560);
   drawHeader(t, {light: .35, lc: [255, 214, 225], x: W * .6}, HEADER);
-  onBright = (t >= CANOPY.t0 && t < CANOPY.t1) || t >= 16.5;   // 樱花底下、花筏铺开以后，字背后都是亮粉色
+  onBright = t < 5 || (t >= CANOPY.t0 && t < CANOPY.t1) || t >= 16.5;   // 开场近景也有亮樱花：沿用原来的深色字影，不改位置和字色
   TEXT_WINDOWS.forEach(([a, b], i) => {
     // Keep the cover text visible immediately at 0s, but do not pre-roll it
     // over the final water shot at 19.9s merely to prepare a seamless loop.

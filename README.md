@@ -2,7 +2,7 @@
 
 ## 高田夜樱：仅去掉重复全景
 
-`viz/spring/takada-yozakura-v2.html` 的 13–20 秒改为护城河左侧落花/花筏近景，不再回放三重橹封面；前 13 秒、文案、花瓣算法和 20 秒总长保留。仅取消 19.9 秒提前重现封面大字。
+`viz/spring/takada-yozakura-v2.html` **恢复并保留原 13–20 秒的全景花吹雪/花筏高潮**；仅将 0–5 秒换成樱花框住三重橹的建筑近景，把完整护城河全景留到后半段。极乐桥、仰看樱花、文案、花瓣算法和 20 秒总长保留；19.9 秒不提前重现封面大字。之前的水面近景替换方案已撤回。
 
 - [修改前后对照](reference/takada-dedup/comparison.png) · [检查记录](reference/takada-dedup/validation.json) · [制作记录](stories/takada.md)
 - 后台验证：`node viz/tools/check-takada-dedup.cjs`（用 `BROWSER_EXE` 指定 Chrome）。
