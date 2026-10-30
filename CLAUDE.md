@@ -75,6 +75,13 @@
 - 导出：`NODE_PATH=/opt/node22/lib/node_modules node viz/tools/record.js <页面> <输出.mp4>`。每集出简体、繁体，各有环境音版（如 `viz/tools/ambient-winter.py`，用 ffmpeg 合成）和无声版。
 - 检查（Chen 要求时或导出前）：`NODE_PATH=/opt/node22/lib/node_modules node viz/tools/check.js <页面.html> [--strip 图.png] [--at 秒] [--compare 旧.html]`。
 
+## 汤泽本轮授权边界（2026-10-30）
+
+- 用户负责文字。本轮只做画面，不改文案、数字、引用、字体样式、位置或显示时段；可以建议现有文字应配什么画面，不再越界评价/改写文案。
+- 20秒循环是为社交媒体轮播保留的设计。不得擅自删除回到隧道的过程、取消循环或改变总长。
+- 本轮独立分支为 `gpt/yuzawa-visual-refine`；画面调整及证据见 `stories/yuzawa-visual-refine.md`。
+- 只通过代码、后台进程及独立headless浏览器检查，不操作用户鼠标键盘，不抢焦点，不接管日常浏览器。
+
 ## 协作
 
 - 目标不清楚时先对齐方向；Chen 已授权重构或确认方案后，直接完成。原版留存，另做可比较的版本，不对同一授权重复确认。
