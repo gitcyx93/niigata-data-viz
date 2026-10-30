@@ -79,7 +79,7 @@
 
 - 用户负责文字。本轮只做画面，不改文案、数字、引用、字体样式、位置或显示时段；可以建议现有文字应配什么画面，不再越界评价/改写文案。
 - 20秒循环是为社交媒体轮播保留的设计。不得擅自删除回到隧道的过程、取消循环或改变总长。
-- 本轮独立分支为 `gpt/yuzawa-visual-refine`；画面调整及证据见 `stories/yuzawa-visual-refine.md`。
+- 首轮提亮分支为 `gpt/yuzawa-visual-refine`；画面调整及证据见 `stories/yuzawa-visual-refine.md`。后续用户要求自行试作并优化三维滑雪，仅替换3.3–8.7秒，分支 `gpt/yuzawa-ski-3d`，源文件为 `viz/winter/yuzawa-ski-3d.js`，流程与边界见 `stories/yuzawa-ski3d.md`。不要直接编辑HTML里的生成代码；使用 `viz/tools/build-yuzawa-ski3d.cjs` 重新内嵌。
 - 只通过代码、后台进程及独立headless浏览器检查，不操作用户鼠标键盘，不抢焦点，不接管日常浏览器。
 
 ## 协作

@@ -1,5 +1,14 @@
 # niigata-data-viz
 
+## 当前试作：汤泽滑雪三维重做
+
+分支 `gpt/yuzawa-ski-3d`，基线 `8184a23`。仅替换 `viz/winter/yuzawa-yukiguni.html` 的3.3–8.7秒滑雪场景，使用内嵌Three.js绘制立体人物、双板、地形和雪树。文字、其他镜头、动作阶段时序和20秒循环不改。HTML无需联网，推荐开启硬件加速的Chrome/Edge；WebGL2不可用时回退旧滑雪效果。
+
+- [制作与自检记录](stories/yuzawa-ski3d.md)
+- [修改前后对照](reference/yuzawa-ski3d/comparison.png) · [滑雪连续采样](reference/yuzawa-ski3d/ski-motion.png)
+- [检查结果](reference/yuzawa-ski3d/validation.json)
+- 后台检查：`node viz/tools/check-yuzawa-ski3d.cjs`（用 `BROWSER_EXE` 指定Chrome）。
+
 ## 当前弥彦：新文案 + 21.4秒
 
 当前整合分支：`claude/adoring-darwin-982h4c`。保留 `e9b561a` 的弥彦/高田新稿和 `032bf6e` 的汤泽画面修改。
