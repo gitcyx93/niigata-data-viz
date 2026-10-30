@@ -208,18 +208,34 @@ export function createSkiScene({width, height, getPose, settings}) {
     pp.set([x,y,z],i*3);if(y<ground(x,z))continue;const u=age/life;aa[i]=(mist?.16:.8)*Math.sin(Math.PI*u)*v;ss[i]=mist?.14+.24*u:.018+rnd(i,66)*.035;
   }pg.attributes.position.needsUpdate=true;pg.attributes.opacity.needsUpdate=true;pg.attributes.size.needsUpdate=true}
 
+  // SNS cut: three intentional angles inside the existing 5.4s slot.
+  // No time warp, random shake, flashes, or camera changes to other shots.
+  function actionCamera(t,p){
+    const punch=x=>1-Math.pow(1-clamp(x),3);
+    if(t<4.8){
+      const k=punch((t-3.3)/.42);
+      return {shot:'carve-push',distance:lerp(12,9.4,k),side:lerp(4.8,3.6,k)+.25*Math.sin(p.ph),height:1.65,target: .9,follow:.75,roll:-.018*Math.sin(p.ph)*(p.amp/2.6)};
+    }
+    if(t<6.5){
+      const k=clamp((t-4.8)/1.7);
+      return {shot:'side-follow',distance:lerp(8,8.8,k),side:lerp(8.5,6.5,k),height:1.3,target:.85,follow:.9,roll:-.012*(1-k)};
+    }
+    const k=punch((t-6.5)/.32),room=smooth((t-7.15)/.6),finish=clamp((t-7.8)/.9);
+    return {shot:'brake-finish',distance:lerp(lerp(9.6,8.9,k),10.4,room)-.7*finish,side:lerp(lerp(3.4,2.8,k),5.6,room)-1.2*finish,height:lerp(1.5,1.65,room),target:lerp(.85,1.15,room),follow:.85,roll:.015*(1-room)*p.skid};
+  }
   let lastInfo=null;
   function render(t){
-    const p=poseSkier(t),approach=smooth((t-3.3)/1.5),distance=lerp(16,10.5,approach),side=lerp(5.5,4.0,approach);
-    camera.position.set(p.base+side,ground(p.x,p.z)+1.8,p.z-distance);
-    camera.lookAt(p.base+(p.x-p.base)*.45,ground(p.x,p.z)+1.0,p.z+.7);
+    const p=poseSkier(t),shot=actionCamera(t,p);
+    camera.position.set(p.base+shot.side,ground(p.x,p.z)+shot.height,p.z-shot.distance);
+    camera.lookAt(p.base+(p.x-p.base)*shot.follow,ground(p.x,p.z)+shot.target,p.z+.7);
+    camera.rotateZ(shot.roll);
     sun.position.set(p.x-35,ground(p.x,p.z)+58,p.z-30);sun.target.position.set(p.x,ground(p.x,p.z),p.z);sun.target.updateMatrixWorld();
     updateTrail(t);updateSpray(t);renderer.render(scene,camera);
     const contactGaps=[];
     for(const x of[-.19,.19])for(const z of[-.65,0,.55]){const v=new THREE.Vector3(x,.012,z).applyMatrix4(skier.matrixWorld);contactGaps.push(v.y-ground(v.x,v.z))}
-    const bounds=new THREE.Box3().setFromObject(skier),screenBounds={left:Infinity,right:-Infinity,top:Infinity,bottom:-Infinity};
+    const bounds=new THREE.Box3().setFromObject(body),screenBounds={left:Infinity,right:-Infinity,top:Infinity,bottom:-Infinity};
     for(const x of[bounds.min.x,bounds.max.x])for(const y of[bounds.min.y,bounds.max.y])for(const z of[bounds.min.z,bounds.max.z]){const v=new THREE.Vector3(x,y,z).project(camera),sx=(v.x*.5+.5)*width,sy=(.5-v.y*.5)*height;screenBounds.left=Math.min(screenBounds.left,sx);screenBounds.right=Math.max(screenBounds.right,sx);screenBounds.top=Math.min(screenBounds.top,sy);screenBounds.bottom=Math.max(screenBounds.bottom,sy)}
-    lastInfo={time:t,pose:{x:p.x,z:p.z,v:p.v},camera:camera.position.toArray(),skier:skier.position.toArray(),contactGaps,screenBounds,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,webgl:true};
+    lastInfo={time:t,cameraShot:shot.shot,cameraRoll:shot.roll,pose:{x:p.x,z:p.z,v:p.v},camera:camera.position.toArray(),skier:skier.position.toArray(),contactGaps,screenBounds,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,webgl:true};
     return renderer.domElement;
   }
   return {render,getInfo:()=>lastInfo,renderer};

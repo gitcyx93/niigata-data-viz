@@ -1,6 +1,14 @@
 # niigata-data-viz
 
-## 当前试作：汤泽滑雪三维重做
+## 当前试作：汤泽滑雪 SNS 快节奏运镜
+
+分支 `gpt/yuzawa-ski-sns`。保留已认可三维版 `5c575b3`，仅把3.3–8.7秒滑雪改为三段取景：0.42秒快速推进、4.8秒切侧向跟拍、6.5秒切近横刹与举手收尾。人物动作速度、文字、其他镜头和20秒循环不改。
+
+- [改动与验证说明](stories/yuzawa-ski-sns.md)
+- [稳版与快速版对照](reference/yuzawa-ski-sns/comparison.png) · [连续滑雪采样](reference/yuzawa-ski-sns/ski-motion.png)
+- 检查：`node viz/tools/check-yuzawa-sns.cjs`，使用 `BROWSER_EXE` 指定Chrome。
+
+## 三维基础版（保留）：汤泽滑雪三维重做
 
 分支 `gpt/yuzawa-ski-3d`，基线 `8184a23`。仅替换 `viz/winter/yuzawa-yukiguni.html` 的3.3–8.7秒滑雪场景，使用内嵌Three.js绘制立体人物、双板、地形和雪树。文字、其他镜头、动作阶段时序和20秒循环不改。HTML无需联网，推荐开启硬件加速的Chrome/Edge；WebGL2不可用时回退旧滑雪效果。
 
