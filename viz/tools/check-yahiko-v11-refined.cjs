@@ -69,10 +69,10 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     const viewport = (width, height) => send('Emulation.setDeviceMetricsOverride', {
       width, height, deviceScaleFactor: 1, mobile: false});
     const navigate = async filename => {
-      await send('Page.navigate', {url: pathToFileURL(path.join(root, 'viz/autumn', filename)).href + '?record'});
+      await send('Page.navigate', {url: pathToFileURL(path.resolve(root, 'viz/autumn', filename)).href + '?record'});
       // Wait in the new document (the previous page may still have READY during navigation).
       await evaluate(`new Promise((resolve,reject)=>{let n=0;const timer=setInterval(()=>{
-        if(location.pathname.endsWith(${JSON.stringify(filename)})&&window.READY){clearInterval(timer);resolve(true)}
+        if(location.pathname.endsWith(${JSON.stringify(path.basename(filename))})&&window.READY){clearInterval(timer);resolve(true)}
         else if(++n>800){clearInterval(timer);reject(new Error('Ready timeout'))}},100)})`);
     };
     const image = async (t, width = 360) => evaluate(`(()=>{render(${t});const c=document.createElement('canvas');
@@ -96,6 +96,12 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     const before = [];
     for (const t of [3.8, 8.9, 9.9, 10.3, 10.7]) before.push({t, label: 'V11 / ' + t + 's', image: await image(t)});
     const originalPlan = await evaluate('JSON.stringify(PLAN)');
+    const previousFrames={},previousOpening=[];
+    if(process.env.PREVIOUS_HTML){
+      await navigate(process.env.PREVIOUS_HTML);
+      for(const t of [2.2,2.8,3.8,5.599,5.6,6.9,8,8.9,10.3,11.4,12.8,16,20.5,24.8])previousFrames[t]=sha(await image(t,540));
+      for(const t of [0,1.6,2.19])previousOpening.push({t,label:'BEFORE / '+t+'s',image:await image(t)});
+    }
     await navigate('yahiko-v11-refined.html');
     const checks = await evaluate(`(()=>{
       const fontMissing=[...new Set(STORY_C.map(s=>s[2]).join('')+'至弥彦站 换乘等待另计')].filter(c=>!FONT_DATA.some(([family,,range])=>
@@ -144,6 +150,23 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     assert(checks.allLeavesFall,'No foreground leaves should rise from the pond');
     assert(checks.wind.find(w=>w.t===7.8).count<checks.wind.find(w=>w.t===5.6).count,
       'Existing leaves should exit after the peak, not start a second burst');
+    checks.bridgeMatch=await evaluate(`(()=>{
+      const a=openingCameraA(2.2),n=cameraState(2.2,'reveal');
+      return [-230,0,230].map(x=>{
+        const day=[540+(365+x*1.12-a.x)*a.z,960+(1270-Math.sin((x+230)/460*Math.PI)*60*460/950*1.12-a.y)*a.z];
+        const nx=545+x*950/460,night=[540+(nx-n.x)*n.z,960+(1090-Math.sin((nx-70)/950*Math.PI)*60-n.y)*n.z];
+        return {x,error:Math.hypot(day[0]-night[0],day[1]-night[1])};
+      });
+    })()`);
+    assert(checks.bridgeMatch.every(p=>p.error<.01),'Day/night bridge anchors must align');
+    checks.previousRevisionFrames=[];
+    for(const [t,hash]of Object.entries(previousFrames)){
+      const same=hash===sha(await image(Number(t),540));checks.previousRevisionFrames.push({t:Number(t),same});assert(same,'Changed approved later shot at '+t);
+    }
+    if(previousOpening.length){
+      const pairs=[];for(const f of previousOpening)pairs.push(f,{label:'AFTER / '+f.t+'s',image:await image(f.t)});
+      await contact('A-layout-comparison.png',pairs,2,360);
+    }
     checks.unchangedFrames = [];
     for (const t of unchangedTimes) {
       const data=await image(t,540);
@@ -171,6 +194,8 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     const paired = [];
     for (const frame of before) paired.push(frame, {label: 'REFINED / '+frame.t+'s', image: await image(frame.t)});
     await contact('comparison.png', paired, 2, 360);
+    const cutFrames=[];for(const t of [1.8,2,2.15,2.19,2.2,2.21,2.3,2.5])cutFrames.push({label:t+'s',image:await image(t)});
+    await contact('A-night-cut.png',cutFrames,4,270);
     const frames = [];
     for (const t of [0,2.2,2.8,3.3,3.8,4.2,4.9,5.3,5.59,5.6,6.3,6.9,7.8,8.9,9.9,10.3,11.4,16,20.5,24.8]) {
       frames.push({label:t+'s',image:await image(t,360)});
