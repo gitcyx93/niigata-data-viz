@@ -1408,7 +1408,7 @@ function titlesC(t){
   headlineC(scene(t,6.5,7.95),[['抬头 是朱红的',0],['鸟居',1]],'弥彦神社');
   headlineC(scene(t,8.65,10.5),[['杉林深处 ',0],['越后一宫',1]],'弥彦神社');
   headlineC(scene(t,11.8,14.5),[['脚下是一整片',0],['红叶',1]],'弥彦山缆车');
-  headlineC(scene(t,15.6,18.4),[['上山之后 是',0],['海',1]],'JR弥彦线 约33—42分钟');
+  headlineC(scene(t,15.6,18.4),[['上山之后 是',0],['海',1]],'至弥彦站 换乘等待另计');
   endCardC(t);
 }
 
@@ -1844,7 +1844,7 @@ function overviewShot(b,t){
  const ax=540+100*push*push,ay=960+200*push*push;
  b.save();camera(b,z,ax,ay);b.drawImage(overviewDetails,0,0,W,H);b.restore();
  shade(b,330,380,540,270,.57);shade(b,540,1450,650,200,.46);
- // A short dissolve under the first gust avoids another opening/closing iris.
+ // A short dissolve introduces the valley; the wind then builds continuously.
  if(t>1.9){const c=irisC.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);valleyShot(c,t,'reveal',false);b.save();b.globalAlpha=ease(clamp((t-1.9)/.3));b.drawImage(irisC,0,0);b.restore();}
  windLeaves(b,t);
 }
@@ -2025,21 +2025,33 @@ const leafSprites=reds.map(c=>layer(b=>{
 function flyingLeaf(b,x,y,size,spin,color,alpha=1){
   b.save();b.globalAlpha=alpha;b.translate(x,y);b.rotate(spin);b.scale(.28+.72*Math.abs(Math.cos(spin*.71)),1);b.drawImage(leafSprites[color],-size,-size,size*2,size*2);b.restore();
 }
-const gust=Array.from({length:460},(_,i)=>{
-  const depth=rnd(i,151);return {start:.35+rnd(i,152)*.85,life:1.35+(1-depth)*1.35,depth,y:1050+rnd(i,153)*800,size:depth>.75?30+(depth-.75)*160:5+depth*22,spin:rnd(i,154)*TAU,lift:480+rnd(i,155)*640,color:2+i%5};
+// One continuous build, not two gusts. Stratified birth times increase the
+// emission rate smoothly; each leaf is emitted once and never recycled.
+const gust=Array.from({length:850},(_,i)=>{
+  const depth=rnd(i,151),birth=(i+rnd(i,152))/850;
+  return {start:1.65+4.05*Math.sqrt(birth),life:1.35+(1-depth)*1.35,depth,y:1050+rnd(i,153)*800,size:depth>.75?30+(depth-.75)*160:5+depth*22,spin:rnd(i,154)*TAU,lift:480+rnd(i,155)*640,color:2+i%5};
 });
+function windTravel(t){
+  // Integral of a smooth speed ramp: 0.24 -> 1.15 from 2.2 to 5.6s.
+  // Integrating speed (rather than multiplying age by current speed) keeps
+  // trajectories and velocity continuous, including across the scene cut.
+  const age=Math.max(0,t-2.2),span=3.4,u=clamp(age/span);
+  return .24*(t-1.65)+.91*(span*(u*u*u-.5*u*u*u*u)+Math.max(0,age-span));
+}
+function windLeafState(l,t){
+  if(t<l.start)return null;
+  const u=(windTravel(t)-windTravel(l.start))/l.life;
+  if(u<=0||u>=1)return null;
+  return {x:-120+u*(W+300),y:l.y-u*l.lift+Math.sin(u*TAU+l.spin)*38,
+    size:l.size,spin:l.spin+u*(5+l.depth*4),color:l.color,
+    alpha:Math.min(1,u*12,(1-u)*9)*(.58+l.depth*.42)};
+}
 function windLeaves(b,t){
-  // Two dense gusts: the second lifts bank-side leaves across the 5.6s cut.
-  // Positions are functions of global time, never reset on entering the gate.
-  for(const start of [1.05,4.15])for(let i=0;i<gust.length;i++){
-    const l=gust[i],u=(t-start-l.start)/l.life;
-    if(u<0||u>1)continue;
-    const x=-210+u*(W+480),y=l.y-u*l.lift+Math.sin(u*TAU+l.spin)*38;
-    // Let the first wave settle before the second rises: a short clear view
-    // of the embracing silhouettes, without thinning the next cross-cut gust.
-    const settle=start<4?1-ease(clamp((t-3.65)/.5)):1;
-    const alpha=Math.min(1,u*12,(1-u)*9)*(.58+l.depth*.42)*settle;
-    if(alpha>0)flyingLeaf(b,x,y,l.size*(start>=4?1.12:.65),l.spin+u*(5+l.depth*4),l.color,alpha);
+  // The bridge and torii use the same global clock and the same particles.
+  // After the build, stop emitting and let the existing leaves exit naturally.
+  for(const l of gust){
+    const p=windLeafState(l,t);
+    if(p)flyingLeaf(b,p.x,p.y,p.size,p.spin,p.color,p.alpha);
   }
 }
 function directionalLeaves(b,t,strength=1){

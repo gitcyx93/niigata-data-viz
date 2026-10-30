@@ -98,7 +98,7 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     const originalPlan = await evaluate('JSON.stringify(PLAN)');
     await navigate('yahiko-v11-refined.html');
     const checks = await evaluate(`(()=>{
-      const fontMissing=[...new Set(STORY_C.map(s=>s[2]).join(''))].filter(c=>!FONT_DATA.some(([family,,range])=>
+      const fontMissing=[...new Set(STORY_C.map(s=>s[2]).join('')+'至弥彦站 换乘等待另计')].filter(c=>!FONT_DATA.some(([family,,range])=>
         family==='Source Han Sans SC'&&range.split(',').some(r=>{const[a,b=a]=r.trim().replace('U+','').split('-').map(v=>parseInt(v,16));
           return c.codePointAt(0)>=a&&c.codePointAt(0)<=b})));
       const rates=STORY_C.map(([from,,text],i)=>{const seconds=(STORY_C[i+1]?.[0]??T)-Math.max(0,from);return{text,seconds,rate:[...text].length/seconds}});
@@ -108,10 +108,18 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
       render(10.1);const first=cv.toDataURL();render(24);render(10.1);const deterministic=first===cv.toDataURL();
       const leafDraw=flyingLeaf;
       const leafFrame=t=>{const a=[];flyingLeaf=(b,x,y,size,spin,color,alpha)=>a.push({x,y,size,spin,color,alpha});try{windLeaves(g,t)}finally{flyingLeaf=leafDraw}return a};
-      const wind=[3.3,3.8,4.2,4.45,5.59,5.6,5.61,6.3,7.8].map(t=>({t,count:leafFrame(t).length}));
-      const left=leafFrame(5.599),right=leafFrame(5.601);
-      return{duration:T,plan:PLAN,fonts:document.fonts.status,fontMissing,rates,track,deterministic,wind,
-        windCrossCutContinuous:left.length===right.length&&left.every((a,i)=>right[i].x>a.x&&Math.hypot(right[i].x-a.x,right[i].y-a.y)<8),
+      const wind=[2.2,2.8,3.3,3.8,4.2,4.45,4.9,5.3,5.59,5.6,5.61,6.3,7.8].map(t=>{
+        const leaves=leafFrame(t);
+        return {t,count:leaves.length,visible:leaves.filter(p=>p.x+p.size>0&&p.x-p.size<W&&p.y+p.size>0&&p.y-p.size<H).length,
+          speed:(windTravel(t+.001)-windTravel(t-.001))/.002};
+      });
+      const crossCut=gust.map(l=>[windLeafState(l,5.599),windLeafState(l,5.601)]).filter(([a,b])=>a&&b);
+      const acceleration=[2.8,3.3,3.8,4.2,4.9,5.3].map(t=>{
+        const l=gust[0],a=windLeafState(l,t-.001),b=windLeafState(l,t+.001);
+        return {t,vx:a&&b?(b.x-a.x)/.002:null};
+      });
+      return{duration:T,plan:PLAN,fonts:document.fonts.status,fontMissing,rates,track,deterministic,wind,acceleration,
+        windCrossCutContinuous:crossCut.length>250&&crossCut.every(([a,b])=>b.x>a.x&&Math.hypot(b.x-a.x,b.y-a.y)<8),
         overflow:document.documentElement.scrollWidth>innerWidth,
         narrationWidth:measure(STORY_C[5][2],38,500,1.5),
         // Camera/temple geometry and all scene boundaries intentionally stay V11.
@@ -127,7 +135,13 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     assert(checks.track.every((p, i, a) => !i || p.x > a[i-1].x && p.y < a[i-1].y));
     assert(checks.track.every(p => Math.abs(p.sx-p.sy) < 1e-5));
     assert(checks.windCrossCutContinuous); assert(checks.wind.find(w=>w.t===5.6).count > 250);
-    assert.equal(checks.wind.find(w=>w.t===4.2).count, 0);
+    const build=checks.wind.filter(w=>w.t<=5.59);
+    assert(build.every((w,i)=>!i||(w.visible>build[i-1].visible&&w.speed>build[i-1].speed)),
+      'Wind must grow in visible density and speed, without a mid-bridge lull: '+JSON.stringify(build));
+    const speeds=checks.acceleration.filter(p=>p.vx!==null);
+    assert(speeds.length>=3&&speeds.every((p,i)=>!i||p.vx>speeds[i-1].vx),'Individual leaves must accelerate');
+    assert(checks.wind.find(w=>w.t===7.8).count<checks.wind.find(w=>w.t===5.6).count,
+      'Existing leaves should exit after the peak, not start a second burst');
     checks.unchangedFrames = [];
     for (const t of unchangedTimes) {
       const data=await image(t,540);
@@ -138,7 +152,7 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     for (const frame of before) paired.push(frame, {label: 'REFINED / '+frame.t+'s', image: await image(frame.t)});
     await contact('comparison.png', paired, 2, 360);
     const frames = [];
-    for (const t of [0,2.8,3.8,4.2,5.59,5.6,6.9,8,8.9,9.7,10.1,10.3,10.5,10.8,11.399,11.4,12.8,16,20.5,24.8]) {
+    for (const t of [0,2.2,2.8,3.3,3.8,4.2,4.9,5.3,5.59,5.6,6.3,6.9,7.8,8.9,9.9,10.3,11.4,16,20.5,24.8]) {
       frames.push({label:t+'s',image:await image(t,360)});
     }
     await contact('keyframes.png',frames,4,270);
