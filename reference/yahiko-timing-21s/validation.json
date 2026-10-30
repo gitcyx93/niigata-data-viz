@@ -1,0 +1,264 @@
+{
+  "baseline": "b8d9dc9",
+  "copyUnchanged": true,
+  "errors": [],
+  "externalRequests": [],
+  "checks": {
+    "duration": 21.4,
+    "plan": [
+      [
+        "overview",
+        0,
+        2.2
+      ],
+      [
+        "night",
+        2.2,
+        5.6
+      ],
+      [
+        "torii",
+        5.6,
+        8.8
+      ],
+      [
+        "glade",
+        8.8,
+        12.2
+      ],
+      [
+        "ascent",
+        12.2,
+        15.4
+      ],
+      [
+        "sunset",
+        15.4,
+        21.4
+      ]
+    ],
+    "deterministic": true,
+    "fonts": "loaded",
+    "sourceTimes": [
+      {
+        "t": 5.6,
+        "source": 5.6
+      },
+      {
+        "t": 8.8,
+        "source": 8
+      },
+      {
+        "t": 12.2,
+        "source": 11.4
+      },
+      {
+        "t": 15.4,
+        "source": 14.6
+      },
+      {
+        "t": 21.4,
+        "source": 25.2
+      }
+    ],
+    "gateSpeed": [
+      0.9999900000012829,
+      0.999989999996842
+    ],
+    "narration": [
+      {
+        "from": -2,
+        "to": 2.5,
+        "text": "十一月，弥彦满山红叶。",
+        "seconds": 2.2
+      },
+      {
+        "from": 2.2,
+        "to": 5.9,
+        "text": "红叶谷的观月桥，入夜点灯。",
+        "seconds": 3.3999999999999995
+      },
+      {
+        "from": 5.6,
+        "to": 8.8,
+        "text": "鸟居后，参道走进杉林。",
+        "seconds": 3.200000000000001
+      },
+      {
+        "from": 8.8,
+        "to": 12,
+        "text": "拜殿藏在杉林最深处。",
+        "seconds": 2.8999999999999986
+      },
+      {
+        "from": 11.7,
+        "to": 15.4,
+        "text": "坐缆车，约 5 分钟到山顶。",
+        "seconds": 3.700000000000001
+      },
+      {
+        "from": 15.4,
+        "to": 17.6,
+        "text": "燕三条站到弥彦站约 40 分钟。",
+        "seconds": 2.200000000000001
+      },
+      {
+        "from": 17.6,
+        "to": 19.6,
+        "text": "天晴的傍晚，太阳落进日本海。",
+        "seconds": 2
+      },
+      {
+        "from": 19.6,
+        "to": 21.4,
+        "text": "日落时间，出发前查一下。",
+        "seconds": 1.7999999999999972
+      }
+    ],
+    "sceneFrames": [
+      {
+        "t": 0,
+        "source": 0,
+        "same": true
+      },
+      {
+        "t": 1,
+        "source": 1,
+        "same": true
+      },
+      {
+        "t": 2.2,
+        "source": 2.2,
+        "same": true
+      },
+      {
+        "t": 3.8,
+        "source": 3.8,
+        "same": true
+      },
+      {
+        "t": 5.599,
+        "source": 5.599,
+        "same": true
+      },
+      {
+        "t": 5.6,
+        "source": 5.6,
+        "same": true
+      },
+      {
+        "t": 6.6,
+        "source": 6.414453125,
+        "same": true
+      },
+      {
+        "t": 8.79,
+        "source": 7.990023389,
+        "same": true
+      },
+      {
+        "t": 8.8,
+        "source": 8,
+        "same": true
+      },
+      {
+        "t": 10.7,
+        "source": 9.9,
+        "same": true
+      },
+      {
+        "t": 12.2,
+        "source": 11.4,
+        "same": true
+      },
+      {
+        "t": 13.6,
+        "source": 12.8,
+        "same": true
+      },
+      {
+        "t": 15.39,
+        "source": 14.59,
+        "same": true
+      },
+      {
+        "t": 15.4,
+        "source": 14.6,
+        "same": true
+      },
+      {
+        "t": 17.4,
+        "source": 18.133333333,
+        "same": true
+      },
+      {
+        "t": 19.4,
+        "source": 21.666666667,
+        "same": true
+      },
+      {
+        "t": 21.39,
+        "source": 25.182333333,
+        "same": true
+      }
+    ],
+    "controls": {
+      "targets": [
+        {
+          "expected": 0,
+          "actual": 0,
+          "paused": true
+        },
+        {
+          "expected": 2.2,
+          "actual": 2.1999999999999993,
+          "paused": true
+        },
+        {
+          "expected": 5.6,
+          "actual": 5.600000000000001,
+          "paused": true
+        },
+        {
+          "expected": 8.8,
+          "actual": 8.8,
+          "paused": true
+        },
+        {
+          "expected": 12.2,
+          "actual": 12.199999999999996,
+          "paused": true
+        },
+        {
+          "expected": 15.4,
+          "actual": 15.399999999999999,
+          "paused": true
+        }
+      ],
+      "watchEnd": 12.199999999999996,
+      "seekMax": 21.39,
+      "loop": 21.4,
+      "clock": "21.4 / 21.4 秒"
+    },
+    "layouts": [
+      {
+        "width": 390,
+        "overflow": false
+      },
+      {
+        "width": 768,
+        "overflow": false
+      },
+      {
+        "width": 1440,
+        "overflow": false
+      }
+    ]
+  },
+  "playback": {
+    "elapsed": 21.43570000009537,
+    "looped": true,
+    "sampleCount": 72,
+    "scope": "Actual native playback loop and sequential samples; not phone hardware or human continuous-video validation."
+  }
+}
