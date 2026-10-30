@@ -90,7 +90,7 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     };
     await viewport(390, 844);
     await navigate('yahiko-reviewed-v11.html');
-    const unchangedTimes = [0, 1, 11.4, 12.8, 14.59, 18.4, 20.5, 24.8];
+    const unchangedTimes = [11.4, 12.8, 14.59, 18.4, 20.5, 24.8];
     const baseline = {};
     for (const t of unchangedTimes) baseline[t]=sha(await image(t,540));
     const before = [];
@@ -116,10 +116,11 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
       const crossCut=gust.map(l=>[windLeafState(l,5.599),windLeafState(l,5.601)]).filter(([a,b])=>a&&b);
       const acceleration=[2.8,3.3,3.8,4.2,4.9,5.3].map(t=>{
         const l=gust[0],a=windLeafState(l,t-.001),b=windLeafState(l,t+.001);
-        return {t,vx:a&&b?(b.x-a.x)/.002:null};
+        return {t,vx:a&&b?(b.x-a.x)/.002:null,vy:a&&b?(b.y-a.y)/.002:null};
       });
       return{duration:T,plan:PLAN,fonts:document.fonts.status,fontMissing,rates,track,deterministic,wind,acceleration,
-        windCrossCutContinuous:crossCut.length>250&&crossCut.every(([a,b])=>b.x>a.x&&Math.hypot(b.x-a.x,b.y-a.y)<8),
+        windCrossCutContinuous:crossCut.length>250&&crossCut.every(([a,b])=>b.x>a.x&&b.y>a.y&&Math.hypot(b.x-a.x,b.y-a.y)<8),
+        allLeavesFall:gust.every(l=>[3,4,5,5.6,6.3,7].every(t=>{const a=windLeafState(l,t),b=windLeafState(l,t+.001);return !a||!b||(b.x>a.x&&b.y>a.y)})),
         overflow:document.documentElement.scrollWidth>innerWidth,
         narrationWidth:measure(STORY_C[5][2],38,500,1.5),
         // Camera/temple geometry and all scene boundaries intentionally stay V11.
@@ -139,7 +140,8 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
     assert(build.every((w,i)=>!i||(w.visible>build[i-1].visible&&w.speed>build[i-1].speed)),
       'Wind must grow in visible density and speed, without a mid-bridge lull: '+JSON.stringify(build));
     const speeds=checks.acceleration.filter(p=>p.vx!==null);
-    assert(speeds.length>=3&&speeds.every((p,i)=>!i||p.vx>speeds[i-1].vx),'Individual leaves must accelerate');
+    assert(speeds.length>=3&&speeds.every((p,i)=>p.vy>0&&(!i||p.vx>speeds[i-1].vx)),'Individual leaves must accelerate and fall');
+    assert(checks.allLeavesFall,'No foreground leaves should rise from the pond');
     assert(checks.wind.find(w=>w.t===7.8).count<checks.wind.find(w=>w.t===5.6).count,
       'Existing leaves should exit after the peak, not start a second burst');
     checks.unchangedFrames = [];
@@ -148,6 +150,24 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
       const same = baseline[t] === sha(data);
       checks.unchangedFrames.push({t, same}); assert(same, 'Unintended change at ' + t);
     }
+    // Compare both opening studies in the same page. Switching must reset
+    // time, preserve pause state, and leave every later scene identical.
+    const openingFrames=[],afterOpening={},openingHashes={};
+    for(const kind of ['A','C']){
+      await evaluate(`document.querySelector('[data-opening="${kind}"]').click()`);
+      const state=await evaluate(`({kind:openingVariant,t:playTime,playing,pressed:document.querySelector('[data-opening="${kind}"]').getAttribute('aria-pressed')})`);
+      assert.equal(state.kind,kind);assert.equal(state.t,0);assert.equal(state.playing,false);assert.equal(state.pressed,'true');
+      for(const t of [0,.8,1.6,2.1])openingFrames.push({label:kind+' / '+t+'s',image:await image(t,360)});
+      openingHashes[kind]=sha(await image(0,540));
+      saveImage('opening-'+kind+'.png',await image(0,1080));
+      for(const t of [2.2,3.8,5.599,5.6,8.9,10.3,12.8,16,24.8]){
+        const hash=sha(await image(t,540));if(kind==='A')afterOpening[t]=hash;else assert.equal(hash,afterOpening[t],'Opening selection leaked into later scene at '+t);
+      }
+    }
+    assert.notEqual(openingHashes.A,openingHashes.C);
+    checks.openings={distinct:true,sharedLaterScenes:true,switchResetsTime:true};
+    await contact('openings.png',openingFrames,4,270);
+    await evaluate(`document.querySelector('[data-opening="A"]').click()`);
     const paired = [];
     for (const frame of before) paired.push(frame, {label: 'REFINED / '+frame.t+'s', image: await image(frame.t)});
     await contact('comparison.png', paired, 2, 360);
@@ -170,9 +190,10 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
       cv.click();const playToggle=playing;cv.click();const pauseToggle=!playing;
       return{chapter,scrub,playToggle,pauseToggle};})()`);
     assert(Object.values(checks.controls).every(Boolean),JSON.stringify(checks.controls));
-    let playback=null;
-    if(!quick){
-      playback=await evaluate(`new Promise(resolve=>{
+    const playbacks={};
+    if(!quick)for(const kind of ['A','C']){
+      await evaluate(`document.querySelector('[data-opening="${kind}"]').click()`);
+      const playback=await evaluate(`new Promise(resolve=>{
         const intervals=[],samples=[];update(0);playing=true;lastTime=0;
         let prev=performance.now(),start=prev,previousT=0,next=0,looped=false;
         const capture=()=>{const c=document.createElement('canvas');c.width=180;c.height=320;c.getContext('2d').drawImage(cv,0,0,180,320);
@@ -186,14 +207,15 @@ const sha = data => crypto.createHash('sha256').update(data).digest('hex');
         }requestAnimationFrame(observe);
       })`);
       assert(playback.looped,'Animation did not complete a real-time loop');
-      for(let i=0;i<playback.samples.length;i+=36) await contact('playback-'+(i/36+1)+'.png',playback.samples.slice(i,i+36),6,180);
+      for(let i=0;i<playback.samples.length;i+=36) await contact('playback-'+(kind==='C'?'C-':'')+(i/36+1)+'.png',playback.samples.slice(i,i+36),6,180);
       playback.sampleTimes=playback.samples.map(s=>s.t);delete playback.samples;
-      playback.scope='Actual requestAnimationFrame loop plus sequential contact-sheet inspection; not human continuous viewing or phone hardware validation.';
+      playback.scope='Actual requestAnimationFrame loop with sequential contact sheets; not human continuous viewing or phone hardware validation.';
+      playbacks[kind]=playback;
     }
     assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
-    fs.writeFileSync(path.join(output,'validation.json'),JSON.stringify({errors,externalRequests:requests,checks,playback},null,2)+'\n');
+    fs.writeFileSync(path.join(output,'validation.json'),JSON.stringify({errors,externalRequests:requests,checks,playbacks},null,2)+'\n');
     console.log(JSON.stringify({passed:true,quick,output,loopSeconds:checks.duration,unchangedFrames:checks.unchangedFrames,
-      maxStoryRate:Math.max(...checks.rates.map(r=>r.rate)),wind:checks.wind,playback:playback&&{looped:playback.looped,rafP95Ms:playback.rafP95Ms}},null,2));
+      maxStoryRate:Math.max(...checks.rates.map(r=>r.rate)),wind:checks.wind,playbacks:Object.fromEntries(Object.entries(playbacks).map(([kind,p])=>[kind,{looped:p.looped,rafP95Ms:p.rafP95Ms}]))},null,2));
   } finally {
     for(const p of pending.values())clearTimeout(p.timer);
     if(ws)ws.close();chrome.kill();
