@@ -1,0 +1,20 @@
+{
+  "duration": 25.2,
+  "finite": true,
+  "clipping": false,
+  "opening_silence": true,
+  "cable_silence": true,
+  "mono_loss_db": -0.09927562437951565,
+  "encoded_loudness": {
+    "input_i": "-33.91",
+    "input_tp": "-16.80",
+    "input_lra": "24.80",
+    "input_thresh": "-46.94",
+    "output_i": "-34.15",
+    "output_tp": "-15.65",
+    "output_lra": "15.80",
+    "output_thresh": "-45.08",
+    "normalization_type": "dynamic",
+    "target_offset": "4.15"
+  }
+}

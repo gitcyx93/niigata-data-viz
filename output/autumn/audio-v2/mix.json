@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "duration": 25.2,
+  "sample_rate": 48000,
+  "visual_source_sha256": "fce9329dad9ad1068e07b0a4b6ee39eb51e3889108ce6149255fd91945c721cb",
+  "sources_manifest": "data/audio/yahiko-v11-v2/sources.json",
+  "used_source_ids": [
+    "523389"
+  ],
+  "removed_v1_sources": [
+    "751473",
+    "406100",
+    "553733",
+    "419316"
+  ],
+  "source_segments": {
+    "visible_foliage": [
+      37.5,
+      48
+    ],
+    "grove_distance": [
+      59,
+      69.5
+    ],
+    "vista_air": [
+      59,
+      69.6
+    ]
+  },
+  "no_music": true,
+  "no_mechanical_sound": true,
+  "no_footsteps": true,
+  "no_waves": true,
+  "intentional_silence": [
+    [
+      0,
+      2.2
+    ],
+    [
+      10.5,
+      14.6
+    ]
+  ],
+  "visible_wind_peak_seconds": 5.31,
+  "audio_envelope_peak_seconds": 5.35,
+  "cue_method": "100Hz visible leaf area/opacity from current windLeafState, softly smoothed; not off-screen emission times.",
+  "downward_only_gain_db": 0.0,
+  "encoded_loudness": {
+    "input_i": "-33.91",
+    "input_tp": "-16.80",
+    "input_lra": "24.80",
+    "input_thresh": "-46.94",
+    "output_i": "-34.15",
+    "output_tp": "-15.65",
+    "output_lra": "15.80",
+    "output_thresh": "-45.08",
+    "normalization_type": "dynamic",
+    "target_offset": "4.15"
+  },
+  "relative_to_v1_lufs": -10.639999999999997,
+  "mono_loss_db": -0.09927562437951565,
+  "mp3_sha256": "09a5c6b36367f3fd28da37180f9d91bfd7d9910ef9dfa0c1e627fd297a11f4cf",
+  "source_sha256": "80eb06d3a6b4d8e00f89d9cd20f4d0262b90714ca7bf4603238ec5e51d8e5b2c",
+  "subjective_audition": false,
+  "limitation": "No listening certification. Signal/clock tests cannot establish perceptual match."
+}

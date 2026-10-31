@@ -7,7 +7,20 @@
 - [修改前后对照](reference/takada-dedup/comparison.png) · [检查记录](reference/takada-dedup/validation.json) · [制作记录](stories/takada.md)
 - 后台验证：`node viz/tools/check-takada-dedup.cjs`（用 `BROWSER_EXE` 指定 Chrome）。
 
-## 弥彦 V11 环境声版
+## 弥彦环境声第二版：风与留白（当前试作）
+
+- **新版 HTML**：[yahiko-v11-ambient-v2.html](viz/autumn/yahiko-v11-ambient-v2.html) — 打开后点「从头试听」。
+- **独立音轨**：[yahiko-v11-ambience-v2.mp3](output/autumn/audio-v2/yahiko-v11-ambience-v2.mp3)
+- **改动与检查范围**：[yahiko-v11-ambient-v2.md](stories/yahiko-v11-ambient-v2.md)
+
+去掉鞋拨干叶、索道站机器和田野风，改用一份风吹枝叶录音。主叶声跟随实际入画飞叶量；开场和缆车段留白，海景只有极轻空气层。原画面与时长不动。完成信号与播放同步测试，**尚未完成主观试听验收**。
+
+```sh
+python3 viz/tools/ambient-yahiko-v2.py
+AUDIO_PAGE=yahiko-v11-ambient-v2.html node viz/tools/check-yahiko-ambient.cjs
+```
+
+## 弥彦环境声第一版（已被用户否定，仅作对照）
 
 - **有声 HTML**：[yahiko-v11-ambient.html](viz/autumn/yahiko-v11-ambient.html) — 下载后打开，点「有声播放」；默认静音，无配乐。
 - **独立音轨**：[yahiko-v11-ambience.mp3](output/autumn/audio/yahiko-v11-ambience.mp3)

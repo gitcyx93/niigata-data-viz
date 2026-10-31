@@ -77,7 +77,13 @@
 - 日落：国立天文台历计算室，2026年11月新潟市（37.9167°N、139.0333°E、海拔0m、UTC+9）表：11月1日日落16:46，11月30日16:25。画面使用向外取整的「约16:25—16:50」，并在同一片尾卡注明「新潟市日落参考 · 山顶略有差异」。**不是弥彦山顶的精确日落预报**；位置、海拔与遮挡会影响所见时刻，出行应查当天。https://eco.mtk.nao.ac.jp/koyomi/dni/2026/s1611.html.en
 - 末班提醒延续已核实的「缆车傍晚停运」，不把日落范围当作能坐缆车等到日落后的保证；出发前查当日运营安排。
 
-## 弥彦 V11 环境声素材（2026-10-30）
+## 弥彦环境声第二版素材（2026-10-30）
+
+- **实际使用**：Anya_Media，Forest, close up of trees rustling in the wind.wav，https://freesound.org/people/Anya_Media/sounds/523389/ 。原作者描述为风吹近处树枝和叶片，以及远处树冠声，使用 Audio Technica BP4025 / Zoom F8 录制。原站声音页直接核对为 CC0 1.0；保存公开 HQ MP3 预览和来源/哈希：[audio/yahiko-v11-v2/sources.json](audio/yahiko-v11-v2/sources.json)。不是弥彦现场录音。
+- 新版不使用下面第一版的四份素材；只有风吹枝叶源经裁切、滤波与声音包络处理。缆车段不加机械声，海景的空气层是滤去叶片细节后的声音设计，不是山顶实录。
+- 未采用 Spleencast #87289：原站为 CC BY-NC 3.0；未采用 DDT197 #445788：作者描述为手摇树枝，最终选实际风吹枝叶录音。
+
+## 弥彦 V11 第一版环境声素材（2026-10-30，已被用户否定）
 
 声音设计，不是弥彦实地录音。直接读取并核对以下 Freesound 原站声音页，四份均链接 CC0 1.0（https://creativecommons.org/publicdomain/zero/1.0/）。下载的是原站公开 HQ MP3 预览；文件、作者说明、许可证据与 SHA-256 见 [audio/yahiko-v11/sources.json](audio/yahiko-v11/sources.json)。
 

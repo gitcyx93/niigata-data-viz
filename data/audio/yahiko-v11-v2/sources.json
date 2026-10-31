@@ -1,0 +1,29 @@
+{
+  "note": "V2 uses only this wind-in-foliage recording. No shoe-rustled leaves, cable terminal or open-field recording. Public HQ MP3 preview, not a lossless original or a Yahiko recording.",
+  "sources": [
+    {
+      "key": "tree-wind",
+      "file": "sources/523389-tree-wind.mp3",
+      "title": "Forest, close up of trees rustling in the wind.wav",
+      "creator": "Anya_Media",
+      "page": "https://freesound.org/people/Anya_Media/sounds/523389/",
+      "download": "https://cdn.freesound.org/previews/523/523389_2010973-hq.mp3",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_evidence": "Official sound page: Go to the full license text — Creative Commons 0",
+      "description": "'close up' sound of a tree's branches and leaves rustling in gusts of wind, with the constant roar of distant swaying tree tops. \n\nRecorded on a stereo Audio Technica BP4025 into a Zoom F8 Mixer",
+      "sha256": "80eb06d3a6b4d8e00f89d9cd20f4d0262b90714ca7bf4603238ec5e51d8e5b2c",
+      "downloaded_at": "2026-10-31"
+    }
+  ],
+  "rejected": [
+    {
+      "page": "https://freesound.org/people/Spleencast/sounds/87289/",
+      "reason": "Official page is CC BY-NC 3.0, not selected for cross-platform promotional use"
+    },
+    {
+      "page": "https://freesound.org/people/DDT197/sounds/445788/",
+      "reason": "Hand-shaken branches; chose actual wind-driven branches instead"
+    }
+  ]
+}
